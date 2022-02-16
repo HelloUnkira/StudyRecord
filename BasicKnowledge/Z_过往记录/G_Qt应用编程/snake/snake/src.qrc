@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>background.jpg</file>
+        <file>background.wav</file>
+        <file>death.wav</file>
+        <file>eat.wav</file>
+    </qresource>
+</RCC>

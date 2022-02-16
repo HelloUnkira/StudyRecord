@@ -1,0 +1,121 @@
+蒙哥马利算法:
+condition: x < N && y < N
+蒙哥马利形式:
+    (为了计算(x*y)%N,寻找R使得)
+    F(t) = (t * R) % N
+
+    R的要求:
+        1.R == 2**k > N的k最小正数
+        2.gcd(R,N) == 1
+
+目标:设计一个
+    FF(T) = (T * R**(-1)) % N
+    
+此时:
+    (x*y)%N = FF(FF(F(t)));
+
+
+
+!蒙哥马利约简:
+    目标:计算FF(T) = (T * R**(-1)) % N
+         同样FF(T) = (T / R)%N
+    但为了不丢失精度,只能保证 T == R * k
+    
+    此时需要向上寻找,使用通式有:
+        FF1(T) = (T  + (m * N) / R) % N
+    因为:        0 == ((m * N) / R) % N
+    所以:FF1(T) == FF(T)
+    
+    由gcd(R,N) == 1有 R*Rt + N*Nt == gcd(R,N)
+    可推出当:
+        Rt =   R**(-1)
+        Nt = - N**(-1)
+    也成立
+    此时:
+        RRt - NNt = 1
+    并且有0 < Nt < R,0 < Rt < N < R
+
+    推导:
+        1>>(T + (m * N)) % R == 0
+        
+        2>>(T * Nt + (m * N) * Nt) % R == 0
+
+        3>>(T * Nt + m * (N * Nt)) % R == 0
+
+        4>>(T * Nt + m * (R * Rt - 1)) % R == 0
+
+        5>>(T * Nt + m * (R * Rt) - m) % R == 0
+
+        6>>(T * Nt + m * (R * Rt)) % R == m % R
+
+        7>>(T * Nt) == m
+
+约简步骤(T,R,N,k):
+    1.计算Nt = N**(-1) % R = (1 / N) % R
+    2.计算m  = T * Nt
+    3.计算result = (T + m * N)
+    4.计算result / R == result >> k (因为R == 2**k)
+    5.计算result = (result > N) ? result - N : result;
+    此时FF(T) == result;
+
+
+
+预:计算R == 2**k > N,且gcd(R,N) == 1
+
+
+
+!蒙哥马利模乘(t1,t2,N):
+    1.计算T1 = (t1 * R) % N
+    2.计算T2 = (t2 * R) % N
+    3.计算result = T1 * T2
+    4.计算result = FF(result,R,N,k)
+    5.计算result = FF(result,R,N,k)
+    此时(t1 * t2) % N == result;
+
+
+
+
+
+椭圆曲线运算:
+jacobian射影坐标素域点运算:
+    Fp在jacobian坐标系下为:
+        y**2 = x**3 + axz**4 + bz**6
+    其中a,b属于Fp,且(4a^3 + 27b^2)mod p != 0
+加法运算:
+    P1=(x1,y1,z1),P2=(x2,y2,z2),P3=P1+P2=(x3,y3,z3) != 0
+    P1 != P2:
+        t1 = x1 * z2**2
+        t2 = x2 * z1**2
+        t3 = t1 + t2
+
+        t4 = y1 * z2**3
+        t5 = y2 * z1**3
+        t6 = t4 + t5
+
+        t7 = z1 * t3
+        t8 = t6 * x1 + t7 * y2
+        t9 = t6      + t7 * z2
+
+        z3 = t7 * z2
+        x3 = a * z3**3 + t6 * t9 + t3**3
+        y3 = t9 * x3 + t8 * t7**2
+
+    P1 == P2:
+        z3 = x1 * z1**2
+        x3 = (x1 + b * z1**2)**4
+        t  = z3 + x1**2 + y1 * z1
+        y3 = x1**4 * z3 + t * x3
+jacobian加速加法运算:
+    P=(x1,y1,z),Q=(x2,y2,z),P+Q=(x3,y3,z3)
+    x3 = D - W1 - W2
+    y3 = (y1 - y2) * (W1 - x3) - A1
+    z3 = (x1 - x2) * z
+
+    A1 = y1 * (W1 -W2)
+    W1 = x1 * C
+    W2 = x2 * C
+    C  = (x1 - x2)**2
+    D  = (y1 - y2)**2
+
+
+

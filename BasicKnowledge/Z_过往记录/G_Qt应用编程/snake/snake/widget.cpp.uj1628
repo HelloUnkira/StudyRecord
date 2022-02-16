@@ -1,0 +1,233 @@
+#include "widget.h"
+#include <QDebug>
+#include <QPainter>
+#include <QTimer>
+#include <QKeyEvent>
+
+//游戏界面暂时需要一个窗口就够了
+//则创建窗口全部在构造函数完成即可
+Widget::Widget(QWidget *parent) :
+    QWidget(parent)
+{
+    //固定窗口大小
+    setFixedSize(MAX_WIDTH,MAX_HEIGHT);
+    //设置标题
+    setWindowTitle("像素贪吃蛇v1.0");
+    //设置背景图
+    setAutoFillBackground(true);
+    QPalette palette;
+    //设置为纯色
+    //setPalette(Qt::black);
+    //将背景图片设置好，相对路径是以项目的 build-Snake... 这个文件夹为基准
+    palette.setBrush(QPalette::Background,QBrush(QPixmap("../snake/background.jpg")));
+    setPalette(palette);
+
+    //设置定时器，做闹钟
+    //超时后发送信号 ---》 到槽函数
+    timer = new QTimer();
+    connect(timer, SIGNAL(timeout()),this,SLOT(timeout()));
+    timer->start(overtime);//超时时间
+    timer->stop();
+
+    //使用链表初始化蛇身
+    QRectF rect1(100+snakeWidth*2,100,snakeWidth,snakeHeight);
+    snake.append(rect1);
+    QRectF rect2(100+snakeWidth,100,snakeWidth,snakeHeight);
+    snake.append(rect2);
+    QRectF rect3(100,100,snakeWidth,snakeHeight);
+    snake.append(rect3);
+    //
+
+
+
+}
+
+//重写画图事件函数
+//刷新图片上的蛇的位置
+void Widget::paintEvent(QPaintEvent *event)
+{   
+    //画家
+    //画图对象，直到画的界面为当前界面
+    QPainter painter(this);
+    //画图片
+    //QPixmap pix;
+    //pix.load("../snake/background.jpg");
+    //painter.drawPixmap(0,0,800,600,pix);
+    //画笔
+    QPen pen;
+    pen.setColor(Qt::black);
+    painter.setPen(pen);
+    //画刷
+    QBrush brush;
+    brush.setColor(Qt::red);
+    brush.setStyle(Qt::SolidPattern);
+    painter.setBrush(brush);
+    //画蛇
+    for(int i = 0; i < snake.length(); i++)
+    {
+        painter.drawRect(snake[i]);
+    }
+}
+
+//重写按键事件函数
+void Widget::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key())
+    {
+        case Qt::Key_W:
+        case Qt::Key_Up:
+            if(move_direct != Move_Up && move_direct != Move_Down)
+            {
+                move_direct = Move_Up;
+            }
+            break;
+        case Qt::Key_S:
+        case Qt::Key_Down:
+            if(move_direct != Move_Up && move_direct != Move_Down)
+            {
+                move_direct = Move_Down;
+            }
+            break;
+        case Qt::Key_A:
+        case Qt::Key_Left:
+            if(move_direct != Move_Left && move_direct != Move_Right)
+            {
+                move_direct = Move_Left;
+            }
+            break;
+        case Qt::Key_D:
+        case Qt::Key_Right:
+            if(move_direct != Move_Left && move_direct != Move_Right)
+            {
+                move_direct = Move_Right;
+            }
+            break;
+        case Qt::Key_Space:
+            if (gameRun == false)
+            {
+                gameRun = true;
+                timer->start(overtime);
+            }
+            else
+            {
+                gameRun = false;
+                timer->stop();
+            }
+
+        default:
+            break;
+    }
+}
+
+//上下左右移动
+void Widget::left_move()
+{
+    //获取头节点,下次移动按头节点加方向移动即可
+    QRectF first = snake.first();
+    QPointF leftTop;
+    QPointF rightBottom;
+
+    if(first.x()+snakeWidth < 0)
+    {
+        leftTop = QPoint(this->width() - snakeWidth,first.y());
+        rightBottom = QPoint(this->width(),first.y()+snakeHeight);
+    }
+    else
+    {
+        leftTop =QPointF(first.x() - snakeWidth,first.y());
+        rightBottom = first.bottomLeft();
+    }
+    //snake.insert(snake.indexOf(first),QRectF(leftTop,rightBottom));
+    snake.append(QRectF(leftTop,rightBottom));
+    snake.removeLast();
+}
+
+void Widget::right_move()
+{
+    //获取头节点,下次移动按头节点加方向移动即可
+    QRectF first = snake.first();
+    QPointF leftTop;
+    QPointF rightBottom;
+
+    if(first.x()+snakeWidth >= this->width())
+    {
+        leftTop = QPoint(0,first.y());
+        rightBottom = QPoint(snakeWidth,first.y()+snakeHeight);
+    }
+    else
+    {
+        leftTop = first.topRight();
+        rightBottom = QPointF(first.x()+snakeWidth*2,first.y()+snakeHeight);
+    }
+    snake.insert(snake.indexOf(first),QRectF(leftTop,rightBottom));
+    snake.removeLast();
+}
+
+void Widget::up_move()
+{
+    //获取头节点,下次移动按头节点加方向移动即可
+    QRectF first = snake.first();
+    QPointF leftTop;
+    QPointF rightBottom;
+
+    if(first.y()-snakeHeight < 0)
+    {
+        leftTop = QPoint(first.x(),this->height()-snakeHeight);
+        rightBottom = QPoint(first.x()+snakeWidth,this->height());
+    }
+    else
+    {
+        leftTop = QPointF(first.x(),first.y()-snakeHeight);
+        rightBottom = first.topRight();
+    }
+    snake.insert(snake.indexOf(first),QRectF(leftTop,rightBottom));
+    snake.removeLast();
+}
+
+void Widget::down_move()
+{
+    //获取头节点,下次移动按头节点加方向移动即可
+    QRectF first = snake.first();
+    QPointF leftTop;
+    QPointF rightBottom;
+
+    if(first.y()+snakeHeight > this->height())
+    {
+        leftTop = QPoint(first.x(),0);
+        rightBottom = QPoint(first.x()+snakeWidth,snakeHeight);
+    }
+    else
+    {
+        leftTop = first.bottomLeft();
+        rightBottom = QPointF(first.x()+snakeWidth,first.y()+snakeHeight*2);
+    }
+    snake.insert(snake.indexOf(first),QRectF(leftTop,rightBottom));
+    snake.removeLast();
+}
+
+
+void Widget::timeout()
+{
+    switch (move_direct)
+    {
+        case Move_Up:
+            up_move();
+            break;
+        case Move_Down:
+            down_move();
+            break;
+        case Move_Left:
+            left_move();
+            break;
+        case Move_Right:
+            right_move();
+            break;
+        default:
+            break;
+    }
+    update();
+}
+
+Widget::~Widget()
+{
+}

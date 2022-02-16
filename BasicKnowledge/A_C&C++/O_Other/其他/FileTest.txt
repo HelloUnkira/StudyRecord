@@ -1,0 +1,99 @@
+#ifndef __FILETEST_H_
+#define __FILETEST_H_
+
+/*C语言关于文件操作的一些笔记*/
+ 
+ 
+ 
+/* 
+文件指针 
+FILE * fp; 
+
+fp=fopen("文件名绝对路径"，"打开模式");
+失败时fp==NULL 
+
+int i=fclose(fp);
+i成功为0失败为EOF(-1)
+ 
+int c=fgetc(fp);
+c成功为对应码值，强转即可，失败为EOF(-1) 
+读取该字节后光标在文件中自动后移，可连续读全部数据
+
+int i=fputc(c,fp);
+i失败时为EOF(-1),光标自动后移，同上 
+
+int n=1024; 
+char buf[n];
+char* p=fgets(buf,n,fp);
+读取n-1个字符，n为'\0'，放入buf中，
+一行不足n，只读一行，超过一行，取一部分 
+缓冲区以NULL结尾i，下次调用fgets继续改行。成功则
+返回p指向buf，失败或到文件尾返回NULL
+
+int i=fputs(buf,fp);
+将字符型指针/字符串常量/字符串数组首地址之一 buf
+写入文件，写入一个字符串(不写入'\0')
+成功后文件位置指针自动后移，返回i非负整数，否则返回EOF 
+
+int i=fscanf(fp,"格式化字符串"，……);
+写数据，遇到空格，换行符结束
+
+int i=fprintf(fp,"格式化字符串"，……);
+i错误时为负 
+
+fp=tmpfile();
+创建临时文件，为读写方式，失败为NULL
+关闭也是一样的 
+
+rewind(fp);
+重新设置文件指针为该文件起点 
+
+int count=1024
+T n; 
+void  buf[count];//接收数据的内存地址 
+size_t i=fread(buf,sizeof(T),count,fp); 
+i>count 报错 
+
+size_t i=fwrite(buf,sizeof(T),count,fp); 
+
+int w=getw(fp);
+读取一个字，错误或文件结束EOF
+
+int i=putw(w,fp);
+写入w，错误时i为EOF 
+
+int i=feof(fp);
+文件结束i为0 
+
+int i=ferror(fp);
+出错返回i非0值，文件末尾不算出错 
+
+flearerr(fp);
+清除错误标志位
+
+long i=ftell(fp);
+文件指针相对于文件头偏移字节数
+ 
+enum fromwhere{SEER_SET=0,SEEK_CUR=1,SEEK_END=2
+} ;//文件位置，	开头	 当前位置	结尾
+fromwhere fw;
+int n;
+
+int i=fseek(fp,n,fw);
+手动移动文件指针 
+i成功为0，失败为非0值 
+
+char* path=searchpath("文件名")
+查找成功path为全路径，否则为NULL 
+
+char oldname[50],newname[50];
+int i=rename(oldname,newname);
+成功i为0，失败为非0 
+
+char filename[50]
+int i=remove(filename);
+成功为0，失败为EOF 
+
+*/
+
+#endif

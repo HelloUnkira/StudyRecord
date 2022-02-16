@@ -1,0 +1,28 @@
+
+{
+    "type"      : "event_set",
+    "brief"     : "event_set: response suggest：event_set_callback_...",
+    "event_set" :
+    [
+        {
+            "name"     : "EVENT1",
+            "brief"    : "this is response set:",
+            "response" : 
+            [
+                         "event1_function_callback1",
+                         "event1_function_callback2",
+                         "event1_function_callback3"
+            ]
+        },
+        {
+            "name"     : "EVENT2",
+            "brief"    : "this is response set:",
+            "response" : 
+            [
+                         "event2_function_callback1",
+                         "event2_function_callback2"
+            ]
+        }
+    ]
+}
+
