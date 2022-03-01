@@ -39,7 +39,7 @@ static SGuiHandle handles = {0};
 /* 获取一个空闲句柄 */
 uint32_t SGuiHandleTake(void)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     uint32_t index  = 0;
     uint32_t index1 = 0;
@@ -102,7 +102,7 @@ uint32_t SGuiHandleTake(void)
         handle = index1 * SGUIUNITLENGTH + index2;
     }
     /*  */
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
     /*  */
     return handle;
 }
@@ -110,7 +110,7 @@ uint32_t SGuiHandleTake(void)
 /* 释放一个句柄 */
 void SGuiHandleGive(uint32_t handle)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     int32_t  index  = 0;
     uint32_t index1 = handle / SGUIUNITLENGTH;
@@ -165,13 +165,13 @@ void SGuiHandleGive(uint32_t handle)
         }
     }
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 }
 
 /* 句柄绑定或更新资源 */
 void SGuiHandleSet(uint32_t handle, void *source)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     uint32_t index1 = handle / SGUIUNITLENGTH;
     uint32_t index2 = handle % SGUIUNITLENGTH;
@@ -179,13 +179,13 @@ void SGuiHandleSet(uint32_t handle, void *source)
     if (index1 < handles.length && index2 < handles.units[index1].length)
         handles.units[index1].source[index2] = source;
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 }
 
 /* 句柄获取资源 */
 void * SGuiHandleGet(uint32_t handle)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     void *source = NULL;
     uint32_t index1 = handle / SGUIUNITLENGTH;
@@ -194,7 +194,7 @@ void * SGuiHandleGet(uint32_t handle)
     if (index1 < handles.length && index2 < handles.units[index1].length)
         source = handles.units[index1].source[index2];
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 
     return source;
 }

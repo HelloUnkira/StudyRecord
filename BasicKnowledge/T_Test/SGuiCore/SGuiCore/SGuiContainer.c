@@ -24,7 +24,7 @@ static SGuiSList tail = {0};
 /* 获得一个容器 */
 uint32_t SGuiContainerTake(void)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     uint32_t index = 0;
     /* 1.生成一个空闲单元 */
@@ -38,7 +38,7 @@ uint32_t SGuiContainerTake(void)
     /* 2.将空闲单元以最小化索引加入链表 */
     SGuiSNodeUnitAdd(&head, &tail, unit);
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 
     return unit->index;
 }
@@ -46,7 +46,7 @@ uint32_t SGuiContainerTake(void)
 /* 释放一个容器 */
 void SGuiContainerGive(uint32_t container)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     /* 1.搜索生成的空闲单元 */
     SGuiContainer *unit = SGuiSNodeUnitSearch(&head, &tail, container);
@@ -61,13 +61,13 @@ void SGuiContainerGive(uint32_t container)
         SGuiSNodeUnitRemove(&head, &tail, unit);
     }
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 }
 
 /* 容器添加一个子控件 */
 void SGuiContainerAdd(uint32_t container, uint32_t handle)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     uint32_t index = 0;
     /* 1.搜索生成的空闲单元 */
@@ -104,13 +104,13 @@ void SGuiContainerAdd(uint32_t container, uint32_t handle)
         (unit->source)[index] = handle;
     }
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 }
 
 /* 容器移除一个子控件 */
 void SGuiContainerRemove(uint32_t container, uint32_t handle)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     uint32_t index = 0;
     /* 1.搜索生成的空闲单元 */
@@ -126,13 +126,13 @@ void SGuiContainerRemove(uint32_t container, uint32_t handle)
             }
     }
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 }
 
 /* 获取容器集合 */
 void SGUIContainerGet(uint32_t container, uint32_t **source, uint32_t *number)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     uint32_t index = 0;
     /* 1.搜索生成的空闲单元 */
@@ -150,5 +150,5 @@ void SGUIContainerGet(uint32_t container, uint32_t **source, uint32_t *number)
             (*source)[index] = (unit->source)[index];
     }
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 }

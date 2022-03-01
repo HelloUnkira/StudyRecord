@@ -472,7 +472,7 @@ int main(int argc, char *argv[])
 {
     SGuiPortTest();
 
-    // SGuiCoreTest();
+    SGuiCoreTest();
 
     SGuiLcdInit();
 
@@ -486,7 +486,7 @@ int main(int argc, char *argv[])
 
     while (true);
 
-    // SGuiLcdDeinit();
+    SGuiLcdDeinit();
 
     return 0;
 }

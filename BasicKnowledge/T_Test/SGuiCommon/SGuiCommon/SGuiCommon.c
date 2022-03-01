@@ -146,3 +146,42 @@ void * SGuiSNodeUnitSearch(SGuiSNode *head, SGuiSNode *tail, uint32_t index)
 }
 
 #endif
+
+/* 同步原语操作集成化(用于简化边缘逻辑) */
+#define SGUISYNCPRIMITSTSPECIALDESIGN
+#ifdef  SGUISYNCPRIMITSTSPECIALDESIGN
+
+/* 操作同步原语(true:启用保护,false:禁用保护) */
+void SGuiSyncPrimitOptSyncMutex(SGuiSyncPrimit **Mutex,
+                                void            *Variable,
+                                bool            *Init,
+                                bool            *DeInit,
+                                bool             StartOrEnd)
+{
+    /* 同步原语的初始化 */
+    if (*Init == false) {
+        *Init  = true;
+        /* 初始化 */
+        *Mutex = SGuiSyncPrimitCreate(SGUIMUTEX);
+        /* 设置一个假资源防止返回NULL */
+        SGuiSyncPrimitSetResource(*Mutex, Variable);
+    }
+    /* 同步原语的反初始化(什么时候才算正式放弃使用资源了呢?) */
+    if (*DeInit == false) {
+        *DeInit  = true;
+        //SGuiSyncPrimitDestory(*Mutex);
+    }
+    /* 获取假资源 */
+    if (StartOrEnd == true) {
+        uint8_t * pointer = SGuiSyncPrimitTakeResource(*Mutex);
+        /* 可以简要添加内容去确认同步原语是否有效 */
+    }
+    /* 释放假资源 */
+    if (StartOrEnd == false) {
+        SGuiSyncPrimitGiveResource(*Mutex);
+    }
+}
+
+#endif
+
+

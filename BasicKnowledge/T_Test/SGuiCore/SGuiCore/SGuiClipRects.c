@@ -111,7 +111,7 @@ static void SGuiClipRectsUnitMerge(SGuiClipRectsUnit *unit1, SGuiClipRectsUnit *
 /* 获取一个剪切域集合 */
 uint32_t SGuiClipRectsTake(void)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     SGUIDOT2DEFINE(invalid);
     /* 1.生成一个剪切域阵列单元 */
@@ -131,7 +131,7 @@ uint32_t SGuiClipRectsTake(void)
     /* 5.返回剪切域阵列单元标号 */
     index = unit->index;
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 
     return index;
 }
@@ -139,7 +139,7 @@ uint32_t SGuiClipRectsTake(void)
 /* 释放一个剪切域集合 */
 void SGuiClipRectsGive(uint32_t rects)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     /* 1.遍历链表,确认是哪一个管理单元 */
     SGuiClipRectsUnit *unit = SGuiSNodeUnitSearch(&head, &tail, rects);
@@ -155,13 +155,13 @@ void SGuiClipRectsGive(uint32_t rects)
         SGuiSNodeUnitRemove(&head, &tail, unit);
     }
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 }
 
 /* 为剪切域集合设置主域 */
 void SGuiClipRectsMasterSet(uint32_t rects, SGuiDot2 rect)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     /* 1.遍历链表,确认是哪一个管理单元 */
     SGuiClipRectsUnit *unit = SGuiSNodeUnitSearch(&head, &tail, rects);
@@ -179,13 +179,13 @@ void SGuiClipRectsMasterSet(uint32_t rects, SGuiDot2 rect)
         unit->slave  = SGUIMALLOC(sizeof(SGuiDot2) * (unit->length));
     }
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 }
 
 /* 为剪切域集合获取主域 */
 SGuiDot2 SGuiClipRectsMasterGet(uint32_t rects)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     SGUIDOT2DEFINE(rect);
     /* 1.遍历链表,确认是哪一个管理单元 */
@@ -197,7 +197,7 @@ SGuiDot2 SGuiClipRectsMasterGet(uint32_t rects)
         rect = unit->master;
     }
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 
     return rect;
 }
@@ -205,7 +205,7 @@ SGuiDot2 SGuiClipRectsMasterGet(uint32_t rects)
 /* 剪切域集合添加剪切域 */
 void SGuiClipRectsSlaveAdd(uint32_t rects, SGuiDot2 rect)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     /* 1.遍历链表,确认是哪一个管理单元 */
     SGuiClipRectsUnit *unit = SGuiSNodeUnitSearch(&head, &tail, rects);
@@ -219,13 +219,13 @@ void SGuiClipRectsSlaveAdd(uint32_t rects, SGuiDot2 rect)
             SGuiClipRectsUnitRecurveMerge(unit, rect);
     }
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 }
 
 /* 剪切域集合移除剪切域 */
 void SGuiClipRectsSlaveRemove(uint32_t rects, SGuiDot2 rect)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     uint32_t count4    =  0;
     SGuiDot2 rects4[4] = {0};
@@ -302,13 +302,13 @@ void SGuiClipRectsSlaveRemove(uint32_t rects, SGuiDot2 rect)
         SGUIFREE(unit1);
     }
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 }
 
 /* 获取剪切域集合 */
 void SGuiClipRectsSlaveGet(uint32_t rects, SGuiDot2 **slave, uint32_t *length)
 {
-    SGuiSyncPrimitOptSync(true);
+    SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     uint32_t index = 0;
     /* 1.遍历链表,确认是哪一个管理单元 */
@@ -325,5 +325,5 @@ void SGuiClipRectsSlaveGet(uint32_t rects, SGuiDot2 **slave, uint32_t *length)
             (*slave)[index] = (unit->slave)[index];
     }
 
-    SGuiSyncPrimitOptSync(false);
+    SGUISYNCPRIMITOPTSYNCMUTEX(false);
 }

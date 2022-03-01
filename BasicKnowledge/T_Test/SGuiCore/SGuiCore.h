@@ -5,13 +5,17 @@
 #include <stdbool.h>
 #include <string.h>
 /* 平台依赖 */
-#include "SGuiCommon.h"
 #include "SGuiPort.h"
 
 /* 实现目标:
  * 设计基础控件的接口及其绘制挂载
  */
 
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 内部定制优化策略 */
+#include "SGuiCommon.h"
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -142,19 +146,12 @@ void SGUIContainerGet(uint32_t container, uint32_t **source, uint32_t *number);
 #define SGUIMSGPARAMTYPE    uint32_t
 #define SGUIMSGPARAMLEN     4
 
-//消息合并规则:parameter = parameter1 (!运算!) parameter2
-typedef void (*SGuiMessageMerge)(SGUIMSGPARAMTYPE *parameter,
-                                 SGUIMSGPARAMTYPE *parameter1,
-                                 SGUIMSGPARAMTYPE *parameter2);
-
 //消息
 typedef struct SimpleGuiMessage {
     //消息类型
     uint32_t type;
     //消息携带的参数集合
     SGUIMSGPARAMTYPE parameter[SGUIMSGPARAMLEN];
-    //消息合并规则(如果指定为空默认为非合并消息)
-    SGuiMessageMerge merge;
 } SGuiMessage;
 
 
