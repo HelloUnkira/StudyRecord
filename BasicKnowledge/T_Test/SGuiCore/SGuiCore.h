@@ -161,9 +161,9 @@ uint32_t SGuiMessageSetTake(uint32_t number);
 /* 释放一个消息集合 */
 uint32_t SGuiMessageSetGive(uint32_t set);
 /* 消息集合添加一个消息(先向) */
-bool SGuiMessageSetAdd(uint32_t set, SGuiMessage message);
+uint32_t SGuiMessageSetAdd(uint32_t set, SGuiMessage message);
 /* 消息集合移除一个消息(先向, 先定向) */
-bool SGuiMessageSetRemove(uint32_t set, SGuiMessage *message);
+uint32_t SGuiMessageSetRemove(uint32_t set, SGuiMessage *message);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

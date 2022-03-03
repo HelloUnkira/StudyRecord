@@ -281,6 +281,41 @@ void container_test(void)
     SGuiContainerGive(container);
 }
 
+void message_test(void)
+{
+    SGuiMessage message0 = {0};
+    SGuiMessage message1 = {0};
+
+    uint32_t set = SGuiMessageSetTake(10);
+
+    uint32_t index = 0;
+    message0.type = index;
+    message0.parameter[0] = index + 1;
+    message0.parameter[1] = index + 2;
+    message0.parameter[2] = index + 3;
+    message0.parameter[3] = index + 4;
+
+    bool result0 = SGuiMessageSetAdd(set, message0);
+
+    printf("result0:%d\n", result0);
+    printf("message0.type :%d\n", message0.type);
+    printf("message0.parameter[0] :%d\n", message0.parameter[0]);
+    printf("message0.parameter[1] :%d\n", message0.parameter[1]);
+    printf("message0.parameter[2] :%d\n", message0.parameter[2]);
+    printf("message0.parameter[3] :%d\n", message0.parameter[3]);
+
+    bool result1 = SGuiMessageSetRemove(set, &message1);
+
+    printf("result1:%d\n", result1);
+    printf("message1.type :%d\n", message1.type);
+    printf("message1.parameter[0] :%d\n", message1.parameter[0]);
+    printf("message1.parameter[1] :%d\n", message1.parameter[1]);
+    printf("message1.parameter[2] :%d\n", message1.parameter[2]);
+    printf("message1.parameter[3] :%d\n", message1.parameter[3]);
+
+    SGuiMessageSetGive(set);
+}
+
 void SGuiCoreTest(void)
 {
     // SGuiMemoryCheckStart();
@@ -301,6 +336,12 @@ void SGuiCoreTest(void)
     // container_test();
     // SGuiMemoryCheckEnd();
     // SGuiMemoryCheck();
+
+    // SGuiMemoryCheckStart();
+    // message_test();
+    // SGuiMemoryCheckEnd();
+    // SGuiMemoryCheck();
+
 }
 
 #endif
