@@ -142,7 +142,9 @@ void SGUIContainerGet(uint32_t container, uint32_t **source, uint32_t *number);
 /*****************************************************************************/
 /* 消息集合: */
 
-//消息所用的参数集合,该集合可以指定类型和大小
+/* 第0号消息为:默认假消息 */
+#define SGUIMSGFAKERTYPE    0
+/* 消息所用的参数集合,该集合可以指定类型和大小 */
 #define SGUIMSGPARAMTYPE    uint32_t
 #define SGUIMSGPARAMLEN     4
 
@@ -154,10 +156,14 @@ typedef struct SimpleGuiMessage {
     SGUIMSGPARAMTYPE parameter[SGUIMSGPARAMLEN];
 } SGuiMessage;
 
-
-
-
-
+/* 生成一个消息集合 */
+uint32_t SGuiMessageSetTake(uint32_t number);
+/* 释放一个消息集合 */
+uint32_t SGuiMessageSetGive(uint32_t set);
+/* 消息集合添加一个消息(先向) */
+bool SGuiMessageSetAdd(uint32_t set, SGuiMessage message);
+/* 消息集合移除一个消息(先向, 先定向) */
+bool SGuiMessageSetRemove(uint32_t set, SGuiMessage *message);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

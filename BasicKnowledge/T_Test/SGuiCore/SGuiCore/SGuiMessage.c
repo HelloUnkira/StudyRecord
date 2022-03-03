@@ -9,7 +9,7 @@
 
 typedef struct SimpleGuiMessageSet {
     uint32_t  index;    //集合编号
-    uint32_t  length;   //集合消息集长度
+    uint32_t  number;   //集合消息集长度
     void    **source;   //集合消息集实体
 } SGuiMessageSet;
 
@@ -18,17 +18,17 @@ static SGuiSList head = {0};
 static SGuiSList tail = {0};
 
 /* 生成一个消息集合 */
-uint32_t SGuiMessageSetTake(uint32_t length)
+uint32_t SGuiMessageSetTake(uint32_t number)
 {
     SGUISYNCPRIMITOPTSYNCMUTEX(true);
 
     uint32_t index = 0;
     /* 1.生成一个消息集合 */
     SGuiMessageSet *unit = SGUIMALLOC(sizeof(SGuiMessageSet));
-    unit->length = length;
-    unit->source = SGUIMALLOC(sizeof(void *) * unit->length);
+    unit->number = number;
+    unit->source = SGUIMALLOC(sizeof(void *) * unit->number);
     /* 初始化消息集合 */
-    for (index = 0; index < length; index++)
+    for (index = 0; index < number; index++)
         (unit->source)[index] = NULL;
 
     /* 2.将空闲单元以最小化索引加入链表 */
@@ -48,7 +48,7 @@ uint32_t SGuiMessageSetGive(uint32_t set)
     /* 1.搜索生成的空闲单元 */
     SGuiMessageSet *unit = SGuiSNodeUnitSearch(&head, &tail, set);
     /* 做一个简单的检查,如果仍然存在消息,不做释放 */
-    for (index = 0; index < unit->length; index++)
+    for (index = 0; index < unit->number; index++)
         if ((unit->source)[index] != NULL) {
             value = -1;
             unit  = NULL;
@@ -80,7 +80,7 @@ bool SGuiMessageSetAdd(uint32_t set, SGuiMessage message)
     SGuiMessageSet *unit = SGuiSNodeUnitSearch(&head, &tail, set);
     if (unit == NULL);
     if (unit != NULL)
-        for (index = 0; index < unit->length; index++)
+        for (index = 0; index < unit->number; index++)
             //找到一个空闲位置将消息投掷
             if ((unit->source)[index] == NULL) {
                 (unit->source)[index]  = SGUIMALLOC(sizeof(SGuiMessage));
@@ -95,7 +95,7 @@ bool SGuiMessageSetAdd(uint32_t set, SGuiMessage message)
     return value;
 }
 
-/* 消息集合移除一个消息(先向) */
+/* 消息集合移除一个消息(先向, 先定向) */
 bool SGuiMessageSetRemove(uint32_t set, SGuiMessage *message)
 {
     SGUISYNCPRIMITOPTSYNCMUTEX(true);
@@ -104,17 +104,31 @@ bool SGuiMessageSetRemove(uint32_t set, SGuiMessage *message)
     /* 1.搜索生成的空闲单元 */
     SGuiMessageSet *unit = SGuiSNodeUnitSearch(&head, &tail, set);
     if (unit == NULL);
-    if (unit != NULL)
-        for (index = 0; index < unit->length; index++)
-            //找到一个空闲位置将消息投掷
-            if ((unit->source)[index] != NULL) {
-                //消息读取从指定位置
-                *message = *((SGuiMessage *)((unit->source)[index]));
-                SGUIFREE((unit->source)[index]);
-                (unit->source)[index] = NULL;
-                value = 0;
-                break;
-            }
+    if (unit != NULL) {
+        if (message->type == SGUIMSGFAKERTYPE)
+            for (index = 0; index < unit->number; index++)
+                //找到一个非空闲位置将消息提取
+                if ((unit->source)[index] != NULL) {
+                    //消息读取从指定位置
+                    *message = *((SGuiMessage *)((unit->source)[index]));
+                    SGUIFREE((unit->source)[index]);
+                    (unit->source)[index] = NULL;
+                    value = 0;
+                    break;
+                }
+        if (message->type != SGUIMSGFAKERTYPE)
+            for (index = 0; index < unit->number; index++)
+                //找到一个非空闲位置将消息提取
+                if ((unit->source)[index] != NULL && 
+                    ((SGuiMessage *)((unit->source)[index]))->type == message->type) {
+                    //消息读取从指定位置
+                    *message = *((SGuiMessage *)((unit->source)[index]));
+                    SGUIFREE((unit->source)[index]);
+                    (unit->source)[index] = NULL;
+                    value = 0;
+                    break;
+                }
+    }
 
     SGUISYNCPRIMITOPTSYNCMUTEX(false);
 
