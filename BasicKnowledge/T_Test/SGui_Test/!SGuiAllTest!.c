@@ -360,96 +360,96 @@ void SGuiDrawLineTest(SGuiBuffer instance)
     line.y_start  = 100;
     line.x_end    = 200;
     line.y_end    = 100;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 100;
     line.x_end    = 100;
     line.y_end    = 200;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 100;
     line.x_end    = 200;
     line.y_end    = 200;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 200;
     line.y_start  = 100;
     line.x_end    = 200;
     line.y_end    = 200;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 200;
     line.x_end    = 200;
     line.y_end    = 200;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 200;
     line.x_end    = 200;
     line.y_end    = 100;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     /* »æÖÆ: */
     line.x_start  = 100;
     line.y_start  = 100;
     line.x_end    = 200;
     line.y_end    = 150;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 100;
     line.x_end    = 200;
     line.y_end    = 125;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 100;
     line.x_end    = 200;
     line.y_end    = 112;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     //
     line.x_start  = 100;
     line.y_start  = 100;
     line.x_end    = 150;
     line.y_end    = 200;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 100;
     line.x_end    = 125;
     line.y_end    = 200;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 100;
     line.x_end    = 112;
     line.y_end    = 200;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     //
     line.x_start  = 100;
     line.y_start  = 200;
     line.x_end    = 200;
     line.y_end    = 150;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 200;
     line.x_end    = 200;
     line.y_end    = 175;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 200;
     line.x_end    = 200;
     line.y_end    = 183;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     //
     line.x_start  = 100;
     line.y_start  = 200;
     line.x_end    = 150;
     line.y_end    = 100;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 200;
     line.x_end    = 125;
     line.y_end    = 100;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
     line.x_start  = 100;
     line.y_start  = 200;
     line.x_end    = 112;
     line.y_end    = 100;
-    SGuiDrawLine(line);
+    SGuiDrawLine(&line);
 }
 
 void SGuiDrawCricleTest(SGuiBuffer instance)
@@ -462,13 +462,13 @@ void SGuiDrawCricleTest(SGuiBuffer instance)
     circle.y_center   = 100;
     circle.radius     = 50;
     circle.type       = 1;
-    SGuiDrawCircle(circle);
+    SGuiDrawCircle(&circle);
     circle.x_center   = 300;
     circle.y_center   = 250;
     circle.radius     = 50;
     circle.band       = 5;
     circle.type       = 2;
-    SGuiDrawCircle(circle);
+    SGuiDrawCircle(&circle);
 }
 
 void SGuiDrawEllipseTest(SGuiBuffer instance)
@@ -482,7 +482,7 @@ void SGuiDrawEllipseTest(SGuiBuffer instance)
     ellipse.x_radius = 50;
     ellipse.y_radius = 25;
     ellipse.type     = 1;
-    SGuiDrawEllipse(ellipse);
+    SGuiDrawEllipse(&ellipse);
 }
 
 void SGuiDrawRectangleTest(SGuiBuffer instance)
@@ -496,7 +496,7 @@ void SGuiDrawRectangleTest(SGuiBuffer instance)
     rectangle.width  = 50;
     rectangle.height = 100;
     rectangle.type   = 0;
-    SGuiDrawRectangle(rectangle);
+    SGuiDrawRectangle(&rectangle);
 }
 
 void SGuiDrawTest(SGuiBuffer instance)

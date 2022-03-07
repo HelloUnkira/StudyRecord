@@ -3,11 +3,12 @@
 
 SGuiSystem = -lpthread
 
-SGuiHeader = -I ../             \
-             -I ../SGuiCommon/  \
-             -I ../SGuiPort/    \
-             -I ../SGuiCore/    \
-             -I ../SGuiDraw/
+SGuiHeader = -I ../                     \
+             -I ../SGuiCommon/          \
+             -I ../SGuiPort/            \
+             -I ../SGuiCore/            \
+             -I ../SGuiDraw/            \
+             -I ../SGuiDraw/SGuiDraw
 
 test: test.o
 	gcc -o test   ./*.o  $(SGuiSystem)

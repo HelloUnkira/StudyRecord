@@ -765,7 +765,7 @@ static void adjust_remove_node(rb_tree *tree, rb_node *node, char side)
 void insert_node(void *tree, void *node)
 {
     only_insert_node((rb_tree *)tree, (rb_node *)node);
-    adjust_insert_node((rb_tree *)tree, (rb_node *)node);									
+    adjust_insert_node((rb_tree *)tree, (rb_node *)node);
 }
 
 void remove_node(void *tree, void *node)

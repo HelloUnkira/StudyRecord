@@ -52,5 +52,5 @@ void SGuiSyncPrimitOptSyncMutex(SGuiSyncPrimit **Mutex,
  */
 #define SGUIMIN(data1, data2) ((data1) <= (data2) ? (data1) : (data2))
 #define SGUIMAX(data1, data2) ((data1) >= (data2) ? (data1) : (data2))
-
+#define SGUIDIS(data1, data2) (SGUIMAX(data1, data2) - SGUIMIN(data1, data2))
 #endif
