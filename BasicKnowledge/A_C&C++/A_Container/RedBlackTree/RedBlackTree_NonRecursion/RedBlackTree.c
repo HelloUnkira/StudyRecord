@@ -29,7 +29,9 @@ struct RedBlackTreeContainer {
     struct RedBlackTreeContainer *RightChild; //节点右孩子
     void  *DataAndColor;                      //要维护的上层数据集索引(含节点)
 };
-
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 /* 红黑树核心(红黑树集合) */
 struct RedBlackTreeSet {
     struct RedBlackTreeContainer *Root;
@@ -43,8 +45,8 @@ struct RedBlackTreeSet {
 typedef struct RedBlackTreeContainer RB_Node;     //红黑树节点
 typedef struct RedBlackTreeSet       RB_Tree;     //红黑树根
 //ThisData严格小于ThatData返回非零值
-//ThisData与TargetData的关键字一致返回0
 typedef uint8_t (*RBT_KeyCompare)(void *ThisData, void *ThatData);
+//ThisData与TargetData的关键字一致返回0
 typedef uint8_t (*RBT_KeyComfirm)(void *ThatData, void *TargetData);
 
 typedef enum {RED   = 0, BLACK = 1} RB_Color;        //节点颜色
@@ -90,6 +92,16 @@ STATIC_INLINE uint8_t RBTreeComfirm(RB_Tree *Tree, void *Data1, void *Data2)
 /*****************************************************************************/
 /* 红黑树容器抽象方法(获取) */
 
+STATIC_INLINE void * RBNodeGetData(RB_Node *Node)
+{
+    VOID_STAR_TYPE Result = 0;
+    
+    Result |= (VOID_STAR_TYPE)(Node->DataAndColor);
+    Result &= (VOID_STAR_TYPE)(~1);
+
+    return (void *)Result;
+}
+
 STATIC_INLINE uint8_t RBNodeGetColor(RB_Node *Node)
 {
     VOID_STAR_TYPE Result = 0;
@@ -98,16 +110,6 @@ STATIC_INLINE uint8_t RBNodeGetColor(RB_Node *Node)
     Result &= (VOID_STAR_TYPE)(1);
     
     return (uint8_t)Result;
-}
-
-STATIC_INLINE void * RBNodeGetData(RB_Node *Node)
-{
-    VOID_STAR_TYPE Result = NULL;
-    
-    Result |= (VOID_STAR_TYPE)(Node->DataAndColor);
-    Result &= (VOID_STAR_TYPE)(~1);
-
-    return (void *)Result;
 }
 
 STATIC_INLINE RB_Node * RBNodeGetParent(RB_Node *Node)
@@ -716,31 +718,31 @@ void RBT_GetNodeData(void *Node, void **Data)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 窥探:数据的层序遍历并打印 */
-void RBT_Sequence_Traversal(void *Tree, print k_print, void *queue, int length)
+void RBT_Sequence_Traversal(void *Tree, Print Printf, void *Queue, int32_t Length)
 {
-    ERROR_PRINT(Tree == NULL,    "RBT_Sequence_Traversal: Tree");
-    ERROR_PRINT(queue == NULL,   "RBT_Sequence_Traversal: Tree");
-    ERROR_PRINT(k_print == NULL, "RBT_Sequence_Traversal: print");
+    ERROR_PRINT(Tree == NULL,   "RBT_Sequence_Traversal: Tree");
+    ERROR_PRINT(Queue == NULL,  "RBT_Sequence_Traversal: Tree");
+    ERROR_PRINT(Printf == NULL, "RBT_Sequence_Traversal: print");
     //层序遍历(这里使用循环队列):
     
     //获取插入的起始位置
-    int queue_head = 0;
-    int queue_tail = 0;
-    int element_number = 0;
-    ((RB_Node **)queue)[queue_tail++] = RBTreeGetRoot((RB_Tree *)Tree);
-    element_number++;
+    int32_t QueueHead = 0;
+    int32_t QueueTail = 0;
+    int32_t ElementNumber = 0;
+    ((RB_Node **)Queue)[QueueTail++] = RBTreeGetRoot((RB_Tree *)Tree);
+    ElementNumber++;
     do {
         //节点出队列
-        RB_Node *Node = ((RB_Node **)queue)[queue_head++];
-        element_number--;
+        RB_Node *Node = ((RB_Node **)Queue)[QueueHead++];
+        ElementNumber--;
         RETURN_EMPTY(Node == NULL);
         //节点打印
-        k_print(Node, RBNodeGetData(Node), RBNodeGetColor(Node));
+        Printf(Node, RBNodeGetData(Node), RBNodeGetColor(Node));
         //这是一个循环队列
-        if (queue_head >= length)
-            queue_head = 0;
-        if (queue_tail >= length)
-            queue_tail = 0; 
+        if (QueueHead >= Length)
+            QueueHead = 0;
+        if (QueueTail >= Length)
+            QueueTail = 0; 
         
         //子节点入队列
         RB_Node *LeftChild  = RBNodeGetChild(Node, LEFT);
@@ -748,29 +750,29 @@ void RBT_Sequence_Traversal(void *Tree, print k_print, void *queue, int length)
  
         //左孩子入队列
         if (LeftChild != NULL) {
-            ((RB_Node **)queue)[queue_tail++] = LeftChild;
-            element_number++;
+            ((RB_Node **)Queue)[QueueTail++] = LeftChild;
+            ElementNumber++;
         }
         
         //右孩子入队列
         if (RightChild != NULL) {
-            ((RB_Node **)queue)[queue_tail++] = RightChild;
-            element_number++;
+            ((RB_Node **)Queue)[QueueTail++] = RightChild;
+            ElementNumber++;
         }
         
         //队列太小,警告
-        ERROR_PRINT(element_number >= length, "internal_check: overflow");
-    } while (element_number > 0);
+        ERROR_PRINT(ElementNumber >= Length, "RBT_Sequence_Traversal: overflow");
+    } while (ElementNumber > 0);
 }
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 验证一棵树是否为红黑树(内部检查) */
-uint8_t RBT_InternalCheck(void *Tree, void *stack, int *flags, int length)
+uint8_t RBT_InternalCheck(void *Tree, void *Stack, int32_t *Flags, int32_t Length)
 {
-    ERROR_PRINT(Tree == NULL,  "RBT_Check: Tree");
-    ERROR_PRINT(stack == NULL, "RBT_Check: Tree");
-    ERROR_PRINT(flags == NULL, "RBT_Check: Tree");
+    ERROR_PRINT(Tree == NULL,  "RBT_InternalCheck: Tree");
+    ERROR_PRINT(Stack == NULL, "RBT_InternalCheck: Tree");
+    ERROR_PRINT(Flags == NULL, "RBT_InternalCheck: Tree");
     
     //验证:1根节点不是黑色
     if (RBTreeGetRoot((RB_Tree *)Tree) == NULL)
@@ -779,26 +781,26 @@ uint8_t RBT_InternalCheck(void *Tree, void *stack, int *flags, int length)
         return 0;
     
     //初始化flags的值
-    int i = 0;
-    for (i = 0; i < length; i++) flags[i] = LEFT;
+    int32_t Index = 0;
+    for (Index = 0; Index < Length; Index++) Flags[Index] = LEFT;
     //深度优先搜索,使用flags同步维护栈进动情况
     RB_Node *LeftChild  = NULL;
     RB_Node *RightChild = NULL;
     RB_Node *Node = NULL;
     //从根节点开始从左进动
     //入栈节点只有当左右孩子都使用完毕后才退栈
-    int max_black_node = 0;//一条从根到叶子的最大度
-    int current_black_node = 0;
-    int top = 0;//栈顶位置
+    int32_t MaxLength = 0;//一条从根到叶子的最大度
+    int32_t CurrentBlackLength = 0;
+    int32_t StackTop = 0;//栈顶位置
     
     //1.根节点入栈
-    ((RB_Node **)stack)[top++] = RBTreeGetRoot((RB_Tree *)Tree);
-    current_black_node++;
-    flags[top - 1] = LEFT;
+    ((RB_Node **)Stack)[StackTop++] = RBTreeGetRoot((RB_Tree *)Tree);
+    CurrentBlackLength++;
+    Flags[StackTop - 1] = LEFT;
     
     do {
         //2.获得栈顶元素的左右孩子
-        Node = ((RB_Node **)stack)[top - 1];
+        Node = ((RB_Node **)Stack)[StackTop - 1];
         LeftChild  = RBNodeGetChild(Node, LEFT);
         RightChild = RBNodeGetChild(Node, RIGHT);
         
@@ -814,62 +816,62 @@ uint8_t RBT_InternalCheck(void *Tree, void *stack, int *flags, int length)
                     return 0;
         
         //3.左孩子未曾进过栈
-        if (flags[top - 1] == LEFT) {
+        if (Flags[StackTop - 1] == LEFT) {
             //3.1.标记左孩子进过栈,下一次该右孩子进了
-            flags[top - 1] = RIGHT;
+            Flags[StackTop - 1] = RIGHT;
             //左孩子存在,可以进栈
             if(LeftChild != NULL) {
-                ((RB_Node **)stack)[top++] = LeftChild;
+                ((RB_Node **)Stack)[StackTop++] = LeftChild;
                 //如果左孩子是黑色的,计算其度
                 if (RBNodeGetColor(LeftChild) == BLACK)
-                    current_black_node++;
-                flags[top - 1] = LEFT;//左孩子的左孩子未曾进栈
+                    CurrentBlackLength++;
+                Flags[StackTop - 1] = LEFT;//左孩子的左孩子未曾进栈
                 continue;
             } else {
                 //当前节点不存在左孩子
                 //说明一条从根到叶子的路径产生了
-                if (max_black_node == 0)
-                    max_black_node = current_black_node;
+                if (MaxLength == 0)
+                    MaxLength = CurrentBlackLength;
                 //验证:路径黑色节点不一致
-                if (max_black_node != current_black_node)
+                if (MaxLength != CurrentBlackLength)
                     return 0;
             }
         }
         
         //4.右孩子未曾进过栈
-        if (flags[top - 1] == RIGHT) {
+        if (Flags[StackTop - 1] == RIGHT) {
             //3.2标记右孩子进过栈,下一次该退栈了
-            flags[top - 1] = ERROR;
+            Flags[StackTop - 1] = ERROR;
             //右孩子存在,可以进栈
             if(RightChild != NULL) {
-                ((RB_Node **)stack)[top++] = RightChild;
+                ((RB_Node **)Stack)[StackTop++] = RightChild;
                 //如果右孩子是黑色的,计算其度
                 if (RBNodeGetColor(RightChild) == BLACK)
-                    current_black_node++;
-                flags[top - 1] = LEFT;//右孩子的左孩子未曾进栈
+                    CurrentBlackLength++;
+                Flags[StackTop - 1] = LEFT;//右孩子的左孩子未曾进栈
                 continue;
             } else {
                 //当前节点不存在右孩子,
                 //说明一条从根到叶子的路径产生了
-                if (max_black_node == 0)
-                    max_black_node = current_black_node;
+                if (MaxLength == 0)
+                    MaxLength = CurrentBlackLength;
                 //验证:路径黑色节点不一致
-                if (max_black_node != current_black_node)
+                if (MaxLength != CurrentBlackLength)
                     return 0;
             }
         }
         
         //5.都进栈了,当前节点该退栈了
-        if (flags[top - 1] == ERROR) {
+        if (Flags[StackTop - 1] == ERROR) {
             if (RBNodeGetColor(Node) == BLACK)
-                    current_black_node--; 
-            top--;
+                    CurrentBlackLength--; 
+            StackTop--;
         }
         
         //队列太小,警告
-        ERROR_PRINT(top >= length, "internal_check: overflow");
-        RETURN_EMPTY(top >= length);
-    } while (top > 0);
+        ERROR_PRINT(StackTop >= Length, "RBT_InternalCheck: overflow");
+        RETURN_EMPTY(StackTop >= Length);
+    } while (StackTop > 0);
     
     //6.退栈完毕了,验证完成
     return 1;
