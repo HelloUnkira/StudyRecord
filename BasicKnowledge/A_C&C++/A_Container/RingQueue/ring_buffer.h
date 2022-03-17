@@ -76,7 +76,7 @@ static inline void ring_buffer_init(ring_buffer *instance, void *buffer, uint8_t
     instance->type = type;
 	instance->size = size;
 	instance->buffer = buffer;
-    /* 缓冲区大小2字节对齐加速 */
+    /* 缓冲区大小字节对齐加速 */
 	instance->mask = ((size != 0) && ((size & (size - 1)) == 0)) ? (size - 1) : 0;
 }
 

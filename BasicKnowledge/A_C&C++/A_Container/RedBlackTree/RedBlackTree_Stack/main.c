@@ -11,27 +11,30 @@ typedef struct DataStructForTest {
     int32_t Rand;
 } DataTest;
 
-uint8_t TestCompare(void *this_data, void *that_data)
+
+uint8_t TestCompare(void *ThisData, void *ThatData)
 {
-    if (((DataTest *)this_data)->Key < ((DataTest *)that_data)->Key)
+    if (((DataTest *)ThisData)->Key <
+        ((DataTest *)ThatData)->Key)
         return 1;
-    return 0;
-}
-
-uint8_t TestComfirm(void *that_data, void *target_data)
-{
-    if (((DataTest *)that_data)->Key == ((DataTest *)target_data)->Key)
+    else
         return 0;
-    return 1;
 }
 
-void TestPrint(void *node, void *data, int32_t color)
+uint8_t TestComfirm(void *ThatData, void *TargetData)
 {
-    printf("Key:%d val:%d color:%d\n",
-        ((DataTest *)data)->Key,
-        ((DataTest *)data)->Rand,
-        color);
-    
+    if (((DataTest *)ThatData)->Key ==
+        ((DataTest *)TargetData)->Key)
+        return 0;
+    else
+        return 1;
+}
+
+void TestPrint(void *Node, void *Data, int32_t Color)
+{
+    printf("Key:%d val:%d Color:%d\n",
+            ((DataTest *)Data)->Key,
+            ((DataTest *)Data)->Rand, Color);
 }
 
 #define MAX_ELEMENT  30

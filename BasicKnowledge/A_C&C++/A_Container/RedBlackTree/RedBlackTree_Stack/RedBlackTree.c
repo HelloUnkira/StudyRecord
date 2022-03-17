@@ -687,9 +687,12 @@ static void RBT_RemoveNode_All(RB_Tree *Tree, RB_Node *Node)
         //原child的右孩子一定不存在
         RBNodeSetChild(Node, NULL, RIGHT);
         //更新堆栈关系
-        RB_Node *Temp       = Stack[Size0 - 1];
-        Stack[Size0 - 1]    = Stack[Size - 1];
-        Stack[Size - 1]     = Temp;
+        Stack[Size - 1]  = (RB_Node *)(((VOID_STAR_TYPE)(Stack[Size - 1])) ^
+                                       ((VOID_STAR_TYPE)(Stack[Size0 - 1])));
+        Stack[Size0 - 1] = (RB_Node *)(((VOID_STAR_TYPE)(Stack[Size - 1])) ^
+                                       ((VOID_STAR_TYPE)(Stack[Size0 - 1])));
+        Stack[Size - 1]  = (RB_Node *)(((VOID_STAR_TYPE)(Stack[Size - 1])) ^
+                                       ((VOID_STAR_TYPE)(Stack[Size0 - 1])));
     
         //交换俩个节点颜色
         uint8_t Color = RBNodeGetColor(Node);

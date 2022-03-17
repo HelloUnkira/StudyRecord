@@ -435,10 +435,12 @@ static void RBT_InsertNode_Adjust(RB_Tree *Tree, RB_Node *Node)
             //更新索引为下述情况使用
             ChildSide = RBNodeGetOtherSide(ChildSide);
             //
-            RB_Node *Help = NULL;
-            Help   = Node;
-            Node   = Parent;
-            Parent = Help;
+            Node    = (RB_Node *)(((VOID_STAR_TYPE)Node) ^
+                                  ((VOID_STAR_TYPE)Parent));
+            Parent  = (RB_Node *)(((VOID_STAR_TYPE)Node) ^
+                                  ((VOID_STAR_TYPE)Parent));
+            Node    = (RB_Node *)(((VOID_STAR_TYPE)Node) ^
+                                  ((VOID_STAR_TYPE)Parent));
         }
 
         //情况3.2.2:如果是对位分支,直接内部旋转

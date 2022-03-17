@@ -11,26 +11,29 @@ typedef struct DataStructForTest {
     int32_t Rand;
 } DataTest;
 
-uint8_t TestCompare(void *this_data, void *that_data)
+uint8_t TestCompare(void *ThisData, void *ThatData)
 {
-    if (((DataTest *)this_data)->Key < ((DataTest *)that_data)->Key)
+    if (((DataTest *)ThisData)->Key <
+        ((DataTest *)ThatData)->Key)
         return 1;
-    return 0;
+    else
+        return 0;
 }
 
-uint8_t TestComfirm(void *that_data, void *target_data)
+uint8_t TestComfirm(void *ThatData, void *TargetData)
 {
-    if (((DataTest *)that_data)->Key == ((DataTest *)target_data)->Key)
+    if (((DataTest *)ThatData)->Key ==
+        ((DataTest *)TargetData)->Key)
         return 0;
-    return 1;
+    else
+        return 1;
 }
 
 void TestPrint(void *Node, void *Data, int32_t Color)
 {
     printf("Key:%d val:%d Color:%d\n",
-        ((DataTest *)Data)->Key,
-        ((DataTest *)Data)->Rand,
-        Color);
+            ((DataTest *)Data)->Key,
+            ((DataTest *)Data)->Rand, Color);
     
 }
 
