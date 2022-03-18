@@ -1,4 +1,4 @@
-#include "../ring_buffer.h"
+#include "ring_buffer.h"
 
 int main(int argc, char *argv[])
 {
