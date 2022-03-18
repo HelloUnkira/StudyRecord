@@ -220,12 +220,18 @@ static inline uint32_t WS_SQueue_Modulo(WS_SQueue *SQueue, uint32_t Value)
 /* 索引回退 */
 static inline void WS_SQueue_RewindIndex(WS_SQueue *SQueue)
 {
-    // y = a * x + b ==> b = y - a * x
+    //逻辑推导:
+    //WQ_SQUEUE_MAXLENGTH == SQueue->Size * a + b
+    //a == WQ_SQUEUE_MAXLENGTH / SQueue->Size
+    //b == WQ_SQUEUE_MAXLENGTH % SQueue->Size
+    //Index == SQueue->Size * a + c
+    //Index_Rewind == c == Index - SQueue->Size * a
     
     if (SQueue->Head >= WQ_SQUEUE_MAXLENGTH) {
         
         uint32_t Rewind = WQ_SQUEUE_MAXLENGTH;
-        Rewind -= SQueue->Size;
+        
+        Rewind /= SQueue->Size;
         Rewind *= SQueue->Size;
         
         SQueue->Head -= Rewind;
