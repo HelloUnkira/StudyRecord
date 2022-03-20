@@ -2,87 +2,87 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/* ºËĞÄÎ¨Ò»ÒÀÀµÏî */
+/* æ ¸å¿ƒå”¯ä¸€ä¾èµ–é¡¹ */
 #define   COMMONHANDLE_C
 #include "CommonHandle.h"
 
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* ×ÊÔ´¹ÜÀíµ¥Ôª */
+/* èµ„æºç®¡ç†å•å…ƒ */
 struct CommonHandleUnit {
-    uint32_t Number;    //¿ÉÊ¹ÓÃ¾ä±úÊıÁ¿
-    uint32_t Length;    //¾ä±ú×ÊÔ´¼¯ºÏÊıÁ¿
-    void   **Source;    //¾ä±ú×ÊÔ´¼¯ºÏ
+    uint32_t Number;    //å¯ä½¿ç”¨å¥æŸ„æ•°é‡
+    uint32_t Length;    //å¥æŸ„èµ„æºé›†åˆæ•°é‡
+    void   **Source;    //å¥æŸ„èµ„æºé›†åˆ
 };
-/* ×ÊÔ´¹ÜÀí */
+/* èµ„æºç®¡ç† */
 struct CommonHandleBody {
-    struct CommonHandleUnit *Unit;  //×ÊÔ´¹ÜÀíµ¥Ôª¼¯ºÏ
-    uint32_t Number;                //¿ÉÊ¹ÓÃ×ÊÔ´¹ÜÀíµ¥ÔªÊıÁ¿
-    uint32_t Length;                //¾ä±ú×ÊÔ´¼¯ºÏÊıÁ¿
+    struct CommonHandleUnit *Unit;  //èµ„æºç®¡ç†å•å…ƒé›†åˆ
+    uint32_t Number;                //å¯ä½¿ç”¨èµ„æºç®¡ç†å•å…ƒæ•°é‡
+    uint32_t Length;                //å¥æŸ„èµ„æºé›†åˆæ•°é‡
 };
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* ºËĞÄ×ªÒå */
+/* æ ¸å¿ƒè½¬ä¹‰ */
 typedef struct CommonHandleUnit CHandleUnit;
 typedef struct CommonHandleBody CHandleBody;
-/* ¾ä±ú¹ÜÀí¼¯ºÏ */
+/* å¥æŸ„ç®¡ç†é›†åˆ */
 static CHandleBody CHandle = {0};
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* »ñÈ¡Ò»¸ö¿ÕÏĞ¾ä±ú */
+/* è·å–ä¸€ä¸ªç©ºé—²å¥æŸ„ */
 uint32_t CommonHandleTake(void)
 {
     uint32_t Index  = 0;
     uint32_t Index1 = 0;
     uint32_t Index2 = 0;
     uint32_t Handle = COMMON_HANDLE_INVALID;
-    /* 1.±éÀú×ÊÔ´¹ÜÀíµ¥Ôª,²éÕÒÒ»¸öÓĞ¿ÕÏĞ¾ä±úµÄµ¥Ôª */
+    /* 1.éå†èµ„æºç®¡ç†å•å…ƒ,æŸ¥æ‰¾ä¸€ä¸ªæœ‰ç©ºé—²å¥æŸ„çš„å•å…ƒ */
     for (Index1 = 0; Index1 < CHandle.Length; Index1++) {
         if (CHandle.Unit[Index1].Source == NULL)
             break;
         if (CHandle.Unit[Index1].Number > 0)
             break;
     }
-    /* 2.Èç¹û×ÊÔ´¹ÜÀíµ¥Ôª²»×ã,À©ÕÅËü */
+    /* 2.å¦‚æœèµ„æºç®¡ç†å•å…ƒä¸è¶³,æ‰©å¼ å®ƒ */
     if (Index1 == CHandle.Length) {
-        /* Éú³ÉÒ»¸öĞÂµÄ×ÊÔ´¹ÜÀíµ¥Ôª¼¯ºÏ */
+        /* ç”Ÿæˆä¸€ä¸ªæ–°çš„èµ„æºç®¡ç†å•å…ƒé›†åˆ */
         uint32_t Number = CHandle.Number + COMMON_HANDLE_UINT_SCAL_FACTOR;
         uint32_t Length = CHandle.Length + COMMON_HANDLE_UINT_SCAL_FACTOR;
         CHandleUnit *Unit = COMMON_HANDLE_MALLOC(sizeof(CHandleUnit) * Length);
-        /* ¿½±´Ô­ÉúµÄ×ÊÔ´¹ÜÀíµ¥Ôª¼¯ºÏ */
+        /* æ‹·è´åŸç”Ÿçš„èµ„æºç®¡ç†å•å…ƒé›†åˆ */
         for (Index = 0; Index < CHandle.Length; Index++)
             Unit[Index] = CHandle.Unit[Index];
-        /* ³õÊ¼»¯ĞÂÉú³ÉµÄ×ÊÔ´¹ÜÀíµ¥Ôª¼¯ºÏ */
+        /* åˆå§‹åŒ–æ–°ç”Ÿæˆçš„èµ„æºç®¡ç†å•å…ƒé›†åˆ */
         for (Index = CHandle.Length; Index < Length; Index++)
             Unit[Index].Source = NULL;
-        /* ÊÍ·ÅÔ­ÉúµÄ×ÊÔ´¹ÜÀíµ¥Ôª¼¯ºÏ */
+        /* é‡Šæ”¾åŸç”Ÿçš„èµ„æºç®¡ç†å•å…ƒé›†åˆ */
         COMMON_HANDLE_FREE(CHandle.Unit);
-        /* ÉèÖÃĞÂÉú³ÉµÄ×ÊÔ´¹ÜÀíµ¥Ôª¼¯ºÏ */
+        /* è®¾ç½®æ–°ç”Ÿæˆçš„èµ„æºç®¡ç†å•å…ƒé›†åˆ */
         CHandle.Number = Number;
         CHandle.Length = Length;
         CHandle.Unit   = Unit;
     }
-    /* 3.Èç¹û×ÊÔ´¹ÜÀíµ¥Ôª²»´æÔÚ,´´½¨Ëü */
+    /* 3.å¦‚æœèµ„æºç®¡ç†å•å…ƒä¸å­˜åœ¨,åˆ›å»ºå®ƒ */
     if (CHandle.Unit[Index1].Source == NULL) {
-        /* Éú³Éµ¥Ôª¾ä±ú¼¯ºÏ */
+        /* ç”Ÿæˆå•å…ƒå¥æŸ„é›†åˆ */
         uint32_t Number = COMMON_HANDLE_UINT_LENGTH;
         uint32_t Length = COMMON_HANDLE_UINT_LENGTH;
         void   **Source = COMMON_HANDLE_MALLOC(sizeof(void *) * Length);
-        /* ³õÊ¼»¯ĞÂÉú³ÉµÄµ¥Ôª¾ä±ú¼¯ºÏ */
+        /* åˆå§‹åŒ–æ–°ç”Ÿæˆçš„å•å…ƒå¥æŸ„é›†åˆ */
         for (Index = 0; Index < Length; Index++)
             Source[Index] = NULL;
-        /* ÉèÖÃĞÂÉú³ÉµÄ×ÊÔ´¹ÜÀíµ¥Ôª¼¯ºÏ */
+        /* è®¾ç½®æ–°ç”Ÿæˆçš„èµ„æºç®¡ç†å•å…ƒé›†åˆ */
         CHandle.Unit[Index1].Number = Number;
         CHandle.Unit[Index1].Length = Length;
         CHandle.Unit[Index1].Source = Source;
         CHandle.Number--;
     }
-    /* 4.Ñ°ÕÒÒ»¸ö¿ÕÏĞ¾ä±ú */
+    /* 4.å¯»æ‰¾ä¸€ä¸ªç©ºé—²å¥æŸ„ */
     if (CHandle.Unit[Index1].Number > 0) {
-        /* ±éÀúµ¥Ôª¾ä±ú¼¯ºÏ,Ñ°ÕÒÒ»¸ö¿ÕÏĞ¾ä±ú */
+        /* éå†å•å…ƒå¥æŸ„é›†åˆ,å¯»æ‰¾ä¸€ä¸ªç©ºé—²å¥æŸ„ */
         for (Index2 = 0; Index2 < CHandle.Unit[Index1].Length; Index2++)
             if (CHandle.Unit[Index1].Source[Index2] == NULL) {
                 CHandle.Unit[Index1].Source[Index2]  = (void *)(~0);
@@ -90,9 +90,9 @@ uint32_t CommonHandleTake(void)
                 break;
             }
     }
-    /* 5.×îÖÕ¼ì²é */
+    /* 5.æœ€ç»ˆæ£€æŸ¥ */
     if (Index1 < CHandle.Length && Index2 < CHandle.Unit[Index1].Length) {
-        /* ¼ÆËã¾ä±ú */
+        /* è®¡ç®—å¥æŸ„ */
         Handle = Index1 * COMMON_HANDLE_UINT_LENGTH + Index2;
     }
     /*  */
@@ -101,56 +101,56 @@ uint32_t CommonHandleTake(void)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* ÊÍ·ÅÒ»¸ö¾ä±ú */
+/* é‡Šæ”¾ä¸€ä¸ªå¥æŸ„ */
 void CommonHandleGive(uint32_t Handle)
 {
     int32_t  Index  = 0;
     uint32_t Index1 = Handle / COMMON_HANDLE_UINT_LENGTH;
     uint32_t Index2 = Handle % COMMON_HANDLE_UINT_LENGTH;
-    /* 1.ÕâÊÇÒ»¸ö·Ç·¨¾ä±ú */
+    /* 1.è¿™æ˜¯ä¸€ä¸ªéæ³•å¥æŸ„ */
     if (Index1 >= CHandle.Length || Index2 >= CHandle.Unit[Index1].Length)
         return;
-    /* 2.ÊÍ·ÅÕâ¸öºÏ·¨µÄ¾ä±ú */
+    /* 2.é‡Šæ”¾è¿™ä¸ªåˆæ³•çš„å¥æŸ„ */
     CHandle.Unit[Index1].Source[Index2] = NULL;
     CHandle.Unit[Index1].Number++;
-    /* 3.¾ä±ú¹ÜÀíµ¥Ôª·Ç¿ÕÊ±,²»ÊÍ·ÅËü */
+    /* 3.å¥æŸ„ç®¡ç†å•å…ƒéç©ºæ—¶,ä¸é‡Šæ”¾å®ƒ */
     if (CHandle.Unit[Index1].Length != CHandle.Unit[Index1].Number)
         return;
-    /* 4.ÊÍ·ÅÕâ¸ö¾ä±ú¹ÜÀíµ¥Ôª */
+    /* 4.é‡Šæ”¾è¿™ä¸ªå¥æŸ„ç®¡ç†å•å…ƒ */
     COMMON_HANDLE_FREE(CHandle.Unit[Index1].Source);
-    /* 5.¸üĞÂ¹ÜÀíÆ÷µÄÇé¾° */
+    /* 5.æ›´æ–°ç®¡ç†å™¨çš„æƒ…æ™¯ */
     CHandle.Unit[Index1].Source = NULL;
     CHandle.Number++;
-    /* 6.Èç¹û¾ä±ú¹ÜÀíµ¥Ôª¿ÕÏĞ¹ı¶à,³¢ÊÔÑ¹Ëõ */
+    /* 6.å¦‚æœå¥æŸ„ç®¡ç†å•å…ƒç©ºé—²è¿‡å¤š,å°è¯•å‹ç¼© */
     while (CHandle.Number >= COMMON_HANDLE_UINT_SCAL_FACTOR) {
-        /* 1.Ò»¼¶Ñ°Ö·ÒÀÀµÏÂ±ê,ËùÒÔÖ»ÄÜÄæÏò¼ì²é,ÖĞ¼ä¿ÕÓà²¿²»¿ÉÑ¹Ëõ */
+        /* 1.ä¸€çº§å¯»å€ä¾èµ–ä¸‹æ ‡,æ‰€ä»¥åªèƒ½é€†å‘æ£€æŸ¥,ä¸­é—´ç©ºä½™éƒ¨ä¸å¯å‹ç¼© */
         for (Index = CHandle.Length - 1; Index >= 0; Index--)
             if (CHandle.Unit[Index].Source != NULL)
                 break;
-        /* 2.Èç¹û¾ä±ú¹ÜÀíµ¥ÔªÈ«¿ÕÏĞ,ÊÍ·Å±¾Éí */
+        /* 2.å¦‚æœå¥æŸ„ç®¡ç†å•å…ƒå…¨ç©ºé—²,é‡Šæ”¾æœ¬èº« */
         if (Index < 0) {
-            /* ÊÍ·ÅÕâ¸ö¾ä±ú¹ÜÀíµ¥Ôª¼¯ºÏ */
+            /* é‡Šæ”¾è¿™ä¸ªå¥æŸ„ç®¡ç†å•å…ƒé›†åˆ */
             COMMON_HANDLE_FREE(CHandle.Unit);
             CHandle.Number = 0;
             CHandle.Length = 0;
             CHandle.Unit   = NULL;
             break;
         }
-        /* 3.Èç¹û×îºóµÄ¼¸¸öÁ¬ĞøÎª¿ÕÏĞÌ¬µ¥ÔªÎ´´ïµ½ÉìËõ±ê×¼Ê±,·ÅÆú */
+        /* 3.å¦‚æœæœ€åçš„å‡ ä¸ªè¿ç»­ä¸ºç©ºé—²æ€å•å…ƒæœªè¾¾åˆ°ä¼¸ç¼©æ ‡å‡†æ—¶,æ”¾å¼ƒ */
         if (Index + COMMON_HANDLE_UINT_SCAL_FACTOR >= CHandle.Length)
             break;
-        /* 4.Èç¹û×îºóµÄ¼¸¸öÁ¬ĞøÎª¿ÕÏĞÌ¬µ¥Ôª´ïµ½ÉìËõ±ê×¼Ê±,Ñ¹ËõËü */
+        /* 4.å¦‚æœæœ€åçš„å‡ ä¸ªè¿ç»­ä¸ºç©ºé—²æ€å•å…ƒè¾¾åˆ°ä¼¸ç¼©æ ‡å‡†æ—¶,å‹ç¼©å®ƒ */
         if (Index + COMMON_HANDLE_UINT_SCAL_FACTOR <  CHandle.Length) {
-            /* 1.Éú³ÉÒ»¸öĞÂµÄ×ÊÔ´¹ÜÀíµ¥Ôª¼¯ºÏ */
+            /* 1.ç”Ÿæˆä¸€ä¸ªæ–°çš„èµ„æºç®¡ç†å•å…ƒé›†åˆ */
             uint32_t Number = CHandle.Number - COMMON_HANDLE_UINT_SCAL_FACTOR;
             uint32_t Length = CHandle.Length - COMMON_HANDLE_UINT_SCAL_FACTOR;
             CHandleUnit *Unit = COMMON_HANDLE_MALLOC(sizeof(CHandleUnit) * Length);
-            /* 2.¿½±´Ô­ÉúµÄ×ÊÔ´¹ÜÀíµ¥Ôª¼¯ºÏ */
+            /* 2.æ‹·è´åŸç”Ÿçš„èµ„æºç®¡ç†å•å…ƒé›†åˆ */
             for (Index = 0; Index < Length; Index++)
                 Unit[Index] = CHandle.Unit[Index];
-            /* 3.ÊÍ·ÅÔ­ÉúµÄ×ÊÔ´¹ÜÀíµ¥Ôª¼¯ºÏ */
+            /* 3.é‡Šæ”¾åŸç”Ÿçš„èµ„æºç®¡ç†å•å…ƒé›†åˆ */
             COMMON_HANDLE_FREE(CHandle.Unit);
-            /* 4.ÉèÖÃĞÂÉú³ÉµÄ×ÊÔ´¹ÜÀíµ¥Ôª¼¯ºÏ */
+            /* 4.è®¾ç½®æ–°ç”Ÿæˆçš„èµ„æºç®¡ç†å•å…ƒé›†åˆ */
             CHandle.Number = Number;
             CHandle.Length = Length;
             CHandle.Unit   = Unit;
@@ -160,26 +160,26 @@ void CommonHandleGive(uint32_t Handle)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* ¾ä±ú°ó¶¨»ò¸üĞÂ×ÊÔ´ */
+/* å¥æŸ„ç»‘å®šæˆ–æ›´æ–°èµ„æº */
 void CommonHandleSet(uint32_t Handle, void *Source)
 {
     uint32_t Index1 = Handle / COMMON_HANDLE_UINT_LENGTH;
     uint32_t Index2 = Handle % COMMON_HANDLE_UINT_LENGTH;
-    /* ÕâÊÇÒ»¸öºÏ·¨¾ä±ú */
+    /* è¿™æ˜¯ä¸€ä¸ªåˆæ³•å¥æŸ„ */
     if (Index1 < CHandle.Length && Index2 < CHandle.Unit[Index1].Length)
         CHandle.Unit[Index1].Source[Index2] = Source;
 }
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* ¾ä±ú»ñÈ¡×ÊÔ´ */
+/* å¥æŸ„è·å–èµ„æº */
 void * CommonHandleGet(uint32_t Handle)
 {
     void *Source = NULL;
     
     uint32_t Index1 = Handle / COMMON_HANDLE_UINT_LENGTH;
     uint32_t Index2 = Handle % COMMON_HANDLE_UINT_LENGTH;
-    /* ÕâÊÇÒ»¸öºÏ·¨¾ä±ú */
+    /* è¿™æ˜¯ä¸€ä¸ªåˆæ³•å¥æŸ„ */
     if (Index1 < CHandle.Length && Index2 < CHandle.Unit[Index1].Length)
         Source = CHandle.Unit[Index1].Source[Index2];
 
