@@ -37,7 +37,7 @@ bool CalculatorMathExpression(char *Expression, double *Result, ErrorPrint Print
 /*当前表达式可解析
  *留白默认:空格,回车,制表符
  *基本运算符支持:
- *(,) 双目运算符:+-/*,前单目运算符+-,+目前默认是无效的
+ *(,) 双目运算符:+-/*,单目运算符+-,+目前默认是无效的
  *math.h函数库运算:
  *fmod(x,y),pow(x,y),fabs(x)
  *ceil(x),floor(x),sqrt(x)
@@ -50,8 +50,12 @@ bool CalculatorMathExpression(char *Expression, double *Result, ErrorPrint Print
  *fmod(x,y) ==> x%y
  *exp(1)    ==> E,e
  *acos(-1)  ==> PAI,pai
+ *部分自定义
+ *阶乘:     ==> x!
+ *2阶乘:    ==> x!!
+ *组合      ==> c(k,n)
  *
- *当前优先级规则:()最高,库函数运算居中,/*在之后,最低+-
+ *当前优先级规则:()最高,前单目+-符号仅次,库函数运算居中,/*在之后,最低双目+-
  *例: log(2)*log10(2)+7-(5*3)/pai%cos(123)+atan2(0.001,234) = 9.949332
  *    暂不知算的对不对,未验证
  */

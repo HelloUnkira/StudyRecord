@@ -10,6 +10,51 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+/* 添加部分自定义的函数以作扩展 */
+
+/* 自定义阶乘运算:x! */
+static double factorial(int64_t x)
+{
+    if (x < 0) return 0.0;
+    //0! == 1 && 1! == 1
+    if (x < 2) return 1.0;
+    
+    int64_t Index  = 0;
+    double  Result = 1.0;
+    
+    for (Index = 1; Index <= x; Result *= Index, Index++);
+    
+    return Result;
+}
+
+/* 自定义2阶乘运算:x!! */
+static double factorial2(int64_t x)
+{
+    if (x < 0) return 0.0;
+    //0!! == 1 && 1!! == 1
+    if (x < 2) return 1.0;
+    
+    int64_t Index  = (x % 2 != 0) ? 1 : ((x % 2 == 0) ? 2 : 0);
+    double  Result = (1.0);
+    
+    for (Index = Index; Index <= x; Result *= Index, Index += 2);
+    
+    return Result;
+}
+
+/* 自定义组合运算c(k,n) */
+static double combination(int64_t k, int64_t n)
+{
+    if (k > n) return 0;
+    
+    /* 这里直接用上述自定义阶乘算即可 */
+    return (double)((uint64_t)
+           (factorial(n) / (factorial(k) * factorial(n - k))));
+}
+
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 static inline void * CalculatorMalloc(uint32_t size)
 {
 #ifndef CALCULATE_MALLOC(size)
@@ -42,10 +87,16 @@ enum {
     D_E             ,   // E
     D_PAI           ,   // PAI
     /* 基础运算类 */
+    B_Plus          ,   // +(正号)
+    B_Minus         ,   // -(负号)
     B_Add           ,   // +
     B_Subtract      ,   // -
     B_Multiply      ,   // *
     B_Devide        ,   // /
+    /* 自定义运算 */
+    C_Factorial     ,   // double Factorial(int64_t n)
+    C_Factorial2    ,   // double Factorial2(int64_t n)
+    C_Combination   ,   // double Combination(int64_t k, int64_t n)
     /* 扩展运算1类 */
     E_FMOD          ,   // double fmod(double x, double y)
     E_POW           ,   // double pow(double x, double y)
@@ -130,10 +181,16 @@ static inline uint8_t CalculatorFlagNumber(uint8_t Type)
     case D_E:           return 0;
     case D_PAI:         return 0;
     /* 基本运算解析 */
+    case B_Plus:        return 1;
+    case B_Minus:       return 1;
     case B_Add:         return 2;
     case B_Subtract:    return 2;
     case B_Multiply:    return 2;
     case B_Devide:      return 2;
+    /* 自定义运算 */
+    case C_Factorial:   return 1;
+    case C_Factorial2:  return 1;
+    case C_Combination: return 2;
     /* 扩展运算1类 */
     case E_FMOD:        return 2;
     case E_POW:         return 2;
@@ -171,44 +228,54 @@ static inline uint8_t CalculatorFlagNumber(uint8_t Type)
 /*****************************************************************************/
 /* 接收上述指定类型参数完成结果计算反馈 */
 /* 这里调用系统数学库,需要库作为基础外界支持 */
-static inline bool CalculatorRun(uint8_t Type, double *Result, double x, double y)
+static inline bool CalculatorRun(uint8_t Type, double *Result, double *List)
 {   /* 如此强行写出的代码有种离经叛道的感觉,纯属个人爱好 */
     switch (Type) {
     /* 基本数解析 */
-    case D_E:           *Result = exp(1);           return true;
-    case D_PAI:         *Result = acos(-1);         return true;
+    case D_E:           *Result = exp(1);                       return true;
+    case D_PAI:         *Result = acos(-1);                     return true;
     /* 基本运算解析 */
-    case B_Add:         *Result = x + y;            return true;
-    case B_Subtract:    *Result = x - y;            return true;
-    case B_Multiply:    *Result = x * y;            return true;
-    case B_Devide:      *Result = x / y;            return true;
+    case B_Plus:        *Result = List[0];                      return true;
+    case B_Minus:       *Result = 0 - List[0];                  return true;
+    case B_Add:         *Result = List[0] + List[1];            return true;
+    case B_Subtract:    *Result = List[0] - List[1];            return true;
+    case B_Multiply:    *Result = List[0] * List[1];            return true;
+    case B_Devide:      *Result = List[0] / List[1];            return true;
+    /* 自定义运算 */
+    case C_Factorial:
+        *Result = factorial((int64_t)(List[0]));                return true;
+    case C_Factorial2:
+        *Result = factorial2((int64_t)(List[0]));               return true;
+    case C_Combination:
+        *Result = combination((int64_t)(List[0]),
+                              (int64_t)(List[1]));              return true;
     /* 扩展运算1类 */
-    case E_FMOD:        *Result = fmod(x, y);       return true;
-    case E_POW:         *Result = pow(x, y);        return true;
-    case E_FABS:        *Result = fabs(x);          return true;
+    case E_FMOD:        *Result = fmod(List[0], List[1]);       return true;
+    case E_POW:         *Result = pow(List[0], List[1]);        return true;
+    case E_FABS:        *Result = fabs(List[0]);                return true;
     /* 扩展运算2类 */
-    case E_CEIL:        *Result = ceil(x);          return true;
-    case E_FLOOR:       *Result = floor(x);         return true;
+    case E_CEIL:        *Result = ceil(List[0]);                return true;
+    case E_FLOOR:       *Result = floor(List[0]);               return true;
     /* 扩展运算3类 */
-    case E_SQRT:        *Result = sqrt(x);          return true;
+    case E_SQRT:        *Result = sqrt(List[0]);                return true;
     /* 扩展运算4.1类 */
-    case E_COS:         *Result = cos(x);           return true;
-    case E_SIN:         *Result = sin(x);           return true;
-    case E_TAN:         *Result = tan(x);           return true;
+    case E_COS:         *Result = cos(List[0]);                 return true;
+    case E_SIN:         *Result = sin(List[0]);                 return true;
+    case E_TAN:         *Result = tan(List[0]);                 return true;
     /* 扩展运算4.2类 */
-    case E_COSH:        *Result = cosh(x);          return true;
-    case E_SINH:        *Result = sinh(x);          return true;
-    case E_TANH:        *Result = tanh(x);          return true;
+    case E_COSH:        *Result = cosh(List[0]);                return true;
+    case E_SINH:        *Result = sinh(List[0]);                return true;
+    case E_TANH:        *Result = tanh(List[0]);                return true;
     /* 扩展运算4.3类 */
-    case E_ACOS:        *Result = acos(x);          return true;
-    case E_ASIN:        *Result = asin(x);          return true;
-    case E_ATAN:        *Result = atan(x);          return true;
-    case E_ATAN2:       *Result = atan2(x, y);      return true;
+    case E_ACOS:        *Result = acos(List[0]);                return true;
+    case E_ASIN:        *Result = asin(List[0]);                return true;
+    case E_ATAN:        *Result = atan(List[0]);                return true;
+    case E_ATAN2:       *Result = atan2(List[0], List[1]);      return true;
     /* 扩展运算5类 */
-    case E_LOG:         *Result = log(x);           return true;
-    case E_LOG10:       *Result = log10(x);         return true;
+    case E_LOG:         *Result = log(List[0]);                 return true;
+    case E_LOG10:       *Result = log10(List[0]);               return true;
     /* 扩展运算6类 */
-    case E_EXP:         *Result = exp(x);           return true;
+    case E_EXP:         *Result = exp(List[0]);                 return true;
     /* 其余扩展后续支持 */
     }
     ERROR_PRINT(1, "CalculatorRun:Type");
@@ -249,6 +316,14 @@ static inline uint8_t CalculatorParseFlag(char *String, uint32_t Length)
     case 'p':
         if (String[1] == 'a' && String[2] == 'i' && String[3] == '\0')
             return D_PAI;
+        break;
+    }
+    
+    /* 自定义运算 */
+    switch (String[0]) {
+    case 'c':
+        if (String[1] == '\0')
+            return C_Combination;
         break;
     }
     
@@ -413,51 +488,54 @@ static inline bool CalculatorIsIgnore(char character)
 static inline uint8_t CalculatorGetPriority(uint8_t Type)
 {
     /* ()的优先级最高 */
-    if (Type == I_BracketLeft ||
-        Type == I_BracketRight)
-        return 5;
+    if (Type == I_BracketLeft || Type == I_BracketRight)
+        return 10;
+    /* 单目+-优先级仅次() */
+    if (Type == B_Plus || Type == B_Minus)
+        return 9;
     /* +-号优先级最低 */
-    if (Type == B_Add ||
-        Type == B_Subtract)
-        return 1;
-    /* /*号优先级仅次 */
-    if (Type == B_Multiply ||
-        Type == B_Devide)
-        return 2;
+    if (Type == B_Add || Type == B_Subtract)
+        return 3;
+    /* /*号优先级仅次+- */
+    if (Type == B_Multiply || Type == B_Devide)
+        return 4;
     /* 其他的优先级一致居中 */
-    return 3;
+    return 5;
 }
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 解析一个数据或符号并反馈为对应的类型 */
-static inline uint8_t CalculatorParse(char *Pointer, uint32_t *Index, uint8_t TypeLast,
-                                      double *Data, uint8_t *Flag)
+static inline uint8_t CalculatorParse(char *Expression, uint32_t *Index,
+                                      uint8_t TypeLast, uint8_t FlagLast,
+                                      double *Data,     uint8_t *Flag)
 {
-    if (Pointer[*Index] == '\0')
+    if (Expression[*Index] == '\0')
         return SUCCESS;
     /* 1.先过滤一次留白 */
-    while (CalculatorIsIgnore(Pointer[*Index]) == true)
+    while (CalculatorIsIgnore(Expression[*Index]) == true)
         (*Index)++;
-    /* 额外添加,如果出现-为单目运算的场景时 */
-    if ((Pointer[*Index] == '-'     ||
-         Pointer[*Index] == '+')        &&
-        (TypeLast == DEFAULT        ||
-         TypeLast == I_BracketLeft  ||
-         TypeLast == B_Add          ||
-         TypeLast == B_Subtract)) {
-        /* 这里就做一下简单处理即可,索引不要去动 */
-        *Data = 0.0;
-        return TYPEDATA;
-    }
-    /* 额外添加,如果出现**时转为pow */
-    if (Pointer[*Index] == '*' && Pointer[*Index + 1] == '*') {
+    /* 额外添加**转义,如果出现**时转为pow */
+    if (Expression[*Index] == '*' && Expression[*Index + 1] == '*') {
         *Flag = E_POW;
         (*Index) += 2;
         return TYPEFLAG;
     }
+    /* 额外添加!!转义 */
+    if (Expression[*Index] == '!' && Expression[*Index + 1] == '!') {
+        *Flag = C_Factorial2;
+        (*Index) +=2 ;
+        return TYPEFLAG;
+    }
+    /* 额外添加!转义 */
+    if (Expression[*Index] == '!') {
+        *Flag = C_Factorial;
+        (*Index)++;
+        return TYPEFLAG;
+    }
+    
     /* 基础内置符号本地检测并反馈 */
-    switch (Pointer[*Index]) {
+    switch (Expression[*Index]) {
     case '(':
         *Flag = I_BracketLeft;
         (*Index)++;
@@ -467,11 +545,17 @@ static inline uint8_t CalculatorParse(char *Pointer, uint32_t *Index, uint8_t Ty
         (*Index)++;
         return TYPEFLAG;
     case '+':
-        *Flag = B_Add;
+        if (TypeLast == TYPEFLAG)
+            *Flag = B_Plus; //出现单目运算符时
+        if (TypeLast == TYPEDATA)
+            *Flag = B_Add;
         (*Index)++;
         return TYPEFLAG;
     case '-':
-        *Flag = B_Subtract;
+        if (TypeLast == TYPEFLAG)
+            *Flag = B_Minus; //出现单目运算符时
+        if (TypeLast == TYPEDATA)
+            *Flag = B_Subtract;
         (*Index)++;
         return TYPEFLAG;
     case '*':
@@ -495,23 +579,23 @@ static inline uint8_t CalculatorParse(char *Pointer, uint32_t *Index, uint8_t Ty
     char *String = NULL;
     uint32_t IndexNew = *Index;
     /* 检测是出现了符号? */
-    if ((Pointer[IndexNew] >= 'a' && Pointer[IndexNew] <= 'z') ||
-        (Pointer[IndexNew] >= 'A' && Pointer[IndexNew] <= 'Z')) {
+    if ((Expression[IndexNew] >= 'a' && Expression[IndexNew] <= 'z') ||
+        (Expression[IndexNew] >= 'A' && Expression[IndexNew] <= 'Z')) {
         /* 确认符号的范围 */
-        while ((Pointer[IndexNew] >= 'a' && Pointer[IndexNew] <= 'z') ||
-               (Pointer[IndexNew] >= 'A' && Pointer[IndexNew] <= 'Z') ||
-               (Pointer[IndexNew] >= '0' && Pointer[IndexNew] <= '9') ||
+        while ((Expression[IndexNew] >= 'a' && Expression[IndexNew] <= 'z') ||
+               (Expression[IndexNew] >= 'A' && Expression[IndexNew] <= 'Z') ||
+               (Expression[IndexNew] >= '0' && Expression[IndexNew] <= '9') ||
                 /* 这里留白字符一并计算 */
-               (CalculatorIsIgnore(Pointer[IndexNew]) == true))
+               (CalculatorIsIgnore(Expression[IndexNew]) == true))
                 IndexNew++;
         /* 生成空间保留该片段,用于下一步的解析 */
         uint32_t Length = 0;
         String = CalculatorMalloc(sizeof(char) * (IndexNew - *Index + 1));
         uint32_t IndexTemp = 0;
         for (IndexTemp = *Index; IndexTemp < IndexNew; IndexTemp++) {
-            if (CalculatorIsIgnore(Pointer[IndexTemp]) == true)
+            if (CalculatorIsIgnore(Expression[IndexTemp]) == true)
                 continue;
-            String[Length++] = Pointer[IndexTemp];
+            String[Length++] = Expression[IndexTemp];
         }
         /* 最后填充字符串尾缀 */
         String[Length] = '\0';
@@ -531,13 +615,13 @@ static inline uint8_t CalculatorParse(char *Pointer, uint32_t *Index, uint8_t Ty
         return TYPEFLAG;
     }
     /* 检测是出现了数字 */
-    if ((Pointer[IndexNew] >= '0' && Pointer[IndexNew] <= '9') ||
-        (Pointer[IndexNew] == '.')) {
+    if ((Expression[IndexNew] >= '0' && Expression[IndexNew] <= '9') ||
+        (Expression[IndexNew] == '.')) {
         /* 确认数字的范围 */
-        while ((Pointer[IndexNew] >= '0' && Pointer[IndexNew] <= '9') ||
-               (Pointer[IndexNew] == '.') ||
+        while ((Expression[IndexNew] >= '0' && Expression[IndexNew] <= '9') ||
+               (Expression[IndexNew] == '.') ||
                 /* 这里留白字符一并计算 */
-               (CalculatorIsIgnore(Pointer[IndexNew]) == true))
+               (CalculatorIsIgnore(Expression[IndexNew]) == true))
                 IndexNew++;
                 
         /* 生成空间保留该片段,用于下一步的解析 */
@@ -545,9 +629,9 @@ static inline uint8_t CalculatorParse(char *Pointer, uint32_t *Index, uint8_t Ty
         String = CalculatorMalloc(IndexNew - *Index + 1);
         uint32_t IndexTemp = 0;
         for (IndexTemp = *Index; IndexTemp < IndexNew; IndexTemp++) {
-            if (CalculatorIsIgnore(Pointer[IndexTemp]) == true)
+            if (CalculatorIsIgnore(Expression[IndexTemp]) == true)
                 continue;
-            String[Length++] = Pointer[IndexTemp];
+            String[Length++] = Expression[IndexTemp];
         }
         /* 最后填充字符串尾缀 */
         String[Length] = '\0';
@@ -570,82 +654,9 @@ static inline uint8_t CalculatorParse(char *Pointer, uint32_t *Index, uint8_t Ty
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 生成新的字符串,去除留白,捕获不支持的字符错误 */
-static inline char * CalculatorStringUnimportant(char *Expression)
-{
-    uint32_t Index      = 0;
-    uint32_t IndexNew   = 0;
-    /* 获得旧有字符串长度 */
-    uint32_t Length = strlen(Expression);
-    /* 生成一个新字符串,用于装载数据 */
-    char *ExpressionNew = CalculatorMalloc(sizeof(char) * (Length + 1));
-    /* 忽略掉数学表达式不关心的部分 */
-    for (Index = 0; Index < Length; Index++) {
-        /* 将关键的字符保留 */
-        if (Expression[Index] == '(' ||
-            Expression[Index] == ')' ||
-            Expression[Index] == '+' ||
-            Expression[Index] == '-' ||
-            Expression[Index] == '*' ||
-            Expression[Index] == '/' ||
-            Expression[Index] == '%' ||
-            Expression[Index] == ',' ||
-            Expression[Index] == '.') {
-            ExpressionNew[IndexNew++] = Expression[Index];
-            continue;
-        }
-        if (Expression[Index] >= '0' &&
-            Expression[Index] <= '9') {
-            ExpressionNew[IndexNew++] = Expression[Index];
-            continue;
-        }
-        if (Expression[Index] >= 'A' &&
-            Expression[Index] <= 'Z') {
-            ExpressionNew[IndexNew++] = Expression[Index];
-            continue;
-        }
-        if (Expression[Index] >= 'a' &&
-            Expression[Index] <= 'z') {
-            ExpressionNew[IndexNew++] = Expression[Index];
-            continue;
-        }
-        /* 过滤留白 */
-        if (Expression[Index] == ' '  ||
-            Expression[Index] == '\t' ||
-            Expression[Index] == '\n')
-            continue;
-        /* 将不支持的字符输出 */
-        char ErrorChar[10] = {0};
-        sprintf(ErrorChar, "%c ", Expression[Index]);
-        ERROR_PRINT(true, ErrorChar);
-        break;
-    }
-    /*  */
-    if (IndexNew == 0) {
-        CalculatorFree(ExpressionNew);
-        return NULL;
-    }
-    return ExpressionNew;
-}
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
 /* 表达式解析策略(堆栈模式) */
 bool CalculatorMathExpression(char *Expression, double *Result, ErrorPrint Print)
 {
-    /* 重解析字符串,去除留白并更新字符串 */
-    /* 注意:这一步并不是必备的,主要为了流程化 */
-    //char *ExpressionNew = CalculatorStringUnimportant(Expression);
-    /* 空运算流检查 */
-    //if (ExpressionNew == NULL) {
-    //    ERROR_PRINT(true, "Error Expression:");
-    //    ERROR_PRINT(true, Expression);
-    //    return false;
-    //}
-    /* 将简要过滤前后的字符串输出 */
-    //ERROR_PRINT(true, Expression);
-    //ERROR_PRINT(true, ExpressionNew);
-    
     /* 生成数据暂存栈 */
     double  *NumberStack = NULL;
     uint32_t NumberMax   = 0;
@@ -659,19 +670,19 @@ bool CalculatorMathExpression(char *Expression, double *Result, ErrorPrint Print
     CalculatorStack(sizeof(uint8_t), &FlagStack,   &FlagMax);
     ERROR_PRINT(NumberStack == NULL || NumberMax == 0,
                 "CalculatorMathExpression: NumberXxx");
-    ERROR_PRINT(FlagStack == NULL   || FlagMax == 0,
+    ERROR_PRINT(FlagStack   == NULL || FlagMax   == 0,
                 "CalculatorMathExpression: FlagXxx");
     /* 后缀表达式计算 */
-    uint8_t  Type       = DEFAULT;  //当前状态
-    uint8_t  TypeLast   = DEFAULT;  //上次状态暂存记录
-    uint8_t  State      = DEFAULT;  //程序运行状态
-    uint32_t Index      = 0;        //索引进动情况
-    double   Data       = 0;        //数据暂存记录
-    uint8_t  Flag       = DEFAULT;  //符号暂存记录
-    
+    uint8_t  Type   = DEFAULT;  //当前状态
+    uint8_t  State  = DEFAULT;  //程序运行状态
+    uint32_t Index  = 0;        //索引进动情况
+    double   Data   = 0;        //数据暂存记录
+    uint8_t  Flag   = DEFAULT;  //符号暂存记录
     /* 后缀表达式解析 */
     /* 先到符号栈压入一个左括号 */
     FlagStack[++FlagTop] = I_BracketLeft;
+    uint8_t  TypeLast   = TYPEFLAG;      //上次状态暂存记录
+    uint8_t  FlagLast   = I_BracketLeft; //上次状态暂存记录
     do {
         /* 计算到了末尾,假压入一个右括号,用于消除堆栈全部操作符 */
         if (Expression[Index] == '\0') {
@@ -681,7 +692,7 @@ bool CalculatorMathExpression(char *Expression, double *Result, ErrorPrint Print
         }
         /* 解析一个数据或符号 */
         if (Expression[Index] != '\0')
-            Type = CalculatorParse(Expression, &Index, TypeLast, &Data, &Flag);
+            Type = CalculatorParse(Expression, &Index, TypeLast, FlagLast, &Data, &Flag);
         /* 错误检查 */
         if (Type == ERROR) {
             char ErrorString[30] = {0};
@@ -779,17 +790,17 @@ bool CalculatorMathExpression(char *Expression, double *Result, ErrorPrint Print
                     break;
                 }
                 /* 获取运算操作数 */
-                double X = 0;
-                double Y = 0;
-                /* 无操作数 */
+                /* 暂定最大接收5个操作数,目前实际最大只有2元运算符 */
+                double List[5] = {0};
+                /* 操作数逆向弹出 */
                 if (Number >= 2)
-                    Y = NumberStack[NumberTop--];
+                    List[1] = NumberStack[NumberTop--];
                 if (Number >= 1)
-                    X = NumberStack[NumberTop--];
+                    List[0] = NumberStack[NumberTop--];
                 if (Number == 0);
                 /* 计算栈顶结果 */
                 double ResultTemp = 0;
-                if (CalculatorRun(FlagStack[FlagTop], &ResultTemp, X, Y) == false) {
+                if (CalculatorRun(FlagStack[FlagTop], &ResultTemp, List) == false) {
                     char ErrorString[30] = {0};
                     sprintf(ErrorString, "Error Index:%d", Index);
                     ERROR_PRINT(true, ErrorString);
@@ -807,10 +818,9 @@ bool CalculatorMathExpression(char *Expression, double *Result, ErrorPrint Print
                 FlagTop--;
             }
         }
-        if (Type == TYPEDATA)
-            TypeLast = TYPEDATA;
-        if (Type == TYPEFLAG)
-            TypeLast = Flag;
+        /* 保留状态 */
+        TypeLast = Type;
+        FlagLast = Flag;
     } while (State != SUCCESS && State != ERROR);
     /* 错误检查: */
     if (FlagTop != 0) {
@@ -832,7 +842,6 @@ bool CalculatorMathExpression(char *Expression, double *Result, ErrorPrint Print
     /* 回收栈空间 */
     CalculatorStack(sizeof(double),  &NumberStack, &NumberMax);
     CalculatorStack(sizeof(uint8_t), &FlagStack,   &FlagMax);
-    //CalculatorFree(ExpressionNew);
     /* 计算结果反馈 */
     if (State != SUCCESS)
         return false;
