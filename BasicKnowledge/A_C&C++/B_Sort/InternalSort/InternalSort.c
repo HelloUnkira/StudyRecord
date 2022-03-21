@@ -1,0 +1,554 @@
+//C std lib
+#include <stdint.H>
+#include <stdbool.H>
+
+//内源依赖项
+#define   INTERNALSORT_C
+#include "InternalSort.H"
+
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 排序数据抽象 */
+struct InternalSort_DataSet {
+    //元素大小比较回调
+    uint8_t (*Compare)(void *Data1, void *Data2);
+    void     *List;    //通配元素集合
+    uint32_t  Size;    //通配元素字节大小
+    uint32_t  Left;    //排序起始点(相对于通配元素集合位置)
+    uint32_t  Right;   //排序结束点(相对于通配元素集合位置)
+};
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 核心转义 */
+typedef struct InternalSort_DataSet InternalSort_Data;
+/* Data1严格小于Data2返回0 */
+/* Data1严格等于Data2返回1 */
+/* Data1严格大于Data2返回2 */
+typedef uint8_t (*KeyCompare)(void *Data1, void *Data2);
+/* 结果状态记录 */
+enum {LESS = 0, EQUAL = 1, GREATER = 2} IS_CompareState;
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 通配辅助函数:拷贝函数 */
+static void InternalSort_Copy(uint8_t *Stream1, uint8_t *Stream2, uint32_t Length)
+{
+    ERROR_PRINT(Stream1 == NULL, "InternalSort_Copy: Stream1");
+    ERROR_PRINT(Stream2 == NULL, "InternalSort_Copy: Stream2");
+    /* 这里暂时没有想到很好的字节对齐拷贝的方式 */
+    /* 因为两个流都有可能面临都不是地址字节对齐的情况 */
+    /* 所以只能尝试从高到低进行拷贝 */
+    for (0; Length >= sizeof(uint64_t); Length -= sizeof(uint64_t)) {
+        *((uint64_t *)Stream1) = *((uint64_t *)Stream2);
+        Stream1 += sizeof(uint64_t);
+        Stream2 += sizeof(uint64_t);
+    }
+    for (0; Length >= sizeof(uint32_t); Length -= sizeof(uint32_t)) {
+        *((uint32_t *)Stream1) = *((uint32_t *)Stream2);
+        Stream1 += sizeof(uint32_t);
+        Stream2 += sizeof(uint32_t);
+    }
+    for (0; Length >= sizeof(uint16_t); Length -= sizeof(uint16_t)) {
+        *((uint16_t *)Stream1) = *((uint16_t *)Stream2);
+        Stream1 += sizeof(uint16_t);
+        Stream2 += sizeof(uint16_t);
+    }
+    for (0; Length >= sizeof(uint8_t);  Length -= sizeof(uint8_t)) {
+        *((uint8_t  *)Stream1) = *((uint8_t  *)Stream2);
+        Stream1 += sizeof(uint8_t);
+        Stream2 += sizeof(uint8_t);
+    }
+    /*  */
+    ERROR_PRINT(Length != 0, "InternalSort_Copy: Length");
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 通配辅助函数:交换函数 */
+static void InternalSort_Swap(uint8_t *Stream1, uint8_t *Stream2, uint32_t Length)
+{
+    ERROR_PRINT(Stream1 == NULL, "InternalSort_Swap: Stream1");
+    ERROR_PRINT(Stream2 == NULL, "InternalSort_Swap: Stream2");
+    /*  */
+    uint64_t Temp64_1 = 0, Temp64_2 = 0;
+    uint32_t Temp32_1 = 0, Temp32_2 = 0;
+    uint16_t Temp16_1 = 0, Temp16_2 = 0;
+    uint8_t  Temp8_1  = 0, Temp8_2  = 0;
+    /* 这里暂时没有想到很好的字节对齐拷贝的方式 */
+    /* 因为两个流都有可能面临都不是地址字节对齐的情况 */
+    /* 所以只能尝试从高到低进行拷贝 */
+    for (0; Length >= sizeof(uint64_t); Length -= sizeof(uint64_t)) {
+        Temp64_1 = (*((uint64_t *)Stream1));
+        Temp64_2 = (*((uint64_t *)Stream2));
+        *((uint64_t *)Stream1) = Temp64_2;
+        *((uint64_t *)Stream2) = Temp64_1;
+        Stream1 += sizeof(uint64_t);
+        Stream2 += sizeof(uint64_t);
+    }
+    for (0; Length >= sizeof(uint32_t); Length -= sizeof(uint32_t)) {
+        Temp32_1 = (*((uint32_t *)Stream1));
+        Temp32_2 = (*((uint32_t *)Stream2));
+        *((uint32_t *)Stream1) = Temp32_2;
+        *((uint32_t *)Stream2) = Temp32_1;
+        Stream1 += sizeof(uint32_t);
+        Stream2 += sizeof(uint32_t);
+    }
+    for (0; Length >= sizeof(uint16_t); Length -= sizeof(uint16_t)) {
+        Temp16_1 = (*((uint16_t *)Stream1));
+        Temp16_2 = (*((uint16_t *)Stream2));
+        *((uint16_t *)Stream1) = Temp16_2;
+        *((uint16_t *)Stream2) = Temp16_1;
+        Stream1 += sizeof(uint16_t);
+        Stream2 += sizeof(uint16_t);
+    }
+    for (0; Length >= sizeof(uint8_t);  Length -= sizeof(uint8_t)) {
+        Temp8_1 = (*((uint8_t *)Stream1));
+        Temp8_2 = (*((uint8_t *)Stream2));
+        *((uint8_t *)Stream1) = Temp8_2;
+        *((uint8_t *)Stream2) = Temp8_1;
+        Stream1 += sizeof(uint8_t);
+        Stream2 += sizeof(uint8_t);
+    }
+    /*  */
+    ERROR_PRINT(Length != 0, "InternalSort_Swap: Length");
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 宏定义简化及优化: */
+static inline void InternalSort_Simplification(void)
+{
+/* 数据错误检查 */
+#define INTERNALSORT_DATACHECK(DataSet)     \
+    if ((DataSet)          == NULL ||       \
+        (DataSet)->Compare == NULL ||       \
+        (DataSet)->List    == NULL ||       \
+        (DataSet)->Size    == 0    ||       \
+        (DataSet)->Left    >=               \
+        (DataSet)->Right)                   \
+        return;
+    
+/* 数据所需参数定义 */
+#define INTERNALSORT_DATADEFINE(DataSet)        \
+    KeyCompare Compare  = (DataSet)->Compare;   \
+    uint8_t *List       = (DataSet)->List;      \
+    uint32_t Size       = (DataSet)->Size;      \
+    uint32_t Left       = (DataSet)->Left;      \
+    uint32_t Right      = (DataSet)->Right;     \
+
+
+#define RETURN_EMPTY(target) if (target) return;
+
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 冒泡排序O(n**2) */
+void InternalSort_Bubble(void *DataSet)
+{
+    INTERNALSORT_DATACHECK((InternalSort_Data *)DataSet);
+    INTERNALSORT_DATADEFINE((InternalSort_Data *)DataSet);
+    
+    uint32_t I = Left, J = Left;
+    uint8_t *Index1 = NULL;
+    uint8_t *Index2 = NULL;
+    for (Index1 = List + Size * I; I <= Right; I++, J = I, Index1 += Size)
+        for (Index2 = List + Size * J; J <= Right; J++, Index2 += Size)
+            if (Compare((void *)Index1, (void *)Index2) == GREATER)
+                InternalSort_Swap(Index1, Index2, Size);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 选择排序O(n**2) */
+void InternalSort_Selection(void *DataSet, void *Helper)
+{
+    INTERNALSORT_DATACHECK((InternalSort_Data *)DataSet);
+    INTERNALSORT_DATADEFINE((InternalSort_Data *)DataSet);
+    RETURN_EMPTY(Helper == NULL);
+    
+    uint32_t I = Left, J = Left;
+    uint8_t *Index1 = NULL;
+    uint8_t *Index2 = NULL;
+    uint8_t *Temp   = (uint8_t *)Helper;
+    
+    for (Index1 = List + Size * I; I <= Right; I++, J = I, Index1 += Size) {
+        InternalSort_Copy(Temp, Index1, Size);
+        for (Index2 = List + Size * J; J <= Right; J++, Index2 += Size)
+            if (Compare(Temp, Index2) == GREATER)
+                InternalSort_Swap(Temp, Index2, Size);
+        InternalSort_Copy(Index1, Temp, Size);
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 插入排序O(n**2) */
+void InternalSort_Insertion(void *DataSet, void *Helper)
+{
+    INTERNALSORT_DATACHECK((InternalSort_Data *)DataSet);
+    INTERNALSORT_DATADEFINE((InternalSort_Data *)DataSet);
+    RETURN_EMPTY(Helper == NULL);
+    
+    uint32_t I = Left, J = Left;
+    uint8_t *Index1 = NULL;
+    uint8_t *Index2 = NULL;
+    uint8_t *Temp   = (uint8_t *)Helper;
+    for (Index1 = List + Size * I; I <= Right; I++, J = I, Index1 += Size) {
+        InternalSort_Copy(Temp, Index1, Size);
+        for (Index2 = List + Size * J; J >= Left + 1; J--, Index2 -= Size) {
+            if (Compare((void *)Temp, (void *)(Index2 - Size)) != LESS)
+                break;
+            InternalSort_Copy(Index2, Index2 - Size, Size);
+        }
+        InternalSort_Copy(Index2, Temp, Size);
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 希尔排序O(n log n) */
+typedef uint32_t (*HillSequence)(uint32_t x);
+void InternalSort_Shell(void *DataSet, void *Helper, HillSequence Incremental)
+{
+    INTERNALSORT_DATACHECK((InternalSort_Data *)DataSet);
+    INTERNALSORT_DATADEFINE((InternalSort_Data *)DataSet);
+    RETURN_EMPTY(Helper == NULL || Incremental == NULL);
+    
+    uint32_t S = Left, I = Left, J = Left;
+    uint32_t K = Right - Left, Offset = 0, Size_k = 0;
+    uint8_t *Index1 = NULL;
+    uint8_t *Index2 = NULL;
+    uint8_t *Temp   = (uint8_t *)Helper;
+    do {//获取增量进行希尔间隔确认
+        Offset = Incremental(K);
+        K = (Offset > K) ? 1 : Offset;
+        K = (0 == K) ? 1 : K;
+        Size_k = Size * K;
+        
+        for (S = Left; S < Left + K; S++) 
+            for (I = S, J = I; I <= Right; I += K, J = I) {
+                Index1 = List + Size * I;
+                InternalSort_Copy(Temp, Index1, Size);
+                
+                for(Index2 = List + Size * J;
+                    I >= J && J >= Left + K;
+                    J -= K, Index2 -= Size_k) {//想写作一行的
+                        
+                    if (Compare((void *)Temp,
+                                (void *)(Index2 - Size_k)) != LESS) 
+                        break;
+                    InternalSort_Copy(Index2, Index2 - Size_k, Size);
+                }
+                
+                InternalSort_Copy(Index2, Temp, Size);
+            }
+    } while (K > 1);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 单次堆排序O(n log n) */
+static void InternalSort_HeapOnly(uint8_t *List, uint8_t Size, KeyCompare Compare,
+                                  uint32_t Scale, uint32_t Index)
+{
+    uint32_t Father     = Index;
+    uint32_t LeftChild  = 0;
+    uint32_t RightChild = 0;
+    while (1) {
+        LeftChild  = 2 * Father + 1;
+        RightChild = 2 * Father + 2;
+        
+        //情况1:左右孩子都存在(依照特性如果右孩子存在左孩子一定存在)
+        if (RightChild <= Scale) {
+            if (Compare((void *)(List + Size * Father),
+                        (void *)(List + Size * LeftChild))  != LESS &&
+                Compare((void *)(List + Size * Father),
+                        (void *)(List + Size * RightChild)) != LESS)
+            break;
+            //如不是强迫症,谁又会这么写程序呢
+            if (Compare((void *)(List + Size * LeftChild),
+                        (void *)(List + Size * RightChild)) != LESS) {
+                InternalSort_Swap(List + Size * Father, List + Size * LeftChild, Size);
+                Father = LeftChild;
+                continue;
+            }
+            if (Compare((void *)(List + Size * LeftChild),
+                        (void *)(List + Size * RightChild)) != GREATER) {
+                InternalSort_Swap(List + Size * Father, List + Size * RightChild, Size);
+                Father = RightChild;
+                continue;
+            }
+        }
+        //情况2:仅左孩子存在(依照特性如果右孩子存在左孩子一定存在)
+        if (LeftChild  <= Scale) {
+            if (Compare((void *)(List + Size * Father),
+                        (void *)(List + Size * LeftChild)) != LESS)
+                break;
+            InternalSort_Swap(List + Size * Father, List + Size * LeftChild, Size);
+            Father = LeftChild;
+            continue;
+        }
+        //情况3:左右孩子都不存在
+        break;
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 堆排序O(n log n) */
+void InternalSort_Heap(void *DataSet)
+{
+    INTERNALSORT_DATACHECK((InternalSort_Data *)DataSet);
+    INTERNALSORT_DATADEFINE((InternalSort_Data *)DataSet);
+
+    //堆排序设计时,需要满足起始位置条件是i=0开始
+    //才会满足左右孩子为2i+1,2i+2
+    int I = 0, J = 0;
+    uint32_t number = Right - Left + 1;
+
+    //计算最大非叶子节点落点
+    for (I = 0; I * 2 + 2 < number; I++);
+    //先从下往上,将其调整为最大二叉堆
+    while(I >= 0)
+        InternalSort_HeapOnly(List, Size, Compare, Right, Left + I--);
+    //将其进行堆排序调整
+    for (I = 1, J = number - 1; J > 0; J--, I++) {
+        //交换堆头与堆尾,范围缩小一个
+        InternalSort_Swap(List + Size * Left, List + Size * J, Size);
+        //重新调整为堆,此时的堆调整从上至下调整
+        InternalSort_HeapOnly(List, Size, Compare, Right - I, Left);
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 单次归并排序O(n log n) */
+static void InternalSort_MergeOnly(uint8_t *List, uint8_t *Temp, uint8_t Size,
+                                   KeyCompare Compare,
+                                   uint32_t Left, uint32_t Center, uint32_t Right)
+{
+    //检查边界值不失为一个好的习惯
+    if (Left > Center || Center + 1 > Right)
+        return;//至少有一个子序列是空的,无需合并
+    uint32_t I = Left, J = Center + 1;
+    uint32_t K = Left;
+    uint8_t result = (~0);
+    while (K <= Right) {
+
+        //有一个子列已经为空
+        if (I > Center) {
+            InternalSort_Copy(Temp + Size * K++, List + Size * J++, Size);
+            continue;
+        }
+        if (J > Right) {
+            InternalSort_Copy(Temp + Size * K++, List + Size * I++, Size);
+            continue;
+        }
+        //子列均不为空
+        result = Compare((void *)(List + Size * I),
+                         (void *)(List + Size * J));
+
+        if (result == LESS) {
+            InternalSort_Copy(Temp + Size * K++, List + Size * I++, Size);
+            continue;
+        }
+        if (result != LESS) {
+            InternalSort_Copy(Temp + Size * K++, List + Size * J++, Size);
+            continue;
+        }
+    }
+
+    InternalSort_Copy(List + Size * Left, Temp + Size * Left, Size * (Right - Left + 1));
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 归并排序O(n log n) */
+void InternalSort_Merge(void *DataSet, void *Helper)
+{
+    INTERNALSORT_DATACHECK((InternalSort_Data *)DataSet);
+    INTERNALSORT_DATADEFINE((InternalSort_Data *)DataSet);
+    RETURN_EMPTY(Helper == NULL);
+    
+    uint8_t *Temp = (uint8_t *)Helper;
+    uint32_t LeftTemp   = 0;
+    uint32_t RightTemp  = 0;
+    uint32_t CenterTemp = 0;
+    uint32_t H = 1;
+    
+    for (H = 1; H < Right - Left + 1; H *= 2)
+    {
+        LeftTemp   = Left;
+        CenterTemp = LeftTemp       + H - 1;
+        RightTemp  = CenterTemp + 1 + H - 1;//CenterTemp + H;
+        //开始合并
+        while (RightTemp < Right) {
+            InternalSort_MergeOnly(List, Temp, Size, Compare,
+                LeftTemp, CenterTemp, RightTemp);
+            
+            LeftTemp   = RightTemp + 1;
+            CenterTemp = LeftTemp + H - 1;
+            RightTemp  = CenterTemp + H;
+        }
+        
+        if (LeftTemp < Right && CenterTemp < Right)
+            InternalSort_MergeOnly(List, Temp, Size, Compare,
+                LeftTemp, CenterTemp, Right);
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 单次快速排序O(n log n) */
+static void InternalSort_QuickOnly(uint8_t *List, uint8_t Size, KeyCompare Compare,
+                                   uint32_t Left, uint32_t Right, uint32_t *Index)
+{
+    if (Left > Right || Index == NULL)
+        return;
+    if (Left == Right) {
+        *Index = Left;
+        *Index = Right;
+        return;
+    }
+    //选取基准值采用三分中值的方式(经典)
+    uint32_t Center   = Left + (Right - Left) / 2;
+    uint32_t Compare1 = Compare((void *)(List + Size * Center),
+                                (void *)(List + Size * Left));
+    uint32_t Compare2 = Compare((void *)(List + Size * Center),
+                                (void *)(List + Size * Right));
+    uint32_t Compare3 = Compare((void *)(List + Size * Left),
+                                (void *)(List + Size * Right));
+    uint32_t LeftTemp  = Left;
+    uint32_t RightTemp = Right;
+    //  Center <= Left  ---> Compare1 != GREATER
+    //  Center >= Left  ---> Compare1 != LESS
+    //  Center <= Right ---> Compare2 != GREATER
+    //  Center >= Right ---> Compare2 != LESS
+    //    Left <= Right ---> Compare3 != GREATER
+    //    Left >= Right ---> Compare3 != LESS
+    
+    //Left <= Center <= Right || Right <= Center <= Left
+    //if (((Compare1 != LESS) && (Compare2 != GREATER)) ||
+    //    ((Compare2 != LESS) && (Compare1 != GREATER)))
+    //    Center = Center;
+    //Center <= Left <= Right || Right <= Left <= Center
+    if (((Compare1 != GREATER) && (Compare3 != GREATER)) ||
+        ((Compare3 != LESS)    && (Compare1 != LESS)))
+        Center = Left;
+    //Left <= Right <= Center || Center <= Right <= Left
+    if (((Compare3 != GREATER && Compare2 != LESS)) ||
+        ((Compare2 != GREATER && Compare3 != LESS)))
+        Center = Right;
+
+    //参考基准值进行比较交换
+    while (1) {
+        //寻找第一个 Left > Center,则当 Left <= Center 时
+        while (Left  < RightTemp &&
+               Compare((void *)(List + Size * Left),
+                       (void *)(List + Size * Center)) != GREATER)
+            Left++;
+        //寻找第一个 Right < Center,则当 Right >= Center 时
+        while (Right > LeftTemp  &&
+               Compare((void *)(List + Size * Right),
+                       (void *)(List + Size * Center)) != LESS)
+            Right--;
+        //如果没找到时,准备退出
+        if (Left >= Right) {
+            if (Right >= Center) {
+                InternalSort_Swap(List + Size * Center, List + Size * Right, Size);
+                Center = Right;
+            }
+            if (Left  <= Center) {
+                InternalSort_Swap(List + Size * Center, List + Size * Left, Size);
+                Center = Left;
+            }
+            break;
+        }
+        //交换
+        if (Compare((void *)(List + Size * Left),
+                    (void *)(List + Size * Center)) != EQUAL && 
+            Compare((void *)(List + Size * Right),
+                    (void *)(List + Size * Center)) != EQUAL)
+            InternalSort_Swap(List + Size * Left, List + Size * Right, Size);
+    }
+    *Index = Center;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 快速排序O(n log n) */
+void InternalSort_Quick(void *DataSet, void *Helper)
+{
+    INTERNALSORT_DATACHECK((InternalSort_Data *)DataSet);
+    INTERNALSORT_DATADEFINE((InternalSort_Data *)DataSet);
+    RETURN_EMPTY(Helper == NULL);
+
+    uint32_t *Temp = (uint32_t *)Helper;
+    uint32_t LeftTemp   = Left;
+    uint32_t RightTemp  = Right;
+    uint32_t CenterTemp = 0;
+    int number = 0;
+    
+    //首项入栈:
+    Temp[++number] = Left;
+    Temp[++number] = Right;
+    
+    //开始栈追踪
+    do  {
+        //出栈:
+        RightTemp = Temp[number--];
+        LeftTemp  = Temp[number--];
+        
+        InternalSort_QuickOnly(List, Size, Compare,
+            LeftTemp, RightTemp, &CenterTemp);
+        
+        //右子项入栈,左子项入栈,注意判断以防止沉入死循环
+        if (CenterTemp + 1 < RightTemp) {
+            Temp[++number] = CenterTemp + 1;
+            Temp[++number] = RightTemp;
+        }
+        
+        //又菜又爱玩:(uint32_t)(0) - 1 == (uint32_t)(~0)
+        if (CenterTemp == 0)
+            continue;
+        
+        if (CenterTemp - 1 > LeftTemp) {
+            Temp[++number] = LeftTemp;
+            Temp[++number] = CenterTemp - 1;
+        }
+    } while (number != 0);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+///////////////////////////////////////////////////////////////////////////////
+//计数排序:(特定使用场景,不通用,实现简单)//////////////////////////////////////
+//桶排序:(链表集,空间开销更大)/////////////////////////////////////////////////
+//基数排序:(位优先排序,效果不错,需要链表或同比例外部)//////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+
+uint8_t InternalSort_ContainerBytesGet(void)
+{
+    return sizeof(InternalSort_Data);
+}
+
+void InternalSort_ContainerBytesSet(void *DataSet, KeyCompare Compare,
+                                    void *List, uint32_t Size,
+                                    uint32_t Left, uint32_t Right)
+{
+    ((InternalSort_Data *)DataSet)->Compare = Compare;
+    ((InternalSort_Data *)DataSet)->List    = List;
+    ((InternalSort_Data *)DataSet)->Size    = Size;
+    ((InternalSort_Data *)DataSet)->Left    = Left;
+    ((InternalSort_Data *)DataSet)->Right   = Right;
+}
+
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
