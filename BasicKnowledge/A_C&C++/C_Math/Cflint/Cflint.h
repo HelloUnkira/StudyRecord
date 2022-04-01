@@ -44,12 +44,24 @@ uint8_t Cflint_CheckBytes(void);
 #if 0
 #elif   CFLINT_BYTE == 1
 #define CFLINT_BYTES    uint8_t
+#define CFLINT_BYTEBIT  8
+#define CFLINT_BYTES2   uint16_t
+#define CFLINT_HALF     0x0F
 #elif   CFLINT_BYTE == 2
 #define CFLINT_BYTES    uint16_t
+#define CFLINT_BYTEBIT  16
+#define CFLINT_BYTES2   uint32_t
+#define CFLINT_HALF     0x00FF
 #elif   CFLINT_BYTE == 4
 #define CFLINT_BYTES    uint32_t
+#define CFLINT_BYTEBIT  32
+#define CFLINT_BYTES2   uint64_t
+#define CFLINT_HALF     0x0000FFFF
 #elif   CFLINT_BYTE == 8
 #define CFLINT_BYTES    uint64_t
+#define CFLINT_BYTEBIT  64
+//#define CFLINT_BYTES2   uint128_t
+#define CFLINT_HALF     0x00000000FFFFFFFF
 #else
 #error  "Error Configure:Port Byte Alignment"
 #endif
@@ -58,9 +70,42 @@ uint8_t Cflint_CheckBytes(void);
 /*****************************************************************************/
 /*****************************************************************************/
 /*  */
-
-
-
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 和运算 */
+void Cflint_Addition(CFLINT_BYTES *Result,    CFLINT_BYTES *Overflow,  
+                     CFLINT_BYTES *Operator1, CFLINT_BYTES *Operator2,
+                     uint32_t Length);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 差运算 */
+void Cflint_Subtraction(CFLINT_BYTES *Result,    CFLINT_BYTES *Overflow,  
+                        CFLINT_BYTES *Operator1, CFLINT_BYTES *Operator2,
+                        uint32_t Length);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 乘运算 */
+void Cflint_Multiply(CFLINT_BYTES *Result,    uint32_t Length,
+                     CFLINT_BYTES *Operator1, CFLINT_BYTES *Operator2);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 方运算 */
+void Cflint_Square(CFLINT_BYTES *Result, uint32_t Length,
+                   CFLINT_BYTES *Operator);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 左移位运算 */
+void Cflint_ShiftLeft(CFLINT_BYTES *Result, uint32_t Length, uint32_t Bits2);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 右移位运算 */
+void Cflint_ShiftRight(CFLINT_BYTES *Result, uint32_t Length, uint32_t Bits2);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
