@@ -132,7 +132,6 @@ void PortInfoCheck(const char *Parameter, uint32_t Result)
     printf(Parameter, Result);
 }
 
-
 int main(int argc, uint8_t *argv[]) {
 
     Cflint_PortInfoCheck(PortInfoCheck);
