@@ -543,15 +543,19 @@ static inline uint8_t CalculatorParse(char *Expression, uint32_t *Index,
         (*Index)++;
         return TYPEFLAG;
     case '+':
-        if (TypeLast == TYPEFLAG)
+        if (TypeLast == TYPEFLAG && FlagLast != I_BracketRight)
             *Flag = B_Plus; //出现单目运算符时
+        else
+            *Flag = B_Add;
         if (TypeLast == TYPEDATA)
             *Flag = B_Add;
         (*Index)++;
         return TYPEFLAG;
     case '-':
-        if (TypeLast == TYPEFLAG)
+        if (TypeLast == TYPEFLAG && FlagLast != I_BracketRight)
             *Flag = B_Minus; //出现单目运算符时
+        else
+            *Flag = B_Subtract;
         if (TypeLast == TYPEDATA)
             *Flag = B_Subtract;
         (*Index)++;
