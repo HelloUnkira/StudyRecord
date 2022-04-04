@@ -4,9 +4,9 @@
 #include "MemoryManageInterface.h"
 
 //复写打印对接接口
-void CheckPrint(const char *title, uint32_t content)
+void CheckPrint(const char *title, uint32_t Content)
 {
-    printf(title, content);
+    printf(title, Content);
 }
 
 //测试slab分配器
@@ -277,9 +277,9 @@ int main(int argc, char *argv[])
 {
     MemoryManageConfigure();
     
-    //test_slab_distributor();
-    //test_buddy_distributor();
-    //test_heap_distributor();
+    test_slab_distributor();
+    test_buddy_distributor();
+    test_heap_distributor();
     
     return 0;
 }

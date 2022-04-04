@@ -10,7 +10,7 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-typedef void (*MemoryManageCheckPrint)(const char *title, uint32_t content);
+typedef void (*MemoryManageCheckPrint)(const char *Title, uint32_t Content);
 //备注:因为编码是在notepad++中完成
 //写以下宏主要是为了用于折叠代码,同样,可用于裁剪功能
 #define MemoryManageStrategySlab
@@ -19,7 +19,7 @@ typedef void (*MemoryManageCheckPrint)(const char *title, uint32_t content);
 //平台内存管理监控
 #define MemoryManageCheck       1
 //抽象打印接口,定参打印
-typedef void (*MemoryManageCheckPrint)(const char *title, uint32_t content);
+typedef void (*MemoryManageCheckPrint)(const char *Title, uint32_t Content);
 
 /*****************************************************************************/
 /*****************************************************************************/
@@ -30,13 +30,13 @@ void MemoryManageConfigure(void);
 /*****************************************************************************/
 #ifdef MemoryManageStrategySlab
 //从分配器集合获取指定大小的块
-bool MemoryManageSlabTake(uint32_t size, uint8_t **block);
+bool MemoryManageSlabTake(uint32_t Size, uint8_t **Block);
 //给分配器集合归还指定大小的块
-bool MemoryManageSlabGive(uint32_t size, uint8_t *block);
+bool MemoryManageSlabGive(uint32_t Size, uint8_t *Block);
 //使用情况统计
 #if MemoryManageCheck == 1
-void MemoryManageSlabCheck(MemoryManageCheckPrint print);
-void MemoryManageSlabMem(uint32_t index, uint8_t **start, uint8_t **end);
+void MemoryManageSlabCheck(MemoryManageCheckPrint Print);
+void MemoryManageSlabMem(uint32_t Index, uint8_t **Start, uint8_t **End);
 #endif
 #endif
 /*****************************************************************************/
@@ -44,13 +44,13 @@ void MemoryManageSlabMem(uint32_t index, uint8_t **start, uint8_t **end);
 /*****************************************************************************/
 #ifdef MemoryManageStrategyBuddy
 //从分配器集合获取指定大小的块
-bool MemoryManageBuddyTake(uint32_t size, uint8_t **block);
+bool MemoryManageBuddyTake(uint32_t Size, uint8_t **Block);
 //给分配器集合归还指定大小的块
-bool MemoryManageBuddyGive(uint32_t size, uint8_t *block);
+bool MemoryManageBuddyGive(uint32_t Size, uint8_t *Block);
 //使用情况统计
 #if MemoryManageCheck == 1
-void MemoryManageBuddyCheck(MemoryManageCheckPrint print);
-void MemoryManageBuddyMem(uint32_t index, uint8_t **start, uint8_t **end);
+void MemoryManageBuddyCheck(MemoryManageCheckPrint Print);
+void MemoryManageBuddyMem(uint32_t Index, uint8_t **Start, uint8_t **End);
 #endif
 #endif
 /*****************************************************************************/
@@ -58,13 +58,13 @@ void MemoryManageBuddyMem(uint32_t index, uint8_t **start, uint8_t **end);
 /*****************************************************************************/
 #ifdef MemoryManageStrategyHeap
 //从分配器集合获取指定大小的块
-bool MemoryManageHeapTake(uint32_t size, uint8_t **block);
+bool MemoryManageHeapTake(uint32_t Size, uint8_t **BlockNew);
 //给分配器集合归还指定大小的块
-bool MemoryManageHeapGive(uint32_t size, uint8_t *block);
+bool MemoryManageHeapGive(uint32_t Size, uint8_t *BlockOld);
 //使用情况统计
 #if MemoryManageCheck == 1
-void MemoryManageHeapCheck(MemoryManageCheckPrint print);
-void MemoryManageHeapMem(uint32_t index, uint8_t **start, uint8_t **end);
+void MemoryManageHeapCheck(MemoryManageCheckPrint Print);
+void MemoryManageHeapMem(uint32_t Index, uint8_t **Start, uint8_t **End);
 #endif
 #endif
 /*****************************************************************************/

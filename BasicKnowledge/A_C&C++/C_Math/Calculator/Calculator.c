@@ -19,10 +19,9 @@ static double factorial(int64_t x)
     //0! == 1 && 1! == 1
     if (x < 2) return 1.0;
     
-    int64_t Index  = 0;
-    double  Result = 1.0;
+    double Result = 1.0;
     
-    for (Index = 1; Index <= x; Result *= Index, Index++);
+    for (int64_t Index = 1; Index <= x; Result *= Index, Index++);
     
     return Result;
 }
@@ -34,10 +33,10 @@ static double factorial2(int64_t x)
     //0!! == 1 && 1!! == 1
     if (x < 2) return 1.0;
     
-    int64_t Index  = (x % 2 != 0) ? 1 : ((x % 2 == 0) ? 2 : 0);
-    double  Result = (1.0);
+    double Result = 1.0;
     
-    for (Index = Index; Index <= x; Result *= Index, Index += 2);
+    for (int64_t Index  = (x % 2 != 0) ? 1 : ((x % 2 == 0) ? 2 : 0);
+                 Index <= x; Result *= Index, Index += 2);
     
     return Result;
 }
@@ -157,12 +156,11 @@ static void CalculatorStack(uint8_t Type, void **Stack, uint32_t *Length)
     /* 生成新栈 */
     void *StackNew = CalculatorMalloc(Type * LengthNew);
     /* 将原生栈信息拷贝到新栈中 */
-    uint32_t Index = 0;
     if (Type == sizeof(double))
-        for (Index = 0; Index < *Length; Index++)
+        for (uint32_t Index = 0; Index < *Length; Index++)
             ((double *)StackNew)[Index] = ((double *)(*Stack))[Index];
     if (Type == sizeof(uint8_t))
-        for (Index = 0; Index < *Length; Index++)
+        for (uint32_t Index = 0; Index < *Length; Index++)
             ((uint8_t *)StackNew)[Index] = ((uint8_t *)(*Stack))[Index];
     /* 反馈新栈 */
     CalculatorFree(*Stack);
@@ -591,8 +589,7 @@ static inline uint8_t CalculatorParse(char *Expression, uint32_t *Index,
         /* 生成空间保留该片段,用于下一步的解析 */
         uint32_t Length = 0;
         String = CalculatorMalloc(sizeof(char) * (IndexNew - *Index + 1));
-        uint32_t IndexTemp = 0;
-        for (IndexTemp = *Index; IndexTemp < IndexNew; IndexTemp++) {
+        for (uint32_t IndexTemp = *Index; IndexTemp < IndexNew; IndexTemp++) {
             if (CalculatorIsIgnore(Expression[IndexTemp]) == true)
                 continue;
             String[Length++] = Expression[IndexTemp];
@@ -627,8 +624,7 @@ static inline uint8_t CalculatorParse(char *Expression, uint32_t *Index,
         /* 生成空间保留该片段,用于下一步的解析 */
         uint32_t Length = 0;
         String = CalculatorMalloc(IndexNew - *Index + 1);
-        uint32_t IndexTemp = 0;
-        for (IndexTemp = *Index; IndexTemp < IndexNew; IndexTemp++) {
+        for (uint32_t IndexTemp = *Index; IndexTemp < IndexNew; IndexTemp++) {
             if (CalculatorIsIgnore(Expression[IndexTemp]) == true)
                 continue;
             String[Length++] = Expression[IndexTemp];

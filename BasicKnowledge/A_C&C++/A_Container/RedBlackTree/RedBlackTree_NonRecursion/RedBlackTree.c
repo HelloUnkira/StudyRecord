@@ -783,8 +783,7 @@ uint8_t RBT_InternalCheck(void *Tree, void *Stack, int32_t *Flags, int32_t Lengt
         return 0;
     
     //初始化flags的值
-    int32_t Index = 0;
-    for (Index = 0; Index < Length; Index++) Flags[Index] = LEFT;
+    for (int32_t Index = 0; Index < Length; Index++) Flags[Index] = LEFT;
     //深度优先搜索,使用flags同步维护栈进动情况
     RB_Node *LeftChild  = NULL;
     RB_Node *RightChild = NULL;

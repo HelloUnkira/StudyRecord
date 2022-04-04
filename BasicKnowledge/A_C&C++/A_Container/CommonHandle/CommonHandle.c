@@ -35,7 +35,6 @@ static CHandleBody CHandle = {0};
 /* 获取一个空闲句柄 */
 uint32_t CommonHandleTake(void)
 {
-    uint32_t Index  = 0;
     uint32_t Index1 = 0;
     uint32_t Index2 = 0;
     uint32_t Handle = COMMON_HANDLE_INVALID;
@@ -53,10 +52,10 @@ uint32_t CommonHandleTake(void)
         uint32_t Length = CHandle.Length + COMMON_HANDLE_UINT_SCAL_FACTOR;
         CHandleUnit *Unit = COMMON_HANDLE_MALLOC(sizeof(CHandleUnit) * Length);
         /* 拷贝原生的资源管理单元集合 */
-        for (Index = 0; Index < CHandle.Length; Index++)
+        for (uint32_t Index = 0; Index < CHandle.Length; Index++)
             Unit[Index] = CHandle.Unit[Index];
         /* 初始化新生成的资源管理单元集合 */
-        for (Index = CHandle.Length; Index < Length; Index++)
+        for (uint32_t Index = CHandle.Length; Index < Length; Index++)
             Unit[Index].Source = NULL;
         /* 释放原生的资源管理单元集合 */
         COMMON_HANDLE_FREE(CHandle.Unit);
@@ -72,7 +71,7 @@ uint32_t CommonHandleTake(void)
         uint32_t Length = COMMON_HANDLE_UINT_LENGTH;
         void   **Source = COMMON_HANDLE_MALLOC(sizeof(void *) * Length);
         /* 初始化新生成的单元句柄集合 */
-        for (Index = 0; Index < Length; Index++)
+        for (uint32_t Index = 0; Index < Length; Index++)
             Source[Index] = NULL;
         /* 设置新生成的资源管理单元集合 */
         CHandle.Unit[Index1].Number = Number;

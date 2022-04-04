@@ -39,7 +39,6 @@ static void RingBuffer_RewindIndex(RingBuffer *Instance)
  */
 int32_t RingBuffer_Gets(RingBuffer *Instance, void *Data, uint32_t Length)
 {
-    uint32_t index = 0, index1 = 0;
     uint8_t  *Buffer1 = Data;
     uint16_t *Buffer2 = Data;
     uint32_t *Buffer4 = Data;
@@ -53,50 +52,50 @@ int32_t RingBuffer_Gets(RingBuffer *Instance, void *Data, uint32_t Length)
     switch (Instance->Type) {
     case 1:
         if (Instance->Mask != 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Head) & Instance->Mask;
-                Buffer1[index] = Instance->Buffer1[index1];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Head) & Instance->Mask;
+                 Buffer1[Index] = Instance->Buffer1[Index1];
             }
         if (Instance->Mask == 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Head) % Instance->Size;
-                Buffer1[index] = Instance->Buffer1[index1];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Head) % Instance->Size;
+                 Buffer1[Index] = Instance->Buffer1[Index1];
             }
         break;
     case 2:
         if (Instance->Mask != 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Head) & Instance->Mask;
-                Buffer2[index] = Instance->Buffer2[index1];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Head) & Instance->Mask;
+                 Buffer2[Index] = Instance->Buffer2[Index1];
             }
         if (Instance->Mask == 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Head) % Instance->Size;
-                Buffer2[index] = Instance->Buffer2[index1];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Head) % Instance->Size;
+                 Buffer2[Index] = Instance->Buffer2[Index1];
             }
         break;
     case 4:
         if (Instance->Mask != 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Head) & Instance->Mask;
-                Buffer4[index] = Instance->Buffer4[index1];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Head) & Instance->Mask;
+                 Buffer4[Index] = Instance->Buffer4[Index1];
             }
         if (Instance->Mask == 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Head) % Instance->Size;
-                Buffer4[index] = Instance->Buffer4[index1];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Head) % Instance->Size;
+                 Buffer4[Index] = Instance->Buffer4[Index1];
             }
         break;
     case 8:
         if (Instance->Mask != 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Head) & Instance->Mask;
-                Buffer8[index] = Instance->Buffer8[index1];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Head) & Instance->Mask;
+                 Buffer8[Index] = Instance->Buffer8[Index1];
             }
         if (Instance->Mask == 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Head) % Instance->Size;
-                Buffer8[index] = Instance->Buffer8[index1];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Head) % Instance->Size;
+                 Buffer8[Index] = Instance->Buffer8[Index1];
             }
         break;
     default:
@@ -119,7 +118,6 @@ int32_t RingBuffer_Gets(RingBuffer *Instance, void *Data, uint32_t Length)
  */
 int32_t RingBuffer_Puts(RingBuffer *Instance, void *Data, uint32_t Length)
 {
-    uint32_t index = 0, index1 = 0;
     uint8_t  *Buffer1 = Data;
     uint16_t *Buffer2 = Data;
     uint32_t *Buffer4 = Data;
@@ -131,50 +129,50 @@ int32_t RingBuffer_Puts(RingBuffer *Instance, void *Data, uint32_t Length)
     switch (Instance->Type) {
     case 1:
         if (Instance->Mask != 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Tail) & Instance->Mask;
-                Instance->Buffer1[index1] = Buffer1[index];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Tail) & Instance->Mask;
+                 Instance->Buffer1[Index1] = Buffer1[Index];
             }
         if (Instance->Mask == 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Tail) % Instance->Size;
-                Instance->Buffer1[index1] = Buffer1[index];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Tail) % Instance->Size;
+                 Instance->Buffer1[Index1] = Buffer1[Index];
             }
         break;
     case 2:
         if (Instance->Mask != 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Tail) & Instance->Mask;
-                Instance->Buffer2[index1] = Buffer2[index];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Tail) & Instance->Mask;
+                 Instance->Buffer2[Index1] = Buffer2[Index];
             }
         if (Instance->Mask == 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Tail) % Instance->Size;
-                Instance->Buffer2[index1] = Buffer2[index];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Tail) % Instance->Size;
+                 Instance->Buffer2[Index1] = Buffer2[Index];
             }
         break;
     case 4:
         if (Instance->Mask != 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Tail) & Instance->Mask;
-                Instance->Buffer4[index1] = Buffer4[index];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Tail) & Instance->Mask;
+                 Instance->Buffer4[Index1] = Buffer4[Index];
             }
         if (Instance->Mask == 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Tail) % Instance->Size;
-                Instance->Buffer4[index1] = Buffer4[index];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Tail) % Instance->Size;
+                 Instance->Buffer4[Index1] = Buffer4[Index];
             }
         break;
     case 8:
         if (Instance->Mask != 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Tail) & Instance->Mask;
-                Instance->Buffer8[index1] = Buffer8[index];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Tail) & Instance->Mask;
+                 Instance->Buffer8[Index1] = Buffer8[Index];
             }
         if (Instance->Mask == 0)
-            for (index = 0; index < Length; index++) {
-                index1 = (index + Instance->Tail) % Instance->Size;
-                Instance->Buffer8[index1] = Buffer8[index];
+            for (uint32_t Index = 0; Index < Length; Index++) {
+                 uint32_t Index1 = (Index + Instance->Tail) % Instance->Size;
+                 Instance->Buffer8[Index1] = Buffer8[Index];
             }
         break;
     default:
