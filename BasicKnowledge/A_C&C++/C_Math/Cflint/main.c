@@ -12,10 +12,10 @@ void Test_Base(void)
 {
 #define TEST_BASE_LENGTH    10
     uint32_t Index = 0;
-    CFLINT_BYTES Result[TEST_BASE_LENGTH * 2] = {0};
-    CFLINT_BYTES Operator1[TEST_BASE_LENGTH] = {0};
-    CFLINT_BYTES Operator2[TEST_BASE_LENGTH] = {0};
-    CFLINT_BYTES Overflow = 0;
+    CFLINT_TYPE Result[TEST_BASE_LENGTH * 2] = {0};
+    CFLINT_TYPE Operator1[TEST_BASE_LENGTH] = {0};
+    CFLINT_TYPE Operator2[TEST_BASE_LENGTH] = {0};
+    CFLINT_TYPE Overflow = 0;
     
     for (Index = 0; Index < TEST_BASE_LENGTH; Index++)
         Operator1[Index] = Index;
@@ -23,7 +23,7 @@ void Test_Base(void)
         Operator2[Index] = Index;
     
     /* 和运算 */
-    Cflint_Addition(Result, &Overflow, Operator1, Operator2, TEST_BASE_LENGTH);
+    Overflow = Cflint_Addition(Result, Operator1, Operator2, TEST_BASE_LENGTH);
     printf("\n-------------------------------------------------------------\n");
     printf("Overflow:%d, Result:\n", Overflow);
     for (Index = 0; Index < TEST_BASE_LENGTH; Index++)
@@ -36,7 +36,7 @@ void Test_Base(void)
         Operator2[Index] = Index;
     
     /* 差运算 */
-    Cflint_Subtraction(Result, &Overflow, Operator1, Operator2, TEST_BASE_LENGTH);
+    Overflow = Cflint_Subtraction(Result, Operator1, Operator2, TEST_BASE_LENGTH);
     printf("\n-------------------------------------------------------------\n");
     printf("Overflow:%d, Result:\n", Overflow);
     for (Index = 0; Index < TEST_BASE_LENGTH; Index++)
@@ -49,7 +49,7 @@ void Test_Base(void)
         Operator2[Index] = 1;
     
     /* 乘运算 */
-    Cflint_Multiply(Result, TEST_BASE_LENGTH, Operator1, Operator2);
+    Cflint_Multiply(Result, Operator1, Operator2, TEST_BASE_LENGTH);
     printf("\n-------------------------------------------------------------\n");
     printf("Overflow:%d, Result:\n", Overflow);
     for (Index = 0; Index < TEST_BASE_LENGTH * 2; Index++)
@@ -62,7 +62,7 @@ void Test_Base(void)
         Operator2[Index] = 1;
     
     /* 方运算 */
-    Cflint_Square(Result, TEST_BASE_LENGTH, Operator1);
+    Cflint_Square(Result, Operator1, TEST_BASE_LENGTH);
     printf("\n-------------------------------------------------------------\n");
     printf("Overflow:%d, Result:\n", Overflow);
     for (Index = 0; Index < TEST_BASE_LENGTH * 2; Index++)
@@ -132,10 +132,10 @@ void Test_AES128(void)
 
 int main(int argc, uint8_t *argv[]) {
 
-    printf("Port Endian:%d\n", Cflint_CheckEndian());
+    printf("Port Endian:%d\n", Cflint_EndianCheck());
 
     Test_Base();
-    //Test_AES128();
+    Test_AES128();
 
     return 0;
 }

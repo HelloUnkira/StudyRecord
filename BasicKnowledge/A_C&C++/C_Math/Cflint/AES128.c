@@ -1,17 +1,14 @@
 #include "Cflint.h"
 
 #ifdef CFLINT_USE_AES128
-/*  */
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 辅助功能1:密钥转矩阵 */
 static inline void AES128_ChangeData0(uint8_t Matrix[4][4], uint8_t Key[16])
-{
-    uint8_t I = 0, J = 0;
-    //秘钥输入状态矩阵
-    for (I = 0; I <= 3; I++)
-        for (J = 0; J <= 3; J++)
+{   //秘钥输入状态矩阵
+    for (uint8_t I = 0; I <= 3; I++)
+        for (uint8_t J = 0; J <= 3; J++)
             Matrix[J][I] = Key[I * 4 + J];
 }
 /*****************************************************************************/
@@ -19,11 +16,9 @@ static inline void AES128_ChangeData0(uint8_t Matrix[4][4], uint8_t Key[16])
 /*****************************************************************************/
 /* 辅助功能2:矩阵转密钥 */
 static inline void AES128_ChangeData1(uint8_t Matrix[4][4], uint8_t Key[16])
-{
-    uint8_t I = 0, J = 0;
-    //状态矩阵输入秘钥
-    for (I = 0; I <= 3; I++)
-        for (J = 0; J <= 3; J++)
+{   //状态矩阵输入秘钥
+    for (uint8_t I = 0; I <= 3; I++)
+        for (uint8_t J = 0; J <= 3; J++)
             Key[I * 4 + J] = Matrix[J][I];
 }
 /*****************************************************************************/
@@ -125,15 +120,14 @@ static inline uint8_t AES128_ChangeByte1(uint8_t Byte)
 /* 工步流1:字节代换 */
 static void AES128_ChangeByte(uint8_t Matrix[4][4], uint8_t Flag)
 {
-    uint8_t I = 0, J = 0;
     if (Flag == 0) {
-        for (I = 0; I <= 3; I++)
-            for (J = 0; J <= 3; J++)
+        for (uint8_t I = 0; I <= 3; I++)
+            for (uint8_t J = 0; J <= 3; J++)
                 Matrix[I][J] = AES128_ChangeByte0(Matrix[I][J]);
     }
     if (Flag == 1) {
-        for (I = 0; I <= 3; I++)
-            for (J = 0; J <= 3; J++)
+        for (uint8_t I = 0; I <= 3; I++)
+            for (uint8_t J = 0; J <= 3; J++)
                 Matrix[I][J] = AES128_ChangeByte1(Matrix[I][J]);
     }
 }
@@ -203,55 +197,54 @@ static inline uint8_t AES128_GF_Multiply2(uint8_t Data)
 /* 工步流3:列混合(状态矩阵按列混合:0混合1逆混合),基于GF(2^8) */
 static void AES128_ColumnMixture(uint8_t Matrix[4][4], uint8_t Flag)
 {
-    uint8_t I = 0, J = 0, K = 0;
     uint8_t Byte[4][4] = {0};
 
     if (Flag == 0) {
         //针对列混合矩阵进行定向优化
-        for (I = 0; I <= 3; I++)
-            for (J = 0; J <= 3; J++) {//第0列:
-                uint8_t Result = 0;
-                Result ^= AES128_GF_Multiply2(Matrix[(0 + I) % 4][J]);  //0x02
-                Result ^= AES128_GF_Multiply2(Matrix[(1 + I) % 4][J]);  //0x03
-                Result ^= Matrix[(1 + I) % 4][J];
-                Result ^= Matrix[(2 + I) % 4][J];                       //0x01
-                Result ^= Matrix[(3 + I) % 4][J];                       //0x01
-                Byte[I][J] = Result;
-            }
-        for (I = 0; I <= 3; I++)
-            for (J = 0; J <= 3; J++)
-                Matrix[I][J] = Byte[I][J];
+        for (uint8_t I = 0; I <= 3; I++)
+        for (uint8_t J = 0; J <= 3; J++) {//第0列:
+             uint8_t Result = 0;
+            Result ^= AES128_GF_Multiply2(Matrix[(0 + I) % 4][J]);  //0x02
+            Result ^= AES128_GF_Multiply2(Matrix[(1 + I) % 4][J]);  //0x03
+            Result ^= Matrix[(1 + I) % 4][J];
+            Result ^= Matrix[(2 + I) % 4][J];                       //0x01
+            Result ^= Matrix[(3 + I) % 4][J];                       //0x01
+            Byte[I][J] = Result;
+        }
+        for (uint8_t I = 0; I <= 3; I++)
+        for (uint8_t J = 0; J <= 3; J++)
+             Matrix[I][J] = Byte[I][J];
     }
     if (Flag == 1) {
         uint8_t Temp = 0;
         //针对列混合矩阵进行定向优化
-        for (I = 0; I <= 3; I++)
-            for (J = 0; J <= 3; J++) {//第0列:
-                uint8_t Result = 0;
-                Temp = Matrix[(0 + I) % 4][J];          //0x0e
-                Result ^= (Temp = AES128_GF_Multiply2(Temp));
-                Result ^= (Temp = AES128_GF_Multiply2(Temp));
-                Result ^= (Temp = AES128_GF_Multiply2(Temp));
-                Temp = Matrix[(1 + I) % 4][J];          //0x0b
-                Result ^= (Temp);
-                Result ^= (Temp = AES128_GF_Multiply2(Temp));
-                          (Temp = AES128_GF_Multiply2(Temp));
-                Result ^= (Temp = AES128_GF_Multiply2(Temp));
-                Temp = Matrix[(2 + I) % 4][J];          //0x0d
-                Result ^= (Temp);
-                          (Temp = AES128_GF_Multiply2(Temp));
-                Result ^= (Temp = AES128_GF_Multiply2(Temp));
-                Result ^= (Temp = AES128_GF_Multiply2(Temp));
-                Temp = Matrix[(3 + I) % 4][J];          //0x09
-                Result ^= (Temp);
-                          (Temp = AES128_GF_Multiply2(Temp));
-                          (Temp = AES128_GF_Multiply2(Temp));
-                Result ^= (Temp = AES128_GF_Multiply2(Temp));
-                Byte[I][J] = Result;
-            }
-        for (I = 0; I <= 3; I++)
-            for (J = 0; J <= 3; J++)
-                Matrix[I][J] = Byte[I][J];
+        for (uint8_t I = 0; I <= 3; I++)
+        for (uint8_t J = 0; J <= 3; J++) {//第0列:
+             uint8_t Result = 0;
+            Temp = Matrix[(0 + I) % 4][J];          //0x0e
+            Result ^= (Temp = AES128_GF_Multiply2(Temp));
+            Result ^= (Temp = AES128_GF_Multiply2(Temp));
+            Result ^= (Temp = AES128_GF_Multiply2(Temp));
+            Temp = Matrix[(1 + I) % 4][J];          //0x0b
+            Result ^= (Temp);
+            Result ^= (Temp = AES128_GF_Multiply2(Temp));
+                      (Temp = AES128_GF_Multiply2(Temp));
+            Result ^= (Temp = AES128_GF_Multiply2(Temp));
+            Temp = Matrix[(2 + I) % 4][J];          //0x0d
+            Result ^= (Temp);
+                      (Temp = AES128_GF_Multiply2(Temp));
+            Result ^= (Temp = AES128_GF_Multiply2(Temp));
+            Result ^= (Temp = AES128_GF_Multiply2(Temp));
+            Temp = Matrix[(3 + I) % 4][J];          //0x09
+            Result ^= (Temp);
+                      (Temp = AES128_GF_Multiply2(Temp));
+                      (Temp = AES128_GF_Multiply2(Temp));
+            Result ^= (Temp = AES128_GF_Multiply2(Temp));
+            Byte[I][J] = Result;
+        }
+        for (uint8_t I = 0; I <= 3; I++)
+        for (uint8_t J = 0; J <= 3; J++)
+             Matrix[I][J] = Byte[I][J];
     }
 }
 /*****************************************************************************/
@@ -283,14 +276,12 @@ static const uint8_t AES128_C2[4][4] = {
 /* 伽罗瓦域乘运算:GF(2^8) */
 static uint8_t inline AES128_GF_Multiply(uint8_t Data1, uint8_t Data2)
 {
-    uint8_t I = 1;
-    uint8_t Temp = Data1;
     uint8_t Result = 0;
 
     if ((Data2 & 0x01) != 0)
         Result ^= Data1;
-    for (I = 1; I < 8; I++) {
-        Temp = AES128_GF_Multiply2(Temp);
+    for (uint8_t I = 1; I < 8; I++) {
+         uint8_t Temp = AES128_GF_Multiply2(Temp);
         if ((Data2 & (1 << I)) != 0)
             Result ^= Temp;
     }
@@ -302,37 +293,36 @@ static uint8_t inline AES128_GF_Multiply(uint8_t Data1, uint8_t Data2)
 /* 工步流3:列混合(状态矩阵按列混合:0混合1逆混合),基于GF(2^8) */
 static void AES128_ColumnMixture(uint8_t Matrix[4][4], uint8_t Flag)
 {
-    uint8_t I = 0, J = 0, K = 0;
     uint8_t Byte[4][4] = {0};
 
     uint8_t Temp = 0;
     if (Flag == 0) {
-        for (I = 0; I <= 3; I++)
-            for (J = 0; J <= 3; J++) {
-                uint8_t Result = 0;
-                for (K = 0; K <= 3; K++) {
-                    Temp   = AES128_GF_Multiply(Matrix[K][J],AES128_C1[I][K]);
-                    Result = AES128_GF_Addition(Result, Temp);
-                }
-                Byte[I][J] = Result;
+        for (uint8_t I = 0; I <= 3; I++)
+        for (uint8_t J = 0; J <= 3; J++) {
+             uint8_t Result = 0;
+            for (uint8_t K = 0; K <= 3; K++) {
+                Temp   = AES128_GF_Multiply(Matrix[K][J],AES128_C1[I][K]);
+                Result = AES128_GF_Addition(Result, Temp);
             }
-        for (I = 0; I <= 3; I++)
-            for (J = 0; J <= 3; J++)
-                Matrix[I][J] = Byte[I][J];
+            Byte[I][J] = Result;
+        }
+        for (uint8_t I = 0; I <= 3; I++)
+        for (uint8_t J = 0; J <= 3; J++)
+             Matrix[I][J] = Byte[I][J];
     }
     if (Flag == 1) {
-        for (I = 0; I <= 3; I++)
-            for (J = 0; J <= 3; J++) {
-                uint8_t Result = 0;
-                for (K = 0; K <= 3; K++) {
-                    Temp   = AES128_GF_Multiply(Matrix[K][J],AES128_C2[I][K]);
-                    Result = AES128_GF_Addition(Result, Temp);
-                }
-                Byte[I][J] = Result;
+        for (uint8_t I = 0; I <= 3; I++)
+        for (uint8_t J = 0; J <= 3; J++) {
+             uint8_t Result = 0;
+            for (uint8_t K = 0; K <= 3; K++) {
+                Temp   = AES128_GF_Multiply(Matrix[K][J],AES128_C2[I][K]);
+                Result = AES128_GF_Addition(Result, Temp);
             }
-        for (I = 0; I <= 3; I++)
-            for (J = 0; J <= 3; J++)
-                Matrix[I][J] = Byte[I][J];
+            Byte[I][J] = Result;
+        }
+        for (uint8_t I = 0; I <= 3; I++)
+        for (uint8_t J = 0; J <= 3; J++)
+             Matrix[I][J] = Byte[I][J];
     }
 }
 /*****************************************************************************/
@@ -345,11 +335,9 @@ static void AES128_ColumnMixture(uint8_t Matrix[4][4], uint8_t Flag)
 /* 工步流4:秘钥轮加(状态矩阵从上往下,从左往右:轮加,逆轮加一致) */
 static void AES128_KeyWheel(uint8_t Matrix0[4][4], uint8_t Matrix1[4][4])
 {
-    uint8_t I = 0, J = 0;
-
-    for (I = 0; I <= 3; I++)
-        for (J = 0; J <= 3; J++)
-            Matrix0[I][J] ^= Matrix1[I][J];
+    for (uint8_t I = 0; I <= 3; I++)
+    for (uint8_t J = 0; J <= 3; J++)
+        Matrix0[I][J] ^= Matrix1[I][J];
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -401,7 +389,6 @@ static void AES128_Function_T(uint8_t Key[4], uint8_t round)
 /* 工步流5:秘钥扩展 */
 static void AES128_KeyExtern(uint8_t Matrix[11][4][4], uint8_t Key[16])
 {
-    uint8_t  K = 0, T = 0;
     uint8_t  Temp[2][16] = {0};
     uint8_t *Key_T = (void *)0;
     uint8_t *Key_0 = Temp[0];    //前一轮
@@ -411,19 +398,19 @@ static void AES128_KeyExtern(uint8_t Matrix[11][4][4], uint8_t Key[16])
     AES128_KEY_TO_MATRIX(Matrix[0], Key);
 
     //2.初始上一轮数据
-    for (K = 0; K < 16; K++)
+    for (uint8_t K = 0; K < 16; K++)
         Key_0[K] = Key[K];
 
     //3.轮运算
-    for (K = 1; K <= 10; K++) {
-        for (T = 0; T < 16; T++)
+    for (uint8_t K = 1; K <= 10; K++) {
+        for (uint8_t T = 0; T < 16; T++)
             Key_1[T] = Key_0[T];
         //1.求轮函数
         AES128_Function_T(&(Key_0[12]), K);
         //2.求记录
-        for (T = 0; T < 4; T++)
+        for (uint8_t T = 0; T < 4; T++)
             Key_1[T] ^= Key_0[T + 12];
-        for (T = 4; T < 16; T++)
+        for (uint8_t T = 4; T < 16; T++)
             Key_1[T] ^= Key_1[T - 4];
         //3.保存当前轮记录
         AES128_KEY_TO_MATRIX(Matrix[1], Key_1);
@@ -440,21 +427,20 @@ static void AES128_KeyExtern(uint8_t Matrix[11][4][4], uint8_t Key[16])
 void AES128_Run(uint8_t *Text, uint32_t Length, uint8_t Key[16], uint8_t Flag)
 {
     //1.建立状态矩阵
-    uint32_t I = 0, K = 0;
     uint8_t AES128_Matrix[11][4][4] = {0};
     uint8_t Matrix[4][4] = {0};
     //2.扩展秘钥
     AES128_KeyExtern(AES128_Matrix, Key);
     //3.迭代加密或解密
     if (Flag == 0) {
-        for (I = 0; I < Length; I += 16) {
+        for (uint32_t I = 0; I < Length; I += 16) {
             AES128_KEY_TO_MATRIX(Matrix, &(Text[I]));
             //1.起始秘钥轮加
             {
                 AES128_KeyWheel(Matrix, AES128_Matrix[0]);
             }
             //2.前九轮
-            for (K = 1; K <= 9; K++) {
+            for (uint32_t K = 1; K <= 9; K++) {
                 //1.字节代换
                 AES128_ChangeByte(Matrix, 0);
                 //2.行移位
@@ -478,17 +464,17 @@ void AES128_Run(uint8_t *Text, uint32_t Length, uint8_t Key[16], uint8_t Flag)
     }
     if (Flag == 1) {
         //额外动作:解密时部分扩展秘钥逆列混合
-        for (K = 9; K >= 1; K--)
+        for (uint32_t K = 9; K >= 1; K--)
             AES128_ColumnMixture(AES128_Matrix[K], 1);
 
-        for (I = 0; I < Length; I += 16) {
+        for (uint32_t I = 0; I < Length; I += 16) {
             AES128_KEY_TO_MATRIX(Matrix, &(Text[I]));
             //1.起始秘钥轮加
             {
                 AES128_KeyWheel(Matrix, AES128_Matrix[10]);
             }
             //2.前九轮
-            for (K = 9; K >= 1; K--) {
+            for (uint32_t K = 9; K >= 1; K--) {
                 //1.逆字节代换
                 AES128_ChangeByte(Matrix, 1);
                 //2.逆行移位
