@@ -127,12 +127,15 @@ void Test_AES128(void)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-
+void PortInfoCheck(const char *Parameter, uint32_t Result)
+{
+    printf(Parameter, Result);
+}
 
 
 int main(int argc, uint8_t *argv[]) {
 
-    printf("Port Endian:%d\n", Cflint_EndianCheck());
+    Cflint_PortInfoCheck(PortInfoCheck);
 
     Test_Base();
     Test_AES128();
