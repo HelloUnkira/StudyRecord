@@ -3,102 +3,42 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 拷贝:Operand0 = Operand1 */
-static inline void Cflint_Copy(CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1,
-                               uint32_t Length)
-{
-    for (uint32_t Index = 0; Index < Length; Index++)
-        Operand0[Index] = Operand1[Index];
-}
+#ifdef CFLINT_USE_BASE
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 比较:((>:1);(==:0);(<:-1)) */
-static inline int8_t Cflint_Compare(CFLINT_TYPE *Operand0,
-                                    CFLINT_TYPE *Operand1, uint32_t Length)
-{
-    for (int64_t Index = (int64_t)Length - 1; Index >= 0; Index--)
-        if (Operand0[Index] != Operand1[Index]) {
-            if (Operand0[Index] > Operand1[Index])
-                return 1;
-            if (Operand0[Index] < Operand1[Index])
-                return -1;
-        }
-    return 0;
-}
+/* 和运算:Operand += Overflow */
+CFLINT_TYPE Cflint_AdditionBit(CFLINT_TYPE *Operand, uint32_t Length,
+                               CFLINT_TYPE  Overflow);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 相等判断:((==:1);(!=:0)) */
-static inline bool Cflint_Equal(CFLINT_TYPE *Operand0,
-                                CFLINT_TYPE *Operand1, uint32_t Length)
-{
-    CFLINT_TYPE Result = 0;
-    for (uint32_t Index = 0; Index < Length; Index++)
-        Result |= Operand0[Index] ^ Operand1[Index];
-    return (Result == 0 ? true : false);
-}
+/* 差运算:Operand -= Overflow */
+CFLINT_TYPE Cflint_SubtractionBit(CFLINT_TYPE *Operand, uint32_t Length,
+                                  CFLINT_TYPE  Overflow);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 计算有效位数:2进制位数 */
-static inline int64_t Cflint_Numbers2(CFLINT_TYPE *Operand, uint32_t Length)
-{
-    /* 先计算前导0 */
-    int64_t Numbers2Zero = 0, Index1 = 0, Index2 = 0;
-    /* 粗粒度计算 */
-    for (Index1 = (int64_t)Length - 1; Index1 >= 0; Index1--)
-        if (Operand[Index1] != 0)
-            break;
-    /* 一次查验,全空时 */
-    if (Index1 < 0)
-        return (((int64_t)Length) * ((int64_t)CFLINT_BITS));
-    /* 不存在全空时,查验落点位 */
-    for (Index2 = (int64_t)CFLINT_BITS - 1; Index2 >= 0; Index2--)
-        if ((Operand[Index1] & (1 << Index2)) != 0)
-            break;
-    /* 二次计算,返回 */
-    return (((int64_t)(Index1)) * ((int64_t)CFLINT_BITS)) + Index2;
-}
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/* 为0判断:Operand == 0 */
-static inline bool Cflint_IsZero(CFLINT_TYPE *Operand, uint32_t Length)
-{
-    for (uint32_t Index = 0; Index < Length; Index++)
-        if (Operand[Index] != 0)
-            return false;
-    return true;
-}
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/* 设值:类似memset */
-static inline void Cflint_SetValue(CFLINT_TYPE *Operand, uint32_t Length,
-                                   CFLINT_TYPE  Value)
-{
-    for (uint32_t Index = 0; Index < Length; Index++)
-        Operand[Index] = Value;
-}
+/* 翻转数:模对称指定位翻转数 */
+CFLINT_TYPE Cflint_Reserve(CFLINT_TYPE *Operand, uint32_t Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 和运算:Result = Operand1 + Operand2 */
 CFLINT_TYPE Cflint_Addition(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1, 
-                            CFLINT_TYPE *Operand2,   uint32_t Length);
+                            CFLINT_TYPE *Operand2,  uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 差运算:Result = Operand1 - Operand2 */
 CFLINT_TYPE Cflint_Subtraction(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1,
-                               CFLINT_TYPE *Operand2,   uint32_t Length);
+                               CFLINT_TYPE *Operand2,  uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 乘运算:Result = Operand1 * Operand2; 结果的长度实际是Length * 2 */
 void Cflint_Multiply(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1,
-                     CFLINT_TYPE *Operand2,   uint32_t Length);
+                     CFLINT_TYPE *Operand2,  uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -128,8 +68,24 @@ void Cflint_ShiftRightN(CFLINT_TYPE *Operand, uint32_t Length, uint32_t BitsN);
 /*****************************************************************************/
 /*****************************************************************************/
 /* 带余除运算:Quotient = Operand0 / Operand1; Module = Operand0 % Operand1 */
-void Cflint_Devide(CFLINT_TYPE *Quotient, CFLINT_TYPE *Module, uint32_t Length,
-                   CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1);
+void Cflint_Devide(CFLINT_TYPE *Quotient, CFLINT_TYPE *Module,
+                   CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1,
+                      uint32_t  Length);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 基础模运算:Module = Operand0 % Operand1 */
+void Cflint_Modulo(CFLINT_TYPE *Module, CFLINT_TYPE *Operand0,
+                   CFLINT_TYPE *Operand1,  uint32_t  Length);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 基础模运算2:Operand %= (2**K == (1 << Bits2)) */
+void Cflint_Modulo2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+#endif
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

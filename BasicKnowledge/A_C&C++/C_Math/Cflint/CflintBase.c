@@ -1,26 +1,75 @@
 #include "Cflint.h"
-
-/*备注:
- *和差乘方运算实现来源于uECC.c.h
- */
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 和运算:数累加一个位 */
-CFLINT_TYPE Cflint_AdditionValue(CFLINT_TYPE *Operand, uint32_t Length,
-                                 CFLINT_TYPE  Value)
+#ifdef CFLINT_USE_BASE
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/*备注:和差乘方运算实现来源于uECC.c.h */
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 和运算:数加一个位 */
+CFLINT_TYPE Cflint_AdditionBit(CFLINT_TYPE *Operand, uint32_t Length,
+                               CFLINT_TYPE  Overflow)
 {
-    CFLINT_TYPE Overflow = Value;
     /* 计算数累加一个位 */
     for (uint32_t Index = 0; Index < Length; Index++) {
         CFLINT_TYPE Temp = Operand[Index] + Overflow;
-        /* 保存运算结果 */
-        Operand[Index] = Temp;
         /* 检查进位溢出 */
         if (Temp < Operand[Index])
             Overflow = 1;
-        else
+        if (Temp > Operand[Index])
+            Overflow = 0;
+        /* 保存运算结果 */
+        Operand[Index] = Temp;
+        /* 不存在进位溢出时即可退出 */
+        if (Overflow == 0)
             return 0;
+    }
+    return 1;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 差运算:数减一个位 */
+CFLINT_TYPE Cflint_SubtractionBit(CFLINT_TYPE *Operand, uint32_t Length,
+                                  CFLINT_TYPE  Overflow)
+{
+    /* 计算数累加一个位 */
+    for (uint32_t Index = 0; Index < Length; Index++) {
+        CFLINT_TYPE Temp = Operand[Index] - Overflow;
+        /* 检查借位溢出 */
+        if (Temp > Operand[Index])
+            Overflow = 1;
+        if (Temp < Operand[Index])
+            Overflow = 0;
+        /* 保存运算结果 */
+        Operand[Index] = Temp;
+        /* 不存在借位溢出时即可退出 */
+        if (Overflow == 0)
+            return 0;
+    }
+    return 1;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 翻转数:模对称指定位翻转数 */
+CFLINT_TYPE Cflint_Reserve(CFLINT_TYPE *Operand, uint32_t Length)
+{
+    CFLINT_TYPE Overflow = 0;
+    /* 计算数累加一个位 */
+    for (uint32_t Index = 0; Index < Length; Index++) {
+        CFLINT_TYPE Temp = 0 - Operand[Index] - Overflow;
+        /* 检查借位溢出 */
+        if (Temp > Operand[Index])
+            Overflow = 1;
+        if (Temp < Operand[Index])
+            Overflow = 0;
+        /* 保存运算结果 */
+        Operand[Index] = Temp;
     }
     return 1;
 }
@@ -29,7 +78,7 @@ CFLINT_TYPE Cflint_AdditionValue(CFLINT_TYPE *Operand, uint32_t Length,
 /*****************************************************************************/
 /* 和运算 */
 CFLINT_TYPE Cflint_Addition(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1, 
-                            CFLINT_TYPE *Operand2,   uint32_t Length)
+                            CFLINT_TYPE *Operand2,  uint32_t  Length)
 {
     CFLINT_TYPE Overflow = 0;
     /* 计算俩数和 */
@@ -51,7 +100,7 @@ CFLINT_TYPE Cflint_Addition(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1,
 /*****************************************************************************/
 /* 差运算 */
 CFLINT_TYPE Cflint_Subtraction(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1,
-                               CFLINT_TYPE *Operand2,   uint32_t Length)
+                               CFLINT_TYPE *Operand2,  uint32_t  Length)
 {
     CFLINT_TYPE Overflow = 0;
     /* 计算俩数差 */
@@ -208,7 +257,7 @@ static void Cflint_Square1(CFLINT_TYPE  Data1,  CFLINT_TYPE  Data2,
 /*****************************************************************************/
 /* 乘运算 */
 void Cflint_Multiply(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1,
-                     CFLINT_TYPE *Operand2,   uint32_t Length)
+                     CFLINT_TYPE *Operand2,  uint32_t  Length)
 {
     CFLINT_TYPE Carry1 = 0;
     CFLINT_TYPE Carry2 = 0;
@@ -335,7 +384,7 @@ void Cflint_ShiftRight2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
     for (Index = (int64_t)Length - Bits_N; Index < (int64_t)Length; Index++)
         Operand[Index] = 0;
 }
-/*****************************************************************************/
+ /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 左移位运算 */
@@ -373,13 +422,17 @@ void Cflint_ShiftRightN(CFLINT_TYPE *Operand, uint32_t Length, uint32_t BitsN)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 带余除运算 */
-void Cflint_Devide(CFLINT_TYPE *Quotient, CFLINT_TYPE *Module, uint32_t Length,
-                   CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1)
+void Cflint_Devide(CFLINT_TYPE *Quotient, CFLINT_TYPE *Module,
+                   CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1,
+                      uint32_t  Length)
 {
     /* 初始化时模为被除数,商为0 */
     Cflint_Copy(Module, Operand0, Length);
     Cflint_SetValue(Quotient, Length, 0);
     CFLINT_TYPE *Operand = Operand1;
+    /* 特例:除数为0检查 */
+    if (Cflint_IsZero(Operand, Length) == true)
+        return;
     /* 除数移位记录 */
     int64_t MovedBits2 = 0;
     /* 主迭代运行 */
@@ -390,36 +443,47 @@ void Cflint_Devide(CFLINT_TYPE *Quotient, CFLINT_TYPE *Module, uint32_t Length,
         if (CompareResult == 0) {
             if (MovedBits2 != 0) {
                 /* 商累加1个单元 */
-                Cflint_AdditionValue(Quotient, Length, 1);
+                Cflint_AdditionBit(Quotient, Length, 1);
                 /* 模为0,商进所有位,除数回退所有位 */
                 Cflint_SetValue(Module, Length, 0);
                 Cflint_ShiftLeft2(Quotient, Length, MovedBits2);
                 Cflint_ShiftRight2(Operand, Length, MovedBits2);
-                MovedBits2 = 0;
             }
-            if (MovedBits2 == 0)
-                return;
+            return;
         }
         /* 被除数小于除数 */
         if (CompareResult == -1) {
             if (MovedBits2 != 0) {
                 int64_t Numbers0 = Cflint_Numbers2(Module, Length);
                 int64_t Numbers1 = Cflint_Numbers2(Operand, Length);
-                /* 商进N个位,除数回退N个位 */
-                Cflint_ShiftLeft2(Quotient, Length, Numbers1 - Numbers0);
-                Cflint_ShiftRight2(Operand, Length, Numbers1 - Numbers0);
-                MovedBits2 -= Numbers1 - Numbers0;
+                /* 在同一水位线时,,商进1个位,除数回退1个位 */
+                if (Numbers0 == Numbers1) {
+                    Cflint_ShiftLeft2(Quotient, Length, 1);
+                    Cflint_ShiftRight2(Operand, Length, 1);
+                    MovedBits2 -= 1;
+                }
+                /* 不在同一水位线时,缺少退位时,商进N个位,除数回退N个位 */
+                if (Numbers0 != Numbers1 && Numbers1 - Numbers0 > MovedBits2) {
+                    Cflint_ShiftLeft2(Quotient, Length, MovedBits2);
+                    Cflint_ShiftRight2(Operand, Length, MovedBits2);
+                    MovedBits2 = 0;
+                }
+                /* 不在同一水位线时,冗余退位时,商进N个位,除数回退N个位 */
+                if (Numbers0 != Numbers1 && Numbers1 - Numbers0 <= MovedBits2) {
+                    Cflint_ShiftLeft2(Quotient, Length, Numbers1 - Numbers0);
+                    Cflint_ShiftRight2(Operand, Length, Numbers1 - Numbers0);
+                    MovedBits2 -= Numbers1 - Numbers0;
+                }
                 continue;
             }
-            if (MovedBits2 == 0)
-                return;
+            return;
         }
         /* 被除数大于除数 */
         if (CompareResult == 1) {
             /* 计算被除数和除数有效2进制位数 */
             int64_t Numbers0 = Cflint_Numbers2(Module, Length);
             int64_t Numbers1 = Cflint_Numbers2(Operand, Length);
-            /* 除数放大,如果它们未处在同一级别 */
+            /* 如果它们未处在同一级别,除数放大且小于被除数 */
             if (Numbers0 > Numbers1 + 1) {
                 Cflint_ShiftLeft2(Operand, Length, Numbers0 - Numbers1);
                 MovedBits2 += Numbers0 - Numbers1;
@@ -428,11 +492,100 @@ void Cflint_Devide(CFLINT_TYPE *Quotient, CFLINT_TYPE *Module, uint32_t Length,
             /* 现在被除数和除数至少处于同一级别, 执行约减 */
             Cflint_Subtraction(Module, Module, Operand, Length);
             /* 商累加1个单元 */
-            Cflint_AdditionValue(Quotient, Length, 1);
+            Cflint_AdditionBit(Quotient, Length, 1);
             continue;
         }
     } while (1);
 }
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 基础模运算 */
+void Cflint_Modulo(CFLINT_TYPE *Module, CFLINT_TYPE *Operand0,
+                   CFLINT_TYPE *Operand1,  uint32_t  Length)
+{
+    /* 初始化时模为被除数,商为0 */
+    Cflint_Copy(Module, Operand0, Length);
+    CFLINT_TYPE *Operand = Operand1;
+    /* 特例:除数为0检查 */
+    if (Cflint_IsZero(Operand, Length) == true)
+        return;
+    /* 除数移位记录 */
+    int64_t MovedBits2 = 0;
+    /* 主迭代运行 */
+    do {
+        /* 比较被除数和除数 */
+        int8_t CompareResult = Cflint_Compare(Module, Operand, Length);
+        /* 被除数等于除数,恰好被整除时 */
+        if (CompareResult == 0) {
+            Cflint_SetValue(Module, Length, 0);
+            return;
+        }
+        /* 被除数小于除数 */
+        if (CompareResult == -1) {
+            if (MovedBits2 != 0) {
+                int64_t Numbers0 = Cflint_Numbers2(Module, Length);
+                int64_t Numbers1 = Cflint_Numbers2(Operand, Length);
+                /* 在同一水位线时,后退一个单元 */
+                if (Numbers0 == Numbers1) {
+                    Cflint_ShiftRight2(Operand, Length, 1);
+                    MovedBits2 -= 1;
+                }
+                /* 不在同一水位线时,缺少退位时,除数回退N个位 */
+                if (Numbers0 != Numbers1 && Numbers1 - Numbers0 > MovedBits2) {
+                    Cflint_ShiftRight2(Operand, Length, MovedBits2);
+                    MovedBits2 = 0;
+                }
+                /* 不在同一水位线时,冗余退位时,除数回退N个位 */
+                if (Numbers0 != Numbers1 && Numbers1 - Numbers0 <= MovedBits2) {
+                    Cflint_ShiftRight2(Operand, Length, Numbers1 - Numbers0);
+                    MovedBits2 -= Numbers1 - Numbers0;
+                }
+                continue;
+            }
+            return;
+        }
+        /* 被除数大于除数 */
+        if (CompareResult == 1) {
+            /* 计算被除数和除数有效2进制位数 */
+            int64_t Numbers0 = Cflint_Numbers2(Module, Length);
+            int64_t Numbers1 = Cflint_Numbers2(Operand, Length);
+            /* 如果它们未处在同一级别,除数放大且小于被除数 */
+            if (Numbers0 > Numbers1 + 1) {
+                Cflint_ShiftLeft2(Operand, Length, Numbers0 - Numbers1);
+                MovedBits2 += Numbers0 - Numbers1;
+                continue;
+            }
+            /* 现在被除数和除数至少处于同一级别, 执行约减 */
+            Cflint_Subtraction(Module, Module, Operand, Length);
+            continue;
+        }
+    } while (1);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 基础模运算2 */
+void Cflint_Modulo2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
+{
+    int64_t Bits_N = Bits2 / CFLINT_BITS;
+    int64_t Bits_2 = Bits2 % CFLINT_BITS;
+    CFLINT_TYPE Bit_N = 0;
+    /* 简要检查 */
+    if (Bits2 > Length *CFLINT_BITS || Bits2 == 0)
+        return;
+    /* 移除高位 */
+    for (int64_t Index = Bits_N + 1; Index < Length; Index++)
+        Operand[Index] = 0;
+    /* 移出位内高位 */
+    Bit_N = Operand[Bits_N];
+    Operand[Bits_N] <<= (CFLINT_BITS - Bits_2);
+    Operand[Bits_N] >>= (CFLINT_BITS - Bits_2);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+#endif
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
