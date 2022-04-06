@@ -199,8 +199,8 @@ void Test_Base(void)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 剩余类运算 */
-void Test_ResidueClass(void)
+/* 特殊模运算 */
+void Test_Module(void)
 {
 #define TEST_RESIDUECLASS_LENGTH    3
     uint32_t Index = 0;
@@ -222,8 +222,9 @@ void Test_ResidueClass(void)
     Module[0]   = 0; 
     Exponent[0] = 5;
     /* 模幂运算 */
-    Cflint_ModuloExp(Result, Module, Operand, Exponent,
-                     Temp1, Temp2, Temp3, Temp4, TEST_RESIDUECLASS_LENGTH);
+    Cflint_ModuloExponent(Result, Module, Operand, Exponent,
+                          Temp1, Temp2, Temp3, Temp4,
+                          TEST_RESIDUECLASS_LENGTH);
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_ModuloExp:::");
     printf("\n-------------------------------------------------------------\n");
@@ -250,8 +251,9 @@ void Test_ResidueClass(void)
     }
     Module[0] = 1;
     /* 模逆运算 */
-    Cflint_ModuloInv(Result, Module, Operand, Temp1, Temp2, Temp3, Temp4,
-                     TEST_RESIDUECLASS_LENGTH);
+    Cflint_ModuloInverse(Result, Module, Operand,
+                         Temp1, Temp2, Temp3, Temp4,
+                         TEST_RESIDUECLASS_LENGTH);
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_ModuloInv:::");
     printf("\n-------------------------------------------------------------\n");
@@ -320,8 +322,7 @@ int main(int argc, char *argv[]) {
     Cflint_PortInfoCheck(PortInfoCheck);
 
     Test_Base();
-    Test_ResidueClass();
-    
+    Test_Module();
     
     //Test_AES128();
 
