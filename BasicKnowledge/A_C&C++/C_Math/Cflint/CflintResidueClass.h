@@ -36,6 +36,7 @@ void Cflint_ModuloExp(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 模逆运算: Result = (1 / Operand) % Module */
+/* 要求:Operand < Module */
 void Cflint_ModuloInv(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
                       CFLINT_TYPE *Operand, CFLINT_TYPE *Temp1,
                       CFLINT_TYPE *Temp2,   CFLINT_TYPE *Temp3,

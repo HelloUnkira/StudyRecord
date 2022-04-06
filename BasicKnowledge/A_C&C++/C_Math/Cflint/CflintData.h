@@ -40,36 +40,46 @@
 #define CFLINT_BYTE2HALFLOW 0x00FF
 #define CFLINT_BYTE4HALFLOW 0x0000FFFF
 #define CFLINT_BYTE8HALFLOW 0x00000000FFFFFFFF
+/* 扩展数据 */
+#define CFLINT_BYTE1HIGHEST 0x80
+#define CFLINT_BYTE2HIGHEST 0x8000
+#define CFLINT_BYTE4HIGHEST 0x80000000
+#define CFLINT_BYTE8HIGHEST 0x8000000000000000
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 平台字节对齐类型定义 */
 #if 0
 #define CFLINT_BYTEHALFLOW  /* 平台字:低半字0,高半字1 */
+#define CFLINT_BYTEHIGHEST  /* 平台字:最高位为1 */
 #define CFLINT_BYTEALL      /* 平台字:全字为1 */
 #define CFLINT_BITS         /* 平台字占有二进制位数 */
 #define CFLINT_TYPE         /* 平台字占有字节数 */
 #define CFLINT_TYPE_2       /* 关键字优化 */
 #elif   CFLINT_TYPE_PORT == 1
 #define CFLINT_BYTEHALFLOW  CFLINT_BYTE1HALFLOW
+#define CFLINT_BYTEHIGHEST  CFLINT_BYTE1HIGHEST
 #define CFLINT_BYTEALL      CFLINT_BYTE1ALL
 #define CFLINT_BITS         CFLINT_BITS1
 #define CFLINT_TYPE         CFLINT_TYPE1
 #define CFLINT_TYPE_2       CFLINT_TYPE2
 #elif   CFLINT_TYPE_PORT == 2
 #define CFLINT_BYTEHALFLOW  CFLINT_BYTE2HALFLOW
+#define CFLINT_BYTEHIGHEST  CFLINT_BYTE2HIGHEST
 #define CFLINT_BYTEALL      CFLINT_BYTE2ALL
 #define CFLINT_BITS         CFLINT_BITS2
 #define CFLINT_TYPE         CFLINT_TYPE2
 #define CFLINT_TYPE_2       CFLINT_TYPE4
 #elif   CFLINT_TYPE_PORT == 4
 #define CFLINT_BYTEHALFLOW  CFLINT_BYTE4HALFLOW
+#define CFLINT_BYTEHIGHEST  CFLINT_BYTE4HIGHEST
 #define CFLINT_BYTEALL      CFLINT_BYTE4ALL
 #define CFLINT_BITS         CFLINT_BITS4
 #define CFLINT_TYPE         CFLINT_TYPE4
 #define CFLINT_TYPE_2       CFLINT_TYPE8
 #elif   CFLINT_TYPE_PORT == 8
 #define CFLINT_BYTEHALFLOW  CFLINT_BYTE8HALFLOW
+#define CFLINT_BYTEHIGHEST  CFLINT_BYTE8HIGHEST
 #define CFLINT_BYTEALL      CFLINT_BYTE8ALL
 #define CFLINT_BITS         CFLINT_BITS8
 #define CFLINT_TYPE         CFLINT_TYPE8

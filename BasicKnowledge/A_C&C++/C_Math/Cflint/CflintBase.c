@@ -505,7 +505,8 @@ void Cflint_Modulo(CFLINT_TYPE *Module, CFLINT_TYPE *Operand0,
                    CFLINT_TYPE *Operand1,  uint32_t  Length)
 {
     /* 初始化时模为被除数,商为0 */
-    Cflint_Copy(Module, Operand0, Length);
+    if (Module != Operand0)
+        Cflint_Copy(Module, Operand0, Length);
     CFLINT_TYPE *Operand = Operand1;
     /* 特例:除数为0检查 */
     if (Cflint_IsZero(Operand, Length) == true)

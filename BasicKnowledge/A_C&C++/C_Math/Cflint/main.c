@@ -121,23 +121,23 @@ void Test_Base(void)
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_Devide:::");
     printf("\n-------------------------------------------------------------\n");
-    printf("Result:\n");
+    printf("Result:");
     for (Index = 0; Index < TEST_BASE_LENGTH * 2; Index++)
         printf("%llx ", Result[Index]);
     printf("\n-------------------------------------------------------------\n");
-    printf("Operand1:\n");
+    printf("Operand1:");
     for (Index = 0; Index < TEST_BASE_LENGTH; Index++)
         printf("%llx ", Operand1[Index]);
     printf("\n-------------------------------------------------------------\n");
-    printf("Operand2:\n");
+    printf("Operand2:");
     for (Index = 0; Index < TEST_BASE_LENGTH; Index++)
         printf("%llx ", Operand2[Index]);
     printf("\n-------------------------------------------------------------\n");
-    printf("Quotient:\n");
+    printf("Quotient:");
     for (Index = 0; Index < TEST_BASE_LENGTH * 2; Index++)
         printf("%llx ", Quotient[Index]);
     printf("\n-------------------------------------------------------------\n");
-    printf("Module:\n");
+    printf("Module:");
     for (Index = 0; Index < TEST_BASE_LENGTH * 2; Index++)
         printf("%llx ", Module[Index]);
     printf("\n-------------------------------------------------------------\n");
@@ -165,19 +165,19 @@ void Test_Base(void)
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_Modulo:::");
     printf("\n-------------------------------------------------------------\n");
-    printf("Result:\n");
+    printf("Result:");
     for (Index = 0; Index < TEST_BASE_LENGTH * 2; Index++)
         printf("%llx ", Result[Index]);
     printf("\n-------------------------------------------------------------\n");
-    printf("Operand1:\n");
+    printf("Operand1:");
     for (Index = 0; Index < TEST_BASE_LENGTH; Index++)
         printf("%llx ", Operand1[Index]);
     printf("\n-------------------------------------------------------------\n");
-    printf("Operand2:\n");
+    printf("Operand2:");
     for (Index = 0; Index < TEST_BASE_LENGTH; Index++)
         printf("%llx ", Operand2[Index]);
     printf("\n-------------------------------------------------------------\n");
-    printf("Module:\n");
+    printf("Module:");
     for (Index = 0; Index < TEST_BASE_LENGTH * 2; Index++)
         printf("%llx ", Module[Index]);
     printf("\n-------------------------------------------------------------\n");
@@ -207,7 +207,7 @@ void Test_ResidueClass(void)
     CFLINT_TYPE Result  [TEST_RESIDUECLASS_LENGTH] = {0};
     CFLINT_TYPE Operand [TEST_RESIDUECLASS_LENGTH] = {0};
     CFLINT_TYPE Exponent[TEST_RESIDUECLASS_LENGTH] = {0};
-    CFLINT_TYPE Module  [TEST_RESIDUECLASS_LENGTH] = {0};
+    CFLINT_TYPE Module  [TEST_RESIDUECLASS_LENGTH * 2] = {0};
     CFLINT_TYPE Temp1   [TEST_RESIDUECLASS_LENGTH * 2] = {0};
     CFLINT_TYPE Temp2   [TEST_RESIDUECLASS_LENGTH * 2] = {0};
     CFLINT_TYPE Temp3   [TEST_RESIDUECLASS_LENGTH * 2] = {0};
@@ -223,18 +223,19 @@ void Test_ResidueClass(void)
     Exponent[0] = 5;
     /* 模幂运算 */
     Cflint_ModuloExp(Result, Module, Operand, Exponent,
-                     Temp1, Temp2, Temp3, Temp4,
-                     TEST_RESIDUECLASS_LENGTH);
+                     Temp1, Temp2, Temp3, Temp4, TEST_RESIDUECLASS_LENGTH);
     printf("\n-------------------------------------------------------------\n");
-    printf("Operand:::Result:\n");
+    printf("Cflint_ModuloExp:::");
+    printf("\n-------------------------------------------------------------\n");
+    printf("Operand:");
     for (Index = 0; Index < TEST_RESIDUECLASS_LENGTH; Index++)
         printf("%u ", Operand[Index]);
     printf("\n-------------------------------------------------------------\n");
-    printf("Module:::Result:\n");
+    printf("Module:");
     for (Index = 0; Index < TEST_RESIDUECLASS_LENGTH; Index++)
         printf("%u ", Module[Index]);
     printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_ModuloExp:::Result:\n");
+    printf("Result:");
     for (Index = 0; Index < TEST_RESIDUECLASS_LENGTH; Index++)
         printf("%u ", Result[Index]);
     printf("\n-------------------------------------------------------------\n");
@@ -242,24 +243,37 @@ void Test_ResidueClass(void)
 
     /* 模逆运算 */
     /*************************************************************************/
+    Cflint_SetValue(Module, TEST_RESIDUECLASS_LENGTH * 2, 0);
     for (Index = 0; Index < TEST_RESIDUECLASS_LENGTH; Index++) {
         Operand[Index] = TEST_RESIDUECLASS_LENGTH - Index;
         Module[Index]  = TEST_RESIDUECLASS_LENGTH - Index;
     }
-    Module[0] = 0;
+    Module[0] = 1;
     /* 模逆运算 */
     Cflint_ModuloInv(Result, Module, Operand, Temp1, Temp2, Temp3, Temp4,
                      TEST_RESIDUECLASS_LENGTH);
     printf("\n-------------------------------------------------------------\n");
-    printf("Operand:::Result:\n");
+    printf("Cflint_ModuloInv:::");
+    printf("\n-------------------------------------------------------------\n");
+    printf("Operand:");
     for (Index = 0; Index < TEST_RESIDUECLASS_LENGTH; Index++)
         printf("%u ", Operand[Index]);
     printf("\n-------------------------------------------------------------\n");
-    printf("Module:::Result:\n");
-    for (Index = 0; Index < TEST_RESIDUECLASS_LENGTH; Index++)
+    printf("Module:");
+    for (Index = 0; Index < TEST_RESIDUECLASS_LENGTH * 2; Index++)
         printf("%u ", Module[Index]);
     printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_ModuloExp:::Result:\n");
+    printf("Result:");
+    for (Index = 0; Index < TEST_RESIDUECLASS_LENGTH; Index++)
+        printf("%u ", Result[Index]);
+    printf("\n-------------------------------------------------------------\n");
+    /* 注:Module和Operand如果不互素,模逆不存在 */
+    printf("(Result * Operand) % Module:::");
+    Cflint_Multiply(Temp1, Result, Operand, TEST_RESIDUECLASS_LENGTH);
+    Cflint_Modulo(Temp1, Temp1, Module, TEST_RESIDUECLASS_LENGTH * 2);
+    Cflint_Copy(Result, Temp1, TEST_RESIDUECLASS_LENGTH);
+    printf("\n-------------------------------------------------------------\n");
+    printf("Result:");
     for (Index = 0; Index < TEST_RESIDUECLASS_LENGTH; Index++)
         printf("%u ", Result[Index]);
     printf("\n-------------------------------------------------------------\n");

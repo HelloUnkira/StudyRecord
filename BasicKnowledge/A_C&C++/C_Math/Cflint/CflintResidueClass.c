@@ -22,18 +22,8 @@ void Cflint_ModuloAddition(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
 
     /* 计算和运算 */
     CFLINT_TYPE Overflow = Cflint_Addition(Result, Operand0, Operand1, Length);
-    /* 检查和是否溢出 */
-    if (Overflow == 0) {
-        if (Cflint_Compare(Result, Module, Length) == -1)
-            return;
-        else
-            Cflint_Subtraction(Result, Result, Module, Length);
-    } else {
-        /* 需要一个额外空间保存 */
-        Cflint_Subtraction(Result, Operand0, Module, Length);
-        Cflint_Reserve(Result, Length);
-        Cflint_Subtraction(Result, Operand1, Result, Length);
-    }
+    if (Overflow != 0)
+        Cflint_Subtraction(Result, Result, Module, Length);
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -50,13 +40,9 @@ void Cflint_ModuloSubtraction(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
      *当Operand0 <= Module && Operand1 <= Module时
      *Result = (Operand0 - Operand1) % Module;
      */
-    
-    if (Cflint_Compare(Operand0, Operand1, Length) == -1) {
-        Cflint_Subtraction(Result, Module, Operand1, Length);
-        Cflint_Addition(Result, Operand0, Result, Length);
-    } else {
-        Cflint_Subtraction(Result, Operand0, Operand1, Length);
-    }
+    CFLINT_TYPE Overflow = Cflint_Subtraction(Result, Operand0, Operand1, Length);
+    if (Overflow != 0)
+            Cflint_Addition(Result, Result, Result, Length);
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -225,8 +211,10 @@ void Cflint_ModuloInv(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
     CFLINT_TYPE *V = Temp4;
 
     /* 1.除数为0检查 */
-    if (Cflint_IsZero(Operand, Length) == true)
+    if (Cflint_IsZero(Operand, Length) == true) {
+        Cflint_SetValue(Result, Length, 0);
         return;
+    }
     /* 2.初始化:A = Operand,B = Module */
     Cflint_Copy(A, Operand, Length);
     Cflint_Copy(B, Module,  Length);
@@ -235,74 +223,60 @@ void Cflint_ModuloInv(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
     Cflint_SetValue(U, Length, 0);
     Cflint_AdditionBit(U, Length, 1);
     /* 4.准备状态量 */
-    CFLINT_TYPE BitNHighest = 1 << (CFLINT_BITS - 1);
+    int8_t CompareResult = 0;
     /* 5.开始主流程 */
-    do {
-        CFLINT_TYPE Overflow = 0;
-        /* 1.比较A和B */
-        int8_t CompareResult = Cflint_Compare(A, B, Length);
-        /* 2.A==B时退出流程 */
-        if (CompareResult == 0)
-            break;
-        /* 场景1:A最低位为0,或,B最低位为0 */
+    while ((CompareResult = Cflint_Compare(A, B, Length)) != 0) {
         if ((A[0] & 1) == 0 || (B[0] & 1) == 0) {
-            CFLINT_TYPE *Target1 = NULL;
-            CFLINT_TYPE *Target2 = NULL;
-            /* 合并场景 */
-            if ((B[0] & 1) == 0) {
-                Target1 = B;
-                Target2 = V;
-            }
-            if ((A[0] & 1) == 0) {
-                Target1 = A;
-                Target2 = U;
-            }
-            /* Target1 >>= 1 */
-            Cflint_ShiftRight2(Target1, Length, 1);
-            /* Target2最低位不为0 */
-            if ((Target2[0] & 1) != 0) {
-                /* Target2 += Module */
-                Overflow = Cflint_Addition(Target2, Target2, Module, Length);
-                /* Target2 >>= 1 */
-                Cflint_ShiftRight2(Target2, Length, 1);
-                /* 溢出检查 */
-                if (Overflow != 0)
-                    Target2[Length - 2] |= BitNHighest;
-            }
+            /* 场景1:A最低位为0,或,B最低位为0 */
+            CFLINT_TYPE *AB = NULL, *UV = NULL;
+            /* 合并场景,这里先查B后查A */
+            if ((B[0] & 1) == 0) { AB = B; UV = V;}
+            if ((A[0] & 1) == 0) { AB = A; UV = U;}
+            /* AB >>= 1 */
+            Cflint_ShiftRight2(AB, Length, 1);
+            /* UV最低位不为0:UV += Module */
+            CFLINT_TYPE Overflow = 0;
+            if ((UV[0] & 1) != 0)
+                Overflow = Cflint_Addition(UV, UV, Module, Length);
+            /* UV >>= 1 */
+            Cflint_ShiftRight2(UV, Length, 1);
+            /* 溢出检查 */
+            if (Overflow != 0)
+                UV[Length - 1] |= CFLINT_BYTEHIGHEST;
             continue;
         }
         /* 场景2.A>B,或,A<=B */
-        CFLINT_TYPE *Min0 = NULL;
-        CFLINT_TYPE *Min1 = NULL;
-        CFLINT_TYPE *Max0 = NULL;
-        CFLINT_TYPE *Max1 = NULL;
-        /* 合并场景 */
-        if (CompareResult == 1) {
-            Max0 = A; Max1 = U;
-            Min0 = B; Min1 = V;
+        {
+            CFLINT_TYPE *AB_Max = NULL, *UV_Max = NULL;
+            CFLINT_TYPE *AB_Min = NULL, *UV_Min = NULL;
+            /* 合并场景 */
+            if (CompareResult == 1) {
+                AB_Max = A; UV_Max = U;
+                AB_Min = B; UV_Min = V;
+            }
+            if (CompareResult != 1) {
+                AB_Max = B; UV_Max = V;
+                AB_Min = A; UV_Min = U;
+            }
+            /* AB_Max -= AB_Min, AB_Max >>= 1 */
+            Cflint_Subtraction(AB_Max, AB_Max, AB_Min, Length);
+            Cflint_ShiftRight2(AB_Max, Length, 1);
+            /* 对UV进行蒙哥马利约减:(UV_Max - UV_Min) % Module */
+            if (Cflint_Compare(UV_Max, UV_Min, Length) == -1)
+                Cflint_Addition(UV_Max, UV_Max, Module, Length);
+            Cflint_Subtraction(UV_Max, UV_Max, UV_Min, Length);
+            /* Max1最低位不为0:UV_Max += Module */
+            CFLINT_TYPE Overflow = 0;
+            if ((UV_Max[0] & 1) != 0)
+                Overflow = Cflint_Addition(UV_Max, UV_Max, Module, Length);
+            /* UV_Max >>= 1 */
+            Cflint_ShiftRight2(UV_Max, Length, 1);
+            /* 溢出检查 */
+            if (Overflow != 0)
+                UV_Max[Length - 1] |= CFLINT_BYTEHIGHEST;
+            continue;
         }
-        if (CompareResult != 1) {
-            Max0 = B; Max1 = V;
-            Min0 = A; Min1 = U;
-        }
-        /* Max0 -= Min0,Max0 >>= 1 */
-        Cflint_Subtraction(Max0, Max0, Min0, Length);
-        Cflint_ShiftRight2(Max0, Length, 1);
-        /* 对U,V进行蒙哥马利约减:(Max1 - Min1) % Module */
-        if (Cflint_Compare(Max1, Min1, Length) == -1)
-            Cflint_Addition(Max1, Max1, Module, Length);
-        Cflint_Subtraction(Max1, Max1, Min1, Length);
-        /* Max1最低位不为0:Max1 += Module */
-        if ((Max1[0] & 1) != 0)
-            Overflow = Cflint_Addition(Max1, Max1, Module, Length);
-        /* Max1 >>= 1 */
-        Cflint_ShiftRight2(Max1, Length, 1);
-        /* 溢出检查 */
-        if (Overflow != 0)
-            Max1[Length - 2] |= BitNHighest;
-        continue;
-    } while (1);
-
+    }
     /* 拷贝数据结果 */
     Cflint_Copy(Result, U, Length);
 }
