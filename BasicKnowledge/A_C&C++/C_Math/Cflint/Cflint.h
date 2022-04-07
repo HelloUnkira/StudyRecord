@@ -49,9 +49,6 @@ static inline void Cflint_PortInfoCheck(Cflint_PortInfoPrint Print)
 #define CFLINT_USE_RESIDUECLASS /* 剩余类功能(依赖:CFLINT_USE_BASE) */
 #endif
 #endif
-/* 其余的独立功能 */
-#define CFLINT_USE_AES128       /* AES128(无依赖) */
-#define CFLINT_USE_RC4          /* RC4(无依赖) */
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
