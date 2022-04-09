@@ -296,7 +296,56 @@ void Test_CflintBase4(void)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/*  */
+/* 测试扩展欧几里得 */
+void Test_GCD(void)
+{
+    uint32_t Index = 0;
+    #define TEST_GCD_LENGTH     5
+    CFLINT_TYPE A[TEST_GCD_LENGTH * 2] = {0};
+    CFLINT_TYPE B[TEST_GCD_LENGTH * 2] = {0};
+    CFLINT_TYPE X[TEST_GCD_LENGTH * 2] = {0};
+    CFLINT_TYPE Y[TEST_GCD_LENGTH * 2] = {0};
+    CFLINT_TYPE Result[TEST_GCD_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp1[TEST_GCD_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp2[TEST_GCD_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp3[TEST_GCD_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp4[TEST_GCD_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp5[TEST_GCD_LENGTH * 2] = {0};
+    CFLINT_TYPE X_Flag = 0, Y_Flag = 0;
+    
+    /* 扩展欧几里得运算 */
+    /*************************************************************************/
+    for (Index = 0; Index < TEST_GCD_LENGTH; Index++) {
+        A[Index] = TEST_GCD_LENGTH - Index;
+        B[Index] = TEST_GCD_LENGTH - Index;
+    }
+    B[0] = 1;
+    /* 扩展欧几里得运算 */
+    Cflint_GCD(A, B, X, Y, Result, &X_Flag, &Y_Flag,
+               Temp1, Temp2, Temp3, Temp4, Temp5, TEST_GCD_LENGTH);
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_GCD:::");
+    printf("\n---------------------------------------------------------------");
+    printf("\nA:");
+    for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH * 2; Index++)
+        printf("%u ", A[Index]);
+    printf("\nB:");
+    for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH * 2; Index++)
+        printf("%u ", B[Index]);
+    printf("\nX_Flag:%d, X:", X_Flag);
+    for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH * 2; Index++)
+        printf("%u ", X[Index]);
+    printf("\nY_Flag:%d, Y:", Y_Flag);
+    for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH * 2; Index++)
+        printf("%u ", Y[Index]);
+    printf("\nResult:");
+    for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH * 2; Index++)
+        printf("%u ", Result[Index]);
+    printf("\n-------------------------------------------------------------\n");
+               
+    
+    /*************************************************************************/
+}
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -308,6 +357,7 @@ int main(int argc, char *argv[]) {
     Test_CflintBase2();
     Test_CflintBase3();
     Test_CflintBase4();
+    Test_GCD();
     
     return 0;
 }
