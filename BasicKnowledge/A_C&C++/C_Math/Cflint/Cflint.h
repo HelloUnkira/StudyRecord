@@ -43,12 +43,9 @@ static inline void Cflint_PortInfoCheck(Cflint_PortInfoPrint Print)
 /*****************************************************************************/
 /* 无需使用的功能注释即可,若其他功能依赖该部分,则会一并裁剪掉 */
 #define CFLINT_USE_AUXILIARY    /* 辅助功能,无依赖 */
-#ifdef  CFLINT_USE_AUXILIARY
 #define CFLINT_USE_BASE         /* 基础功能(依赖:CFLINT_USE_AUXILIARY) */
-#ifdef  CFLINT_USE_BASE
 #define CFLINT_USE_RESIDUECLASS /* 剩余类功能(依赖:CFLINT_USE_BASE) */
-#endif
-#endif
+#define CFLINT_USE_MENTGOMERY   /* 蒙哥马利功能(依赖:CFLINT_USE_BASE) */
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
