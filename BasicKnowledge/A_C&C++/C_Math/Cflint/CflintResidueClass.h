@@ -7,12 +7,18 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+/* 欧几里得算法:GCD(A,B) == 1 */
+bool Cflint_GCD(CFLINT_TYPE *A, CFLINT_TYPE *B, uint32_t Length,
+                CFLINT_TYPE *Temp1, CFLINT_TYPE *Temp2, CFLINT_TYPE *Temp3);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 /* 扩展欧几里得算法:A*X - B*Y = 1 */
-/* Flag为0表示正数,Flag为1表示负数 */
-void Cflint_GCD(CFLINT_TYPE *A, CFLINT_TYPE *B, CFLINT_TYPE *X, CFLINT_TYPE *Y,
-                CFLINT_TYPE *Result, CFLINT_TYPE *X_Flag, CFLINT_TYPE *Y_Flag,
-                CFLINT_TYPE *Temp1, CFLINT_TYPE *Temp2, CFLINT_TYPE *Temp3,
-                CFLINT_TYPE *Temp4, CFLINT_TYPE *Temp5, uint32_t Length);
+/* Flag为0表示正数,Flag为1表示负数,要求X,Y,Temp5的长度为(Length+1)*2 */
+void Cflint_ExtendGCD(CFLINT_TYPE *A, CFLINT_TYPE *B, CFLINT_TYPE *X, CFLINT_TYPE *Y,
+                      CFLINT_TYPE *Result, CFLINT_TYPE *X_Flag, CFLINT_TYPE *Y_Flag,
+                      CFLINT_TYPE *Temp1, CFLINT_TYPE *Temp2, CFLINT_TYPE *Temp3,
+                      CFLINT_TYPE *Temp4, CFLINT_TYPE *Temp5, uint32_t Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

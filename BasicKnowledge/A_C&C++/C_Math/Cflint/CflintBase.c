@@ -444,11 +444,11 @@ void Cflint_Devide(CFLINT_TYPE *Quotient, CFLINT_TYPE *Module,
             if (MovedBits2 != 0) {
                 /* 商累加1个单元 */
                 Cflint_AdditionBit(Quotient, Length, 1);
-                /* 模为0,商进所有位,除数回退所有位 */
-                Cflint_SetValue(Module, Length, 0);
+                /* 商进所有位,除数回退所有位 */
                 Cflint_ShiftLeft2(Quotient, Length, MovedBits2);
                 Cflint_ShiftRight2(Operand, Length, MovedBits2);
             }
+            Cflint_SetValue(Module, Length, 0);
             return;
         }
         /* 被除数小于除数 */
@@ -519,6 +519,10 @@ void Cflint_Modulo(CFLINT_TYPE *Module, CFLINT_TYPE *Operand0,
         int8_t CompareResult = Cflint_Compare(Module, Operand, Length);
         /* 被除数等于除数,恰好被整除时 */
         if (CompareResult == 0) {
+            if (MovedBits2 != 0) {
+                /* 除数回退所有位 */
+                Cflint_ShiftRight2(Operand, Length, MovedBits2);
+            }
             Cflint_SetValue(Module, Length, 0);
             return;
         }

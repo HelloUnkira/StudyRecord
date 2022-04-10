@@ -244,7 +244,7 @@ void Test_CflintBase4(void)
                           Temp1, Temp2, Temp3, Temp4,
                           TEST_CFLINTBASE4_LENGTH);
     printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_ModuloExp:::");
+    printf("Cflint_ModuloExponent:::");
     printf("\n---------------------------------------------------------------");
     printf("\nOperand:");
     for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH; Index++)
@@ -271,7 +271,7 @@ void Test_CflintBase4(void)
                          Temp1, Temp2, Temp3, Temp4,
                          TEST_CFLINTBASE4_LENGTH);
     printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_ModuloInv:::");
+    printf("Cflint_ModuloInverse:::");
     printf("\n---------------------------------------------------------------");
     printf("\nOperand:");
     for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH; Index++)
@@ -301,17 +301,42 @@ void Test_GCD(void)
 {
     uint32_t Index = 0;
     #define TEST_GCD_LENGTH     5
-    CFLINT_TYPE A[TEST_GCD_LENGTH * 2] = {0};
-    CFLINT_TYPE B[TEST_GCD_LENGTH * 2] = {0};
-    CFLINT_TYPE X[TEST_GCD_LENGTH * 2] = {0};
-    CFLINT_TYPE Y[TEST_GCD_LENGTH * 2] = {0};
-    CFLINT_TYPE Result[TEST_GCD_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp1[TEST_GCD_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp2[TEST_GCD_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp3[TEST_GCD_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp4[TEST_GCD_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp5[TEST_GCD_LENGTH * 2] = {0};
+    CFLINT_TYPE A[TEST_GCD_LENGTH] = {0};
+    CFLINT_TYPE B[TEST_GCD_LENGTH] = {0};
+    CFLINT_TYPE X[(TEST_GCD_LENGTH + 1) * 2] = {0};
+    CFLINT_TYPE Y[(TEST_GCD_LENGTH + 1) * 2] = {0};
+    CFLINT_TYPE Result[TEST_GCD_LENGTH] = {0};
+    CFLINT_TYPE Temp1[TEST_GCD_LENGTH] = {0};
+    CFLINT_TYPE Temp2[TEST_GCD_LENGTH] = {0};
+    CFLINT_TYPE Temp3[TEST_GCD_LENGTH] = {0};
+    CFLINT_TYPE Temp4[TEST_GCD_LENGTH] = {0};
+    CFLINT_TYPE Temp5[(TEST_GCD_LENGTH + 1) * 2] = {0};
+    CFLINT_TYPE Temp6[(TEST_GCD_LENGTH + 1) * 4] = {0};
+    CFLINT_TYPE Temp7[(TEST_GCD_LENGTH + 1) * 4] = {0};
     CFLINT_TYPE X_Flag = 0, Y_Flag = 0;
+    bool Check = 0;
+
+    /* 欧几里得运算 */
+    /*************************************************************************/
+    for (Index = 0; Index < TEST_GCD_LENGTH; Index++) {
+        A[Index] = TEST_GCD_LENGTH - Index;
+        B[Index] = TEST_GCD_LENGTH - Index;
+    }
+    B[0] = 1;
+    /* 欧几里得运算 */
+    Check = Cflint_GCD(A, B, TEST_GCD_LENGTH, Temp1, Temp2, Temp3);
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_GCD:::");
+    printf("\n---------------------------------------------------------------");
+    printf("\nA:");
+    for (Index = 0; Index < TEST_GCD_LENGTH; Index++)
+        printf("%u ", A[Index]);
+    printf("\nB:");
+    for (Index = 0; Index < TEST_GCD_LENGTH; Index++)
+        printf("%u ", B[Index]);
+    printf("\nResult:%u", Check);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
     
     /* 扩展欧几里得运算 */
     /*************************************************************************/
@@ -321,29 +346,88 @@ void Test_GCD(void)
     }
     B[0] = 1;
     /* 扩展欧几里得运算 */
-    Cflint_GCD(A, B, X, Y, Result, &X_Flag, &Y_Flag,
-               Temp1, Temp2, Temp3, Temp4, Temp5, TEST_GCD_LENGTH);
+    Cflint_ExtendGCD(A, B, X, Y, Result, &X_Flag, &Y_Flag,
+                     Temp1, Temp2, Temp3, Temp4, Temp5, TEST_GCD_LENGTH);
+    Cflint_SetValue(Temp5, TEST_GCD_LENGTH * 2 + 1, 0);
+    Cflint_Copy(Temp5, A, TEST_GCD_LENGTH);
+    Cflint_Multiply(Temp6, Temp5, X, (TEST_GCD_LENGTH + 1) * 2);
+    Cflint_Copy(Temp5, B, TEST_GCD_LENGTH);
+    Cflint_Multiply(Temp7, Temp5, Y, (TEST_GCD_LENGTH + 1) * 2);
     printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_GCD:::");
+    printf("Cflint_ExtendGCD:::");
     printf("\n---------------------------------------------------------------");
     printf("\nA:");
-    for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH * 2; Index++)
+    for (Index = 0; Index < TEST_GCD_LENGTH; Index++)
         printf("%u ", A[Index]);
     printf("\nB:");
-    for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH * 2; Index++)
+    for (Index = 0; Index < TEST_GCD_LENGTH; Index++)
         printf("%u ", B[Index]);
+    printf("\nResult:");
+    for (Index = 0; Index < TEST_GCD_LENGTH; Index++)
+        printf("%u ", Result[Index]);
     printf("\nX_Flag:%d, X:", X_Flag);
-    for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH * 2; Index++)
+    for (Index = 0; Index < (TEST_GCD_LENGTH + 1) * 2; Index++)
         printf("%u ", X[Index]);
     printf("\nY_Flag:%d, Y:", Y_Flag);
-    for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH * 2; Index++)
+    for (Index = 0; Index < (TEST_GCD_LENGTH + 1) * 2; Index++)
         printf("%u ", Y[Index]);
+    printf("\nA*X:");
+    for (Index = 0; Index < (TEST_GCD_LENGTH + 1) * 2; Index++)
+        printf("%u ", Temp6[Index]);
+    printf("\nB*Y:");
+    for (Index = 0; Index < (TEST_GCD_LENGTH + 1) * 2; Index++)
+        printf("%u ", Temp7[Index]);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 测试蒙哥马利模幂 */
+void Test_Mentgomery(void)
+{
+    uint32_t Index = 0;
+    #define TEST_MENTGOMERY_LENGTH    5
+    CFLINT_TYPE Result  [TEST_MENTGOMERY_LENGTH] = {0};
+    CFLINT_TYPE Operand [TEST_MENTGOMERY_LENGTH] = {0};
+    CFLINT_TYPE Exponent[TEST_MENTGOMERY_LENGTH] = {0};
+    CFLINT_TYPE Module  [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp1   [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp2   [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp3   [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp4   [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp5   [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp6   [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp7   [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp8   [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp9   [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp10  [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    /* 模幂运算 */
+    /*************************************************************************/
+    for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++) {
+        Operand[Index] = TEST_MENTGOMERY_LENGTH - Index;
+        Module[Index]  = TEST_MENTGOMERY_LENGTH - Index;
+    }
+    Module[0]   = 1;
+    Exponent[0] = 5;
+    /* 模幂运算 */
+    Cflint_M_ModuloExponent(Result, Module, Operand, Exponent,
+                            Temp1, Temp2, Temp3, Temp4, Temp5,
+                            Temp6, Temp7, Temp8, Temp9, Temp10,
+                            TEST_MENTGOMERY_LENGTH);
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_M_ModuloExponent:::");
+    printf("\n---------------------------------------------------------------");
+    printf("\nOperand:");
+    for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
+        printf("%u ", Operand[Index]);
+    printf("\nModule:");
+    for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
+        printf("%u ", Module[Index]);
     printf("\nResult:");
-    for (Index = 0; Index < TEST_CFLINTBASE4_LENGTH * 2; Index++)
+    for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
         printf("%u ", Result[Index]);
     printf("\n-------------------------------------------------------------\n");
-               
-    
     /*************************************************************************/
 }
 /*****************************************************************************/
@@ -351,13 +435,18 @@ void Test_GCD(void)
 /*****************************************************************************/
 int main(int argc, char *argv[]) {
     /* 这里强转函数指针类型 */
-    Cflint_PortInfoCheck(printf);
+    Cflint_PortInfoCheck((Cflint_PortInfoPrint)printf);
 
     Test_CflintBase1();
     Test_CflintBase2();
     Test_CflintBase3();
     Test_CflintBase4();
     Test_GCD();
+    printf("\n---------------------------------------------------------------");
+    printf("\n---------------------------------------------------------------");
+    printf("\n---------------------------------------------------------------");
+    printf("\n-------------------------------------------------------------\n");
+    Test_Mentgomery();
     
     return 0;
 }
