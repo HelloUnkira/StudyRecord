@@ -348,7 +348,7 @@ void Test_GCD(void)
     /* 扩展欧几里得运算 */
     Cflint_ExtendGCD(A, B, X, Y, Result, &X_Flag, &Y_Flag,
                      Temp1, Temp2, Temp3, Temp4, Temp5, TEST_GCD_LENGTH);
-    Cflint_SetValue(Temp5, TEST_GCD_LENGTH * 2 + 1, 0);
+    Cflint_SetValue(Temp5, (TEST_GCD_LENGTH + 1) * 2, 0);
     Cflint_Copy(Temp5, A, TEST_GCD_LENGTH);
     Cflint_Multiply(Temp6, Temp5, X, (TEST_GCD_LENGTH + 1) * 2);
     Cflint_Copy(Temp5, B, TEST_GCD_LENGTH);
@@ -383,47 +383,145 @@ void Test_GCD(void)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 测试蒙哥马利模幂 */
+/* 测试蒙哥马利模(未完成,测试未通过) */
 void Test_Mentgomery(void)
 {
     uint32_t Index = 0;
-    #define TEST_MENTGOMERY_LENGTH    5
-    CFLINT_TYPE Result  [TEST_MENTGOMERY_LENGTH] = {0};
-    CFLINT_TYPE Operand [TEST_MENTGOMERY_LENGTH] = {0};
-    CFLINT_TYPE Exponent[TEST_MENTGOMERY_LENGTH] = {0};
-    CFLINT_TYPE Module  [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp1   [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp2   [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp3   [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp4   [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp5   [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp6   [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp7   [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp8   [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp9   [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp10  [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    /* 模幂运算 */
+    #define TEST_MENTGOMERY_LENGTH    3
+    CFLINT_TYPE Result [TEST_MENTGOMERY_LENGTH] = {0};
+    CFLINT_TYPE X [TEST_MENTGOMERY_LENGTH] = {0};
+    CFLINT_TYPE Y [TEST_MENTGOMERY_LENGTH] = {0};
+    CFLINT_TYPE N [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE R [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    CFLINT_TYPE RR_N [TEST_MENTGOMERY_LENGTH] = {0};
+    CFLINT_TYPE RP [(TEST_MENTGOMERY_LENGTH + 1) * 2] = {0};
+    CFLINT_TYPE NP [(TEST_MENTGOMERY_LENGTH + 1) * 2] = {0};
+    CFLINT_TYPE RP_Flag = 0, NP_Flag = 0;
+    CFLINT_TYPE Temp1 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
+    CFLINT_TYPE Temp2 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
+    CFLINT_TYPE Temp3 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
+    CFLINT_TYPE Temp4 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
+    CFLINT_TYPE Temp5 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
     /*************************************************************************/
     for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++) {
-        Operand[Index] = TEST_MENTGOMERY_LENGTH - Index;
-        Module[Index]  = TEST_MENTGOMERY_LENGTH - Index;
+        X[Index] = TEST_MENTGOMERY_LENGTH - Index;
+        Y[Index] = TEST_MENTGOMERY_LENGTH - Index;
+        N[Index] = TEST_MENTGOMERY_LENGTH - Index;
     }
-    Module[0]   = 1;
-    Exponent[0] = 5;
-    /* 模幂运算 */
-    Cflint_M_ModuloExponent(Result, Module, Operand, Exponent,
-                            Temp1, Temp2, Temp3, Temp4, Temp5,
-                            Temp6, Temp7, Temp8, Temp9, Temp10,
-                            TEST_MENTGOMERY_LENGTH);
+    Y[0] = 1;
+    N[0] = 1;
+    /*************************************************************************/
+    
+    /* 预计算及其验证 */
+    /*************************************************************************/
+    /* 特例:除数为0检查 */
+    if (Cflint_IsZero(N, TEST_MENTGOMERY_LENGTH) == true) {
+        Cflint_SetValue(Result, TEST_MENTGOMERY_LENGTH, 0);
+        return;
+    }
+    /* 计算R_Index */
+    int64_t R_Index = Cflint_Numbers2(N, TEST_MENTGOMERY_LENGTH) + 1;
+    /* 一个数的0次幂为1 */
+    if (R_Index == 0) {
+        Cflint_SetValue(Result, TEST_MENTGOMERY_LENGTH, 0);
+        Cflint_AdditionBit(Result, TEST_MENTGOMERY_LENGTH, 1);
+        return;
+    }
+    /* 生成R */
+    Cflint_SetValue(R, TEST_MENTGOMERY_LENGTH * 2, 0);
+    Cflint_AdditionBit(R, TEST_MENTGOMERY_LENGTH * 2, 1);
+    Cflint_ShiftLeft2(R, TEST_MENTGOMERY_LENGTH * 2, R_Index);
+    /* 检查GCD(R,N) == 1 */
+    if (Cflint_GCD(R, N, TEST_MENTGOMERY_LENGTH * 2,
+                   Temp1, Temp2, Temp3) == false) {
+        Cflint_SetValue(Result, TEST_MENTGOMERY_LENGTH, 0);
+        return;
+    }
+    /* 4.计算RR' + NN' = GCD(R,N) == 1 */
+    // Cflint_ModuloInverse(RP, R, N, Temp1, Temp2, Temp3, Temp4,
+    //                      TEST_MENTGOMERY_LENGTH);
+    // Cflint_ModuloInverse(NP, N, R, Temp1, Temp2, Temp3, Temp4,
+    //                      TEST_MENTGOMERY_LENGTH);
+    Cflint_ExtendGCD(R, N, RP, NP, Result, &RP_Flag, &NP_Flag,
+                     Temp1, Temp2, Temp3, Temp4, Temp5,
+                     TEST_MENTGOMERY_LENGTH);
+    /* 5.计算RR%N = ((R%N)*(R%N))%N = ((R-N)*(R-N))%N */
+    Cflint_Subtraction(Temp1, R, N, TEST_MENTGOMERY_LENGTH * 2);
+    Cflint_Square(Temp2, Temp1, TEST_MENTGOMERY_LENGTH);
+    Cflint_Modulo(RR_N, Temp2, N, TEST_MENTGOMERY_LENGTH * 2);
+    /* 验算预先量 */
+    /*************************************************************************/
+    Cflint_SetValue(Temp1, (TEST_MENTGOMERY_LENGTH + 1) * 2, 0);
+    Cflint_Copy(Temp1, R, TEST_MENTGOMERY_LENGTH);
+    Cflint_Multiply(Temp2, Temp1, RP, (TEST_MENTGOMERY_LENGTH + 1) * 2);
+    Cflint_Copy(Temp1, N, TEST_MENTGOMERY_LENGTH);
+    Cflint_Multiply(Temp3, Temp1, NP, (TEST_MENTGOMERY_LENGTH + 1) * 2);
     printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_M_ModuloExponent:::");
+    printf("Cflint_M_Pretractment:::Check:");
     printf("\n---------------------------------------------------------------");
-    printf("\nOperand:");
+    printf("\nR:");
     for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
-        printf("%u ", Operand[Index]);
-    printf("\nModule:");
+        printf("%u ", R[Index]);
+    printf("\nN:");
     for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
-        printf("%u ", Module[Index]);
+        printf("%u ", N[Index]);
+    printf("\nResult:");
+    for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
+        printf("%u ", Result[Index]);
+    printf("\nRP_Flag:%d, RP:", RP_Flag);
+    for (Index = 0; Index < (TEST_MENTGOMERY_LENGTH + 1) * 2; Index++)
+        printf("%u ", RP[Index]);
+    printf("\nNP_Flag:%d, NP:", NP_Flag);
+    for (Index = 0; Index < (TEST_MENTGOMERY_LENGTH + 1) * 2; Index++)
+        printf("%u ", NP[Index]);
+    printf("\nR*RP:");
+    for (Index = 0; Index < (TEST_MENTGOMERY_LENGTH + 1) * 4; Index++)
+        printf("%u ", Temp2[Index]);
+    printf("\nN*NP:");
+    for (Index = 0; Index < (TEST_MENTGOMERY_LENGTH + 1) * 4; Index++)
+        printf("%u ", Temp3[Index]);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    
+    /* 蒙哥马利约减X%N = REDC((X*R)%N) */
+    /*************************************************************************/
+    Cflint_Multiply(Temp1, X, R, TEST_MENTGOMERY_LENGTH);
+    Cflint_SetValue(Temp2, TEST_MENTGOMERY_LENGTH * 2, 0);
+    Cflint_Modulo(Temp1, Temp1, N, TEST_MENTGOMERY_LENGTH * 2);
+    Cflint_M_ModuloReduction(Result, TEST_MENTGOMERY_LENGTH, R_Index,
+                             Temp1, N, NP, Temp2, Temp3);
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_M_ModuloReduction:::");
+    printf("\n---------------------------------------------------------------");
+    printf("\nX:");
+    for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
+        printf("%u ", X[Index]);
+    printf("\nN:");
+    for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
+        printf("%u ", N[Index]);
+    printf("\nResult:");
+    for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
+        printf("%u ", Result[Index]);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    
+    /* 蒙哥马利模乘 */
+    /*************************************************************************/
+    Cflint_M_ModuloMultiply(Result, X, Y, N, NP, RR_N,
+                            Temp1, Temp2, Temp3, Temp4,
+                            R_Index, TEST_MENTGOMERY_LENGTH);
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_M_ModuloMultiply:::");
+    printf("\n---------------------------------------------------------------");
+    printf("\nX:");
+    for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
+        printf("%u ", X[Index]);
+    printf("\nY:");
+    for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
+        printf("%u ", Y[Index]);
+    printf("\nN:");
+    for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
+        printf("%u ", N[Index]);
     printf("\nResult:");
     for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++)
         printf("%u ", Result[Index]);
@@ -437,16 +535,13 @@ int main(int argc, char *argv[]) {
     /* 这里强转函数指针类型 */
     Cflint_PortInfoCheck((Cflint_PortInfoPrint)printf);
 
-    Test_CflintBase1();
-    Test_CflintBase2();
-    Test_CflintBase3();
-    Test_CflintBase4();
-    Test_GCD();
-    printf("\n---------------------------------------------------------------");
-    printf("\n---------------------------------------------------------------");
-    printf("\n---------------------------------------------------------------");
-    printf("\n-------------------------------------------------------------\n");
-    Test_Mentgomery();
+    //Test_CflintBase1();
+    //Test_CflintBase2();
+    //Test_CflintBase3();
+    //Test_CflintBase4();
+    //Test_GCD();
+    //未完成,测试不通过
+    //Test_Mentgomery();
     
     return 0;
 }

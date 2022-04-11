@@ -7,15 +7,21 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 蒙哥马利模幂 */
-bool Cflint_M_ModuloExponent(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
-                             CFLINT_TYPE *Operand, CFLINT_TYPE *Exponent,
-                             CFLINT_TYPE *Temp1,   CFLINT_TYPE *Temp2,
-                             CFLINT_TYPE *Temp3,   CFLINT_TYPE *Temp4,
-                             CFLINT_TYPE *Temp5,   CFLINT_TYPE *Temp6,
-                             CFLINT_TYPE *Temp7,   CFLINT_TYPE *Temp8,
-                             CFLINT_TYPE *Temp9,   CFLINT_TYPE *Temp10,
-                                uint32_t  Length);
+/* 蒙哥马利约减(X,R,N,NP) */
+/* X,Temp1,Temp2长度为Length*2 */
+void Cflint_M_ModuloReduction(CFLINT_TYPE *Result, uint32_t Length, int64_t R,
+                              CFLINT_TYPE *X, CFLINT_TYPE *N, CFLINT_TYPE *NP,
+                              CFLINT_TYPE *Temp1, CFLINT_TYPE *Temp2);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 蒙哥马利模乘(X,Y,N,NP,R_N) */
+/* Temp1,Temp2,Temp3,Temp4长度为Length*2 */
+void Cflint_M_ModuloMultiply(CFLINT_TYPE *Result, CFLINT_TYPE *X, CFLINT_TYPE *Y,
+                             CFLINT_TYPE *N, CFLINT_TYPE *NP, CFLINT_TYPE *R_N,
+                             CFLINT_TYPE *Temp1, CFLINT_TYPE *Temp2,
+                             CFLINT_TYPE *Temp3, CFLINT_TYPE *Temp4,
+                             int64_t R, uint32_t Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
