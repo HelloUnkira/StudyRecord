@@ -590,7 +590,7 @@ int main(int argc, char *argv[]) {
     //Test_CflintBase2();
     //Test_CflintBase3();
     //Test_CflintBase4();
-    Test_GCD();
+    //Test_GCD();
     //未完成,测试不通过
     //Test_Mentgomery();
     

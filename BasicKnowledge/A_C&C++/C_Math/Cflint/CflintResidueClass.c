@@ -53,7 +53,7 @@ void Cflint_GCD(CFLINT_TYPE *Result, CFLINT_TYPE *A,     CFLINT_TYPE *B,
     Cflint_Copy(Divisor,  B, Length);
     /* 当B为0时 */
     if (Cflint_IsZero(B, Length) == true)
-        return false;
+        return;
     /* 进行向下递归 */
     do {
         /* Module = Dividend % Divisor */
@@ -69,7 +69,6 @@ void Cflint_GCD(CFLINT_TYPE *Result, CFLINT_TYPE *A,     CFLINT_TYPE *B,
         }
     } while (1);
 }
-
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -155,31 +154,9 @@ void Cflint_ExtendGCD(CFLINT_TYPE *A, CFLINT_TYPE *B, CFLINT_TYPE *X, CFLINT_TYP
         /* X<=>Y,X_Flag<=>Y_Flag */
         Cflint_Swap(X, Y, (Length + 1) * 2);
         Cflint_Multiply(Temp, Quotient, X, Length);
-        /* 合并场景:符号向异(合并成和运算) */
-        if ((*X_Flag == 1 && *Y_Flag == 0) ||
-            (*X_Flag == 0 && *Y_Flag == 1)) {
-            Cflint_Addition(Temp, Y, Temp, (Length + 1) * 2);
-        }
-        /* 分立场景:符号向同(分立成差运算) */
-        if (*X_Flag == 1 && *Y_Flag == 1) {
-            if (Cflint_Compare(Temp, Y, Length) != -1) {
-                Cflint_Subtraction(Temp, Temp, Y, (Length + 1) * 2);
-                *Y_Flag = 0;
-            } else {
-                Cflint_Subtraction(Temp, Y, Temp, (Length + 1) * 2);
-            }
-        }
-        /* 分立场景:符号向同(分立成差运算) */
-        if (*X_Flag == 0 && *Y_Flag == 0) {
-            if (Cflint_Compare(Y, Temp, Length) != -1) {
-                Cflint_Subtraction(Temp, Y, Temp, (Length + 1) * 2);
-            } else {
-                Cflint_Subtraction(Temp, Temp, Y, (Length + 1) * 2);
-                *Y_Flag = 1;
-            }
-        }
-        /* 场景结束,更新Y */
-        Cflint_Copy(Y, Temp, Length);
+        /* Y = Y - Quotient * X */
+        Cflint_FlagSum(Y, Y_Flag, Y, *Y_Flag,
+                       Temp, *X_Flag == 1 ? 0 : 1, (Length + 1) * 2);
         /* 如果达到退出条件,退出 */
         if (Cflint_Equal(A, Dividend, Length) == 1 &&
             Cflint_Equal(B, Divisor,  Length) == 1)
@@ -229,41 +206,9 @@ void Cflint_ExGCD(CFLINT_TYPE *A,      CFLINT_TYPE *B,
         Cflint_Devide(Quotient, Module, Dividend, Divisor, Length);
         /* TT = X - Quotient * VV */
         Cflint_Multiply(Temp7, Quotient, VV, Length);
-        /* Temp7 = X * (*X_Flag) - Temp7(Quotient * VV) * (VV_Flag) */
-        {
-            if (*X_Flag == 0 && VV_Flag == 0) {
-                /* TT = X - Temp7(Quotient * VV) */
-                CompareResult = Cflint_Compare(X, Temp7, Length * 2);
-                if (CompareResult != -1) {
-                    Cflint_Subtraction(Temp7, X, Temp7, (Length + 1) * 2);
-                    TT_Flag = 0;
-                }
-                if (CompareResult == -1) {
-                    Cflint_Subtraction(Temp7, Temp7, X, (Length + 1) * 2);
-                    TT_Flag = 1;
-                }
-            }
-            if (*X_Flag == 1 && VV_Flag == 1) {
-                /* TT = Temp7(Quotient * VV) - X */
-                CompareResult = Cflint_Compare(Temp7, X, Length * 2);
-                if (CompareResult != -1) {
-                    Cflint_Subtraction(Temp7, Temp7, X, (Length + 1) * 2);
-                    TT_Flag = 0;
-                }
-                if (CompareResult == -1) {
-                    Cflint_Subtraction(Temp7, X, Temp7, (Length + 1) * 2);
-                    TT_Flag = 1;
-                }
-            }
-            if ((*X_Flag == 1 && VV_Flag == 0) ||
-                (*X_Flag == 0 && VV_Flag == 1)) {
-                /* TT = (*X_Flag)*(X + Temp7(Quotient * VV)) */
-                Cflint_Addition(Temp7, X, Temp7, (Length + 1) * 2);
-                TT_Flag = *X_Flag;
-            }
-        }
-        /* TT = Temp7 */
-        Cflint_Copy(TT, Temp7, (Length + 1) * 2);
+        /* TT = X * (*X_Flag) - Temp7(Quotient * VV) * (VV_Flag) */
+        Cflint_FlagSum(TT, &TT_Flag, X, *X_Flag,
+                       Temp7, VV_Flag == 1 ? 0 : 1, (Length + 1) * 2);
         /* X = VV, *X_Flag = VV_Flag */
         Cflint_Copy(X, VV, (Length + 1) * 2);
         *X_Flag = VV_Flag;
@@ -279,27 +224,9 @@ void Cflint_ExGCD(CFLINT_TYPE *A,      CFLINT_TYPE *B,
     Cflint_SetValue(Temp7, (Length + 1) * 2, 0);
     Cflint_Copy(Temp7, Dividend, Length);
     Cflint_Multiply(Temp8, A, X, Length);
-    /* Y = Temp7(Dividend) - Temp8(A * X) * (*X_Flag) */
-    {
-        if (*X_Flag == 0) {
-            CompareResult = Cflint_Compare(Temp7, Temp8, Length * 2);
-            if (CompareResult != -1) {
-                /* Temp7 = +(Temp7(Dividend) - Temp8(A * X)) */
-                Cflint_Subtraction(Temp7, Temp7, Temp8, (Length + 1) * 2);
-                *Y_Flag = 0;
-            }
-            if (CompareResult == -1) {
-                /* Temp7 = -(Temp8(A * X) - Temp7(Dividend)) */
-                Cflint_Subtraction(Temp7, Temp8, Temp7, (Length + 1) * 2);
-                *Y_Flag = 1;
-            }
-        }
-        if (*X_Flag == 1) {
-            /* Temp7 = +(Temp7(Dividend) + Temp8(A * X)) */
-            Cflint_Addition(Temp7, Temp7, Temp8, (Length + 1) * 2);
-            *Y_Flag = 0;
-        }
-    }
+    /* Temp7 = Temp7(Dividend) - Temp8(A * X) * (*X_Flag) */
+    Cflint_FlagSum(Temp7, Y_Flag, Temp7, 0,
+                   Temp8, *X_Flag == 1 ? 0 : 1, (Length + 1) * 2);
     /* Temp8 = B */
     Cflint_SetValue(Temp8, (Length + 1) * 2, 0);
     Cflint_Copy(Temp8, B, Length);

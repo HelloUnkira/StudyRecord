@@ -772,6 +772,52 @@ void Cflint_ModuloInverse(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 带符号与运算:Result * (*ResultFlag) = Operand1 * (Operand1_Flag) + */
+/*                                       Operand2 * (Operand2_Flag)   */
+/* 备注:大数运算本身是无符号语义运算,这里是为某些数学运算额外扩展 */
+CFLINT_TYPE Cflint_FlagSum(CFLINT_TYPE *Result,   CFLINT_TYPE *ResultFlag,
+                           CFLINT_TYPE *Operand1, CFLINT_TYPE  Operand1_Flag,
+                           CFLINT_TYPE *Operand2, CFLINT_TYPE  Operand2_Flag,
+                              uint32_t  Length)
+{
+    if (Operand1_Flag == 0 && Operand2_Flag == 0) {
+        *ResultFlag = 0;
+        return Cflint_Addition(Result, Operand1, Operand2, Length);
+    }
+    if (Operand1_Flag == 1 && Operand2_Flag == 1) {
+        *ResultFlag = 1;
+        return Cflint_Addition(Result, Operand1, Operand2, Length);
+    }
+    int8_t CompareResult = 0;
+    if (Operand1_Flag == 0 && Operand2_Flag == 1) {
+        CompareResult = Cflint_Compare(Operand1, Operand2, Length);
+        if (CompareResult != -1) {
+            *ResultFlag = 0;
+            return Cflint_Subtraction(Result, Operand1, Operand2, Length);
+        }
+        if (CompareResult == -1) {
+            *ResultFlag = 1;
+            return Cflint_Subtraction(Result, Operand2, Operand1, Length);
+        }
+    }
+    if (Operand1_Flag == 1 && Operand2_Flag == 0) {
+        CompareResult = Cflint_Compare(Operand2, Operand1, Length);
+        if (CompareResult != -1) {
+            *ResultFlag = 0;
+            return Cflint_Subtraction(Result, Operand2, Operand1, Length);
+        }
+        if (CompareResult == -1) {
+            *ResultFlag = 1;
+            return Cflint_Subtraction(Result, Operand1, Operand2, Length);
+        }
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 #endif
 /*****************************************************************************/
 /*****************************************************************************/
