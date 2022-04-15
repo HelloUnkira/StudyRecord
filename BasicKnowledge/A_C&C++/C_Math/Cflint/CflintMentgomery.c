@@ -14,9 +14,9 @@ void Cflint_M_ModuloReduction(CFLINT_TYPE *Result, uint32_t Length, int64_t R,
 {
     /* 1.计算:m = (((X % R) * NP) % R */
     Cflint_Copy(Temp2, X, Length * 2);
-    Cflint_Modulo2(Temp2, Length * 2, R);
+    Cflint_Mask2(Temp2, Length * 2, R);
     Cflint_Multiply(Temp1, Temp2, NP, Length);
-    Cflint_Modulo2(Temp1, Length * 2, R);
+    Cflint_Mask2(Temp1, Length * 2, R);
     /* 2.计算:y = (X + m * N) / R */
     Cflint_Multiply(Temp2, Temp1, N, Length);
     Cflint_Addition(Temp1, X, Temp2, Length * 2);

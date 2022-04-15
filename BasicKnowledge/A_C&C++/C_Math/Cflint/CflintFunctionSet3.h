@@ -1,42 +1,23 @@
-#ifndef CFLINTRESIDUECLASS_H
-#define CFLINTRESIDUECLASS_H
+#ifndef CFLINT_FUNCTION_SET3_H
+#define CFLINT_FUNCTION_SET3_H
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-#ifdef CFLINT_USE_RESIDUECLASS
+#ifdef CFLINT_USE_FUNCTION_SET3
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 欧几里得算法:GCD(A,B) == 1 */
-bool Cflint_GCDCheck(CFLINT_TYPE *A, CFLINT_TYPE *B, uint32_t Length,
-                     CFLINT_TYPE *Temp1, CFLINT_TYPE *Temp2, CFLINT_TYPE *Temp3);
+/* 最大公因数为1检查(互素检查):GCD(A,B) == 1 */
+bool Cflint_GCDCheck(CFLINT_TYPE *A,     CFLINT_TYPE *B,
+                     CFLINT_TYPE *Temp1, CFLINT_TYPE *Temp2,
+                     CFLINT_TYPE *Temp3,    uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 欧几里得算法:GCD(A,B) */
+/* 最大公因数:GCD(A,B) */
 void Cflint_GCD(CFLINT_TYPE *Result, CFLINT_TYPE *A,     CFLINT_TYPE *B,
                 CFLINT_TYPE *Temp1,  CFLINT_TYPE *Temp2, CFLINT_TYPE *Temp3,
                    uint32_t  Length);
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/* 扩展欧几里得算法:A*X + B*Y = GCD(A,B) */
-/* Flag为0表示正数,Flag为1表示负数,要求X,Y,Temp5的长度为(Length+1)*2 */
-void Cflint_ExtendGCD(CFLINT_TYPE *A, CFLINT_TYPE *B, CFLINT_TYPE *X, CFLINT_TYPE *Y,
-                      CFLINT_TYPE *Result, CFLINT_TYPE *X_Flag, CFLINT_TYPE *Y_Flag,
-                      CFLINT_TYPE *Temp1, CFLINT_TYPE *Temp2, CFLINT_TYPE *Temp3,
-                      CFLINT_TYPE *Temp4, CFLINT_TYPE *Temp5, uint32_t Length);
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/* 扩展欧几里得算法(Euclidean):A*X + B*Y = GCD(A,B) */
-/* Flag为0表示正数,Flag为1表示负数,要求Temp的长度为(Length+1)*2 */
-void Cflint_ExGCD(CFLINT_TYPE *A,      CFLINT_TYPE *B,
-                  CFLINT_TYPE *X,      CFLINT_TYPE *Y,
-                  CFLINT_TYPE *X_Flag, CFLINT_TYPE *Y_Flag,
-                  CFLINT_TYPE *Temp1,  CFLINT_TYPE *Temp2, CFLINT_TYPE *Temp3,
-                  CFLINT_TYPE *Temp4,  CFLINT_TYPE *Temp5, CFLINT_TYPE *Temp6,
-                  CFLINT_TYPE *Temp7,  CFLINT_TYPE *Temp8,    uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -48,7 +29,32 @@ void Cflint_LCM(CFLINT_TYPE *Result, CFLINT_TYPE *A, CFLINT_TYPE *B,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/*  */
+/* 扩展欧几里得算法(Euclidean):A*X + B*Y = GCD(A,B) */
+/* Flag为0表示正数,Flag为1表示负数,要求X,Y,Temp的长度为(Length+1)*2 */
+void Cflint_GCDExtend(CFLINT_TYPE *A,      CFLINT_TYPE *B,
+                      CFLINT_TYPE *X,      CFLINT_TYPE *Y,
+                      CFLINT_TYPE *X_Flag, CFLINT_TYPE *Y_Flag,
+                      CFLINT_TYPE *Temp1,  CFLINT_TYPE *Temp2,
+                      CFLINT_TYPE *Temp3,  CFLINT_TYPE *Temp4,
+                      CFLINT_TYPE *Temp5,  CFLINT_TYPE *Temp6,
+                      CFLINT_TYPE *Temp7,  CFLINT_TYPE *Temp8, uint32_t Length);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 欧几里得乘法逆: xxx */
+void Cflint_GCDInverse(void);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 备注:自己猜的一个逆向迭代逻辑,效率低下 */
+/* 扩展欧几里得算法:A*X + B*Y = GCD(A,B) */
+/* Flag为0表示正数,Flag为1表示负数,要求X,Y,Temp5的长度为(Length+1)*2 */
+void Cflint_ExtendGCD(CFLINT_TYPE *A,       CFLINT_TYPE *B,
+                      CFLINT_TYPE *X,       CFLINT_TYPE *Y,
+                      CFLINT_TYPE *X_Flag,  CFLINT_TYPE *Y_Flag,
+                      CFLINT_TYPE *Temp1,   CFLINT_TYPE *Temp2,
+                      CFLINT_TYPE *Temp3,   CFLINT_TYPE *Temp4,
+                      CFLINT_TYPE *Temp5,   CFLINT_TYPE *Result, uint32_t Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
