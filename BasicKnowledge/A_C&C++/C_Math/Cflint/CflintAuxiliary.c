@@ -152,20 +152,20 @@ void Cflint_NOT(CFLINT_TYPE *Operand, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 位检查 */
-bool Cflint_CheckBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bit2)
+bool Cflint_CheckBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
 {
     int64_t Bits_N = Bits2 / CFLINT_BITS;
     int64_t Bits_2 = Bits2 % CFLINT_BITS;
     
     if (Bits_N < Length)
-        return ((Operand[Bits_N] & (1 << Bits_2)) != 0)
+        return ((Operand[Bits_N] & (1 << Bits_2)) != 0);
     return false;
 }
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 位设置 */
-void Cflint_SetBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bit2)
+void Cflint_SetBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
 {
     int64_t Bits_N = Bits2 / CFLINT_BITS;
     int64_t Bits_2 = Bits2 % CFLINT_BITS;
@@ -177,7 +177,7 @@ void Cflint_SetBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bit2)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 位清除 */
-void Cflint_ClearBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bit2)
+void Cflint_ClearBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
 {
     int64_t Bits_N = Bits2 / CFLINT_BITS;
     int64_t Bits_2 = Bits2 % CFLINT_BITS;

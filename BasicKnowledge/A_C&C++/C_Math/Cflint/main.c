@@ -301,18 +301,21 @@ void Test_GCD(void)
 {
     uint32_t Index = 0;
     #define TEST_GCD_LENGTH     5
+    CFLINT_TYPE Result[TEST_GCD_LENGTH] = {0};
     CFLINT_TYPE A[TEST_GCD_LENGTH] = {0};
     CFLINT_TYPE B[TEST_GCD_LENGTH] = {0};
     CFLINT_TYPE X[(TEST_GCD_LENGTH + 1) * 2] = {0};
     CFLINT_TYPE Y[(TEST_GCD_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Result[TEST_GCD_LENGTH] = {0};
-    CFLINT_TYPE Temp1[TEST_GCD_LENGTH] = {0};
-    CFLINT_TYPE Temp2[TEST_GCD_LENGTH] = {0};
-    CFLINT_TYPE Temp3[TEST_GCD_LENGTH] = {0};
-    CFLINT_TYPE Temp4[TEST_GCD_LENGTH] = {0};
+    CFLINT_TYPE Temp1[(TEST_GCD_LENGTH + 1) * 2] = {0};
+    CFLINT_TYPE Temp2[(TEST_GCD_LENGTH + 1) * 2] = {0};
+    CFLINT_TYPE Temp3[(TEST_GCD_LENGTH + 1) * 2] = {0};
+    CFLINT_TYPE Temp4[(TEST_GCD_LENGTH + 1) * 2] = {0};
     CFLINT_TYPE Temp5[(TEST_GCD_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Temp6[(TEST_GCD_LENGTH + 1) * 4] = {0};
-    CFLINT_TYPE Temp7[(TEST_GCD_LENGTH + 1) * 4] = {0};
+    CFLINT_TYPE Temp6[(TEST_GCD_LENGTH + 1) * 2] = {0};
+    CFLINT_TYPE Temp7[(TEST_GCD_LENGTH + 1) * 2] = {0};
+    CFLINT_TYPE Temp8[(TEST_GCD_LENGTH + 1) * 2] = {0};
+    CFLINT_TYPE Temp_0[(TEST_GCD_LENGTH + 1) * 4] = {0};
+    CFLINT_TYPE Temp_1[(TEST_GCD_LENGTH + 1) * 4] = {0};
     CFLINT_TYPE X_Flag = 0, Y_Flag = 0;
     bool Check = 0;
 
@@ -323,10 +326,11 @@ void Test_GCD(void)
         B[Index] = TEST_GCD_LENGTH - Index;
     }
     B[0] = 1;
+    /*************************************************************************/
     /* 欧几里得运算 */
-    Check = Cflint_GCD(A, B, TEST_GCD_LENGTH, Temp1, Temp2, Temp3);
+    Check = Cflint_GCDCheck(A, B, TEST_GCD_LENGTH, Temp1, Temp2, Temp3);
     printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_GCD:::");
+    printf("Cflint_GCDCheck:::");
     printf("\n---------------------------------------------------------------");
     printf("\nA:");
     for (Index = 0; Index < TEST_GCD_LENGTH; Index++)
@@ -345,14 +349,16 @@ void Test_GCD(void)
         B[Index] = TEST_GCD_LENGTH - Index;
     }
     B[0] = 1;
+    /*************************************************************************/
     /* 扩展欧几里得运算 */
     Cflint_ExtendGCD(A, B, X, Y, Result, &X_Flag, &Y_Flag,
                      Temp1, Temp2, Temp3, Temp4, Temp5, TEST_GCD_LENGTH);
-    Cflint_SetValue(Temp5, (TEST_GCD_LENGTH + 1) * 2, 0);
-    Cflint_Copy(Temp5, A, TEST_GCD_LENGTH);
-    Cflint_Multiply(Temp6, Temp5, X, (TEST_GCD_LENGTH + 1) * 2);
-    Cflint_Copy(Temp5, B, TEST_GCD_LENGTH);
-    Cflint_Multiply(Temp7, Temp5, Y, (TEST_GCD_LENGTH + 1) * 2);
+    /*************************************************************************/
+    Cflint_SetValue(Temp1, (TEST_GCD_LENGTH + 1) * 2, 0);
+    Cflint_Copy(Temp1, A, TEST_GCD_LENGTH);
+    Cflint_Multiply(Temp_0, Temp1, X, (TEST_GCD_LENGTH + 1) * 2);
+    Cflint_Copy(Temp1, B, TEST_GCD_LENGTH);
+    Cflint_Multiply(Temp_1, Temp1, Y, (TEST_GCD_LENGTH + 1) * 2);
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_ExtendGCD:::");
     printf("\n---------------------------------------------------------------");
@@ -373,10 +379,55 @@ void Test_GCD(void)
         printf("%u ", Y[Index]);
     printf("\nA*X:");
     for (Index = 0; Index < (TEST_GCD_LENGTH + 1) * 2; Index++)
-        printf("%u ", Temp6[Index]);
+        printf("%u ", Temp_0[Index]);
     printf("\nB*Y:");
     for (Index = 0; Index < (TEST_GCD_LENGTH + 1) * 2; Index++)
-        printf("%u ", Temp7[Index]);
+        printf("%u ", Temp_1[Index]);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    
+    /* 扩展欧几里得运算 */
+    /*************************************************************************/
+    for (Index = 0; Index < TEST_GCD_LENGTH; Index++) {
+        A[Index] = TEST_GCD_LENGTH - Index;
+        B[Index] = TEST_GCD_LENGTH - Index;
+    }
+    B[0] = 1;
+    /*************************************************************************/
+    /* 扩展欧几里得运算 */
+    Cflint_ExGCD(A, B, X, Y, &X_Flag, &Y_Flag,
+                 Temp1, Temp2, Temp3, Temp4,
+                 Temp5, Temp6, Temp7, Temp8, TEST_GCD_LENGTH);
+    /*************************************************************************/
+    Cflint_SetValue(Temp1, (TEST_GCD_LENGTH + 1) * 2, 0);
+    Cflint_Copy(Temp1, A, TEST_GCD_LENGTH);
+    Cflint_Multiply(Temp_0, Temp1, X, (TEST_GCD_LENGTH + 1) * 2);
+    Cflint_Copy(Temp1, B, TEST_GCD_LENGTH);
+    Cflint_Multiply(Temp_1, Temp1, Y, (TEST_GCD_LENGTH + 1) * 2);
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_ExGCD:::");
+    printf("\n---------------------------------------------------------------");
+    printf("\nA:");
+    for (Index = 0; Index < TEST_GCD_LENGTH; Index++)
+        printf("%u ", A[Index]);
+    printf("\nB:");
+    for (Index = 0; Index < TEST_GCD_LENGTH; Index++)
+        printf("%u ", B[Index]);
+    printf("\nResult:");
+    for (Index = 0; Index < TEST_GCD_LENGTH; Index++)
+        printf("%u ", Result[Index]);
+    printf("\nX_Flag:%d, X:", X_Flag);
+    for (Index = 0; Index < (TEST_GCD_LENGTH + 1) * 2; Index++)
+        printf("%u ", X[Index]);
+    printf("\nY_Flag:%d, Y:", Y_Flag);
+    for (Index = 0; Index < (TEST_GCD_LENGTH + 1) * 2; Index++)
+        printf("%u ", Y[Index]);
+    printf("\nA*X:");
+    for (Index = 0; Index < (TEST_GCD_LENGTH + 1) * 2; Index++)
+        printf("%u ", Temp_0[Index]);
+    printf("\nB*Y:");
+    for (Index = 0; Index < (TEST_GCD_LENGTH + 1) * 2; Index++)
+        printf("%u ", Temp_1[Index]);
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/
 }
@@ -432,8 +483,8 @@ void Test_Mentgomery(void)
     Cflint_AdditionBit(R, TEST_MENTGOMERY_LENGTH * 2, 1);
     Cflint_ShiftLeft2(R, TEST_MENTGOMERY_LENGTH * 2, R_Index);
     /* 检查GCD(R,N) == 1 */
-    if (Cflint_GCD(R, N, TEST_MENTGOMERY_LENGTH * 2,
-                   Temp1, Temp2, Temp3) == false) {
+    if (Cflint_GCDCheck(R, N, TEST_MENTGOMERY_LENGTH * 2,
+                        Temp1, Temp2, Temp3) == false) {
         Cflint_SetValue(Result, TEST_MENTGOMERY_LENGTH, 0);
         return;
     }
@@ -539,7 +590,7 @@ int main(int argc, char *argv[]) {
     //Test_CflintBase2();
     //Test_CflintBase3();
     //Test_CflintBase4();
-    //Test_GCD();
+    Test_GCD();
     //未完成,测试不通过
     //Test_Mentgomery();
     
