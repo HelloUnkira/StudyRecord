@@ -14,14 +14,14 @@ bool Cflint_GCDCheck(CFLINT_TYPE *A,     CFLINT_TYPE *B,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 最大公因数:GCD(A,B) */
+/* 最大公因数:GCD(A, B) */
 void Cflint_GCD(CFLINT_TYPE *Result, CFLINT_TYPE *A,     CFLINT_TYPE *B,
                 CFLINT_TYPE *Temp1,  CFLINT_TYPE *Temp2, CFLINT_TYPE *Temp3,
                    uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 最小公倍数:LCM(A,B) = A * B / GCD(A,B) */
+/* 最小公倍数:LCM(A, B) = A * B / GCD(A, B) */
 void Cflint_LCM(CFLINT_TYPE *Result, CFLINT_TYPE *A, CFLINT_TYPE *B,
                 CFLINT_TYPE *Temp1,  CFLINT_TYPE *Temp2,
                 CFLINT_TYPE *Temp3,  CFLINT_TYPE *Temp4,
@@ -29,8 +29,8 @@ void Cflint_LCM(CFLINT_TYPE *Result, CFLINT_TYPE *A, CFLINT_TYPE *B,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 扩展欧几里得算法(Euclidean):A*X + B*Y = GCD(A,B) */
-/* Flag为0表示正数,Flag为1表示负数,要求X,Y,Temp的长度为(Length+1)*2 */
+/* 扩展欧几里得算法:A * X + B * Y = GCD(A, B) */
+/* Flag为0表示正数,Flag为1表示负数,要求X,Y,Temp(5,6,7,8)的长度为(Length+1)*2 */
 void Cflint_GCDExtend(CFLINT_TYPE *A,      CFLINT_TYPE *B,
                       CFLINT_TYPE *X,      CFLINT_TYPE *Y,
                       CFLINT_TYPE *X_Flag, CFLINT_TYPE *Y_Flag,
@@ -41,8 +41,14 @@ void Cflint_GCDExtend(CFLINT_TYPE *A,      CFLINT_TYPE *B,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 欧几里得乘法逆: xxx */
-void Cflint_GCDInverse(void);
+/* 欧几里得乘法逆: Inverse = (1 / A) % N, GCD = GCD(A, N) */
+/* 要求Temp(7,8)的长度为Length*2 */
+void Cflint_GCDInverse(CFLINT_TYPE *A,       CFLINT_TYPE *N,
+                       CFLINT_TYPE *Inverse, CFLINT_TYPE *GCD,    
+                       CFLINT_TYPE *Temp1,   CFLINT_TYPE *Temp2,
+                       CFLINT_TYPE *Temp3,   CFLINT_TYPE *Temp4,
+                       CFLINT_TYPE *Temp5,   CFLINT_TYPE *Temp6,
+                       CFLINT_TYPE *Temp7,   CFLINT_TYPE *Temp8, uint32_t Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

@@ -294,25 +294,23 @@ void Test_CflintFunctionSet5(void)
 {
     uint32_t Index = 0;
     #define TEST_FUNCTIONSET5_LENGTH     5
-    CFLINT_TYPE Result[TEST_FUNCTIONSET5_LENGTH] = {0};
+    CFLINT_TYPE Result[TEST_FUNCTIONSET5_LENGTH]  = {0};
+    CFLINT_TYPE Result1[TEST_FUNCTIONSET5_LENGTH] = {0};
     CFLINT_TYPE A[TEST_FUNCTIONSET5_LENGTH] = {0};
     CFLINT_TYPE B[TEST_FUNCTIONSET5_LENGTH] = {0};
+    CFLINT_TYPE Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};  //内部用于:Quotient
+    CFLINT_TYPE Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};  //内部用于:Module
+    CFLINT_TYPE Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};  //内部用于:Dividend
+    CFLINT_TYPE Temp4[TEST_FUNCTIONSET5_LENGTH] = {0};  //内部用于:Divisor
+    /* 因为运算中涉及到乘和差运算,所以这是理论最大空间 */
     CFLINT_TYPE X[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
     CFLINT_TYPE Y[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Temp1[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Temp2[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Temp3[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Temp4[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
     CFLINT_TYPE Temp5[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
     CFLINT_TYPE Temp6[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Temp7[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Temp8[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Temp_0[(TEST_FUNCTIONSET5_LENGTH + 1) * 4] = {0};
-    CFLINT_TYPE Temp_1[(TEST_FUNCTIONSET5_LENGTH + 1) * 4] = {0};
+    CFLINT_TYPE Temp7[(TEST_FUNCTIONSET5_LENGTH + 1) * 4] = {0};
+    CFLINT_TYPE Temp8[(TEST_FUNCTIONSET5_LENGTH + 1) * 4] = {0};
     CFLINT_TYPE X_Flag = 0, Y_Flag = 0;
     bool Check = 0;
-
-    /* 欧几里得运算 */
     /*************************************************************************/
     for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++) {
         A[Index] = TEST_FUNCTIONSET5_LENGTH - Index;
@@ -320,7 +318,9 @@ void Test_CflintFunctionSet5(void)
     }
     B[0] = 1;
     /*************************************************************************/
-    /* 欧几里得运算 */
+    
+    /* 欧几里得互素检查运算 */
+    /*************************************************************************/
     Check = Cflint_GCDCheck(A, B, Temp1, Temp2, Temp3, TEST_FUNCTIONSET5_LENGTH);
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_GCDCheck:::");
@@ -335,103 +335,22 @@ void Test_CflintFunctionSet5(void)
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/
     
-    /* 扩展欧几里得运算 */
-    /*************************************************************************/
-    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++) {
-        A[Index] = TEST_FUNCTIONSET5_LENGTH - Index;
-        B[Index] = TEST_FUNCTIONSET5_LENGTH - Index;
-    }
-    B[0] = 1;
-    /*************************************************************************/
-    /* 扩展欧几里得运算 */
-    Cflint_GCDExtend(A, B, X, Y, &X_Flag, &Y_Flag,
-                     Temp1, Temp2, Temp3, Temp4,
-                     Temp5, Temp6, Temp7, Temp8, TEST_FUNCTIONSET5_LENGTH);
-    /*************************************************************************/
-    Cflint_SetValue(Temp1, (TEST_FUNCTIONSET5_LENGTH + 1) * 2, 0);
-    Cflint_Copy(Temp1, A, TEST_FUNCTIONSET5_LENGTH);
-    Cflint_Multiply(Temp_0, Temp1, X, (TEST_FUNCTIONSET5_LENGTH + 1) * 2);
-    Cflint_Copy(Temp1, B, TEST_FUNCTIONSET5_LENGTH);
-    Cflint_Multiply(Temp_1, Temp1, Y, (TEST_FUNCTIONSET5_LENGTH + 1) * 2);
-    printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_GCDExtend:::");
-    printf("\n---------------------------------------------------------------");
-    printf("\nA:");
-    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
-        printf("%u ", A[Index]);
-    printf("\nB:");
-    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
-        printf("%u ", B[Index]);
-    printf("\nResult:");
-    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
-        printf("%u ", Result[Index]);
-    printf("\nX_Flag:%d, X:", X_Flag);
-    for (Index = 0; Index < (TEST_FUNCTIONSET5_LENGTH + 1) * 2; Index++)
-        printf("%u ", X[Index]);
-    printf("\nY_Flag:%d, Y:", Y_Flag);
-    for (Index = 0; Index < (TEST_FUNCTIONSET5_LENGTH + 1) * 2; Index++)
-        printf("%u ", Y[Index]);
-    printf("\nA*X:");
-    for (Index = 0; Index < (TEST_FUNCTIONSET5_LENGTH + 1) * 2; Index++)
-        printf("%u ", Temp_0[Index]);
-    printf("\nB*Y:");
-    for (Index = 0; Index < (TEST_FUNCTIONSET5_LENGTH + 1) * 2; Index++)
-        printf("%u ", Temp_1[Index]);
-    printf("\n-------------------------------------------------------------\n");
-    /*************************************************************************/
-    
     #if 0
-    /* 欧几里得乘法逆 */
-    /*************************************************************************/
-    Cflint_SetValue(B, TEST_FUNCTIONSET5_LENGTH * 2, 0);
-    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++) {
-        A[Index] = TEST_FUNCTIONSET5_LENGTH - Index;
-        B[Index]  = TEST_FUNCTIONSET5_LENGTH - Index;
-    }
-    B[0] = 1;
-    /* 欧几里得乘法逆 */
-    Cflint_GCDInverse(Result, A, B, Temp1, Temp2, Temp3, Temp4, TEST_FUNCTIONSET5_LENGTH);
-    printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_GCDInverse:::");
-    printf("\n---------------------------------------------------------------");
-    printf("\nA:");
-    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
-        printf("%u ", A[Index]);
-    printf("\nB:");
-    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
-        printf("%u ", B[Index]);
-    printf("\nResult:");
-    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
-        printf("%u ", Result[Index]);
-    printf("\n-------------------------------------------------------------\n");
-    /* 注:Module和Operand如果不互素,模逆不存在 */
-    printf("(Result * A) % B:::Result:\n");
-    Cflint_Multiply(Temp1, Result, A, TEST_FUNCTIONSET5_LENGTH);
-    Cflint_Modulo(Temp1, Temp1, B, TEST_FUNCTIONSET5_LENGTH * 2);
-    Cflint_Copy(Result, Temp1, TEST_FUNCTIONSET5_LENGTH);
-    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
-        printf("%u ", Result[Index]);
-    printf("\n-------------------------------------------------------------\n");
-    /*************************************************************************/
-    #endif
-
-    /* 扩展欧几里得运算 */
-    /*************************************************************************/
-    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++) {
-        A[Index] = TEST_FUNCTIONSET5_LENGTH - Index;
-        B[Index] = TEST_FUNCTIONSET5_LENGTH - Index;
-    }
-    B[0] = 1;
+    /* 扩展欧几里得运算(自己写的,效率低下) */
     /*************************************************************************/
     /* 扩展欧几里得运算 */
     Cflint_ExtendGCD(A, B, X, Y, &X_Flag, &Y_Flag,
-                     Temp1, Temp2, Temp3, Temp4, Temp5, Result, TEST_FUNCTIONSET5_LENGTH);
+                     Temp1, Temp2, Temp3, Temp4, Temp5,
+                     Result, TEST_FUNCTIONSET5_LENGTH);
     /*************************************************************************/
-    Cflint_SetValue(Temp1, (TEST_FUNCTIONSET5_LENGTH + 1) * 2, 0);
-    Cflint_Copy(Temp1, A, TEST_FUNCTIONSET5_LENGTH);
-    Cflint_Multiply(Temp_0, Temp1, X, (TEST_FUNCTIONSET5_LENGTH + 1) * 2);
-    Cflint_Copy(Temp1, B, TEST_FUNCTIONSET5_LENGTH);
-    Cflint_Multiply(Temp_1, Temp1, Y, (TEST_FUNCTIONSET5_LENGTH + 1) * 2);
+    Cflint_SetValue(Temp5, (TEST_FUNCTIONSET5_LENGTH + 1) * 2, 0);
+    Cflint_SetValue(Temp6, (TEST_FUNCTIONSET5_LENGTH + 1) * 2, 0);
+    Cflint_SetValue(Temp7, (TEST_FUNCTIONSET5_LENGTH + 1) * 4, 0);
+    Cflint_SetValue(Temp8, (TEST_FUNCTIONSET5_LENGTH + 1) * 4, 0);
+    Cflint_Copy(Temp5, A, TEST_FUNCTIONSET5_LENGTH);
+    Cflint_Copy(Temp6, B, TEST_FUNCTIONSET5_LENGTH);
+    Cflint_Multiply(Temp7, Temp5, X, (TEST_FUNCTIONSET5_LENGTH + 1) * 2);
+    Cflint_Multiply(Temp8, Temp6, Y, (TEST_FUNCTIONSET5_LENGTH + 1) * 2);
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_ExtendGCD:::");
     printf("\n---------------------------------------------------------------");
@@ -452,12 +371,95 @@ void Test_CflintFunctionSet5(void)
         printf("%u ", Y[Index]);
     printf("\nA*X:");
     for (Index = 0; Index < (TEST_FUNCTIONSET5_LENGTH + 1) * 2; Index++)
-        printf("%u ", Temp_0[Index]);
+        printf("%u ", Temp7[Index]);
     printf("\nB*Y:");
     for (Index = 0; Index < (TEST_FUNCTIONSET5_LENGTH + 1) * 2; Index++)
-        printf("%u ", Temp_1[Index]);
+        printf("%u ", Temp8[Index]);
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/
+    #endif
+    
+    /* 扩展欧几里得运算 */
+    /*************************************************************************/
+    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++) {
+        A[Index] = TEST_FUNCTIONSET5_LENGTH - Index;
+        B[Index] = TEST_FUNCTIONSET5_LENGTH - Index;
+    }
+    B[0] = 1;
+    /*************************************************************************/
+    /* 扩展欧几里得运算 */
+    Cflint_GCDExtend(A, B, X, Y, &X_Flag, &Y_Flag,
+                     Temp1, Temp2, Temp3, Temp4,
+                     Temp5, Temp6, Temp7, Temp8, TEST_FUNCTIONSET5_LENGTH);
+    /*************************************************************************/
+    Cflint_SetValue(Temp5, (TEST_FUNCTIONSET5_LENGTH + 1) * 2, 0);
+    Cflint_SetValue(Temp6, (TEST_FUNCTIONSET5_LENGTH + 1) * 2, 0);
+    Cflint_SetValue(Temp7, (TEST_FUNCTIONSET5_LENGTH + 1) * 4, 0);
+    Cflint_SetValue(Temp8, (TEST_FUNCTIONSET5_LENGTH + 1) * 4, 0);
+    Cflint_Copy(Temp5, A, TEST_FUNCTIONSET5_LENGTH);
+    Cflint_Copy(Temp6, B, TEST_FUNCTIONSET5_LENGTH);
+    Cflint_Multiply(Temp7, Temp5, X, (TEST_FUNCTIONSET5_LENGTH + 1) * 2);
+    Cflint_Multiply(Temp8, Temp6, Y, (TEST_FUNCTIONSET5_LENGTH + 1) * 2);
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_GCDExtend:::");
+    printf("\n---------------------------------------------------------------");
+    printf("\nA:");
+    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
+        printf("%u ", A[Index]);
+    printf("\nB:");
+    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
+        printf("%u ", B[Index]);
+    printf("\nResult:");
+    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
+        printf("%u ", Result[Index]);
+    printf("\nX_Flag:%d, X:", X_Flag);
+    for (Index = 0; Index < (TEST_FUNCTIONSET5_LENGTH + 1) * 2; Index++)
+        printf("%u ", X[Index]);
+    printf("\nY_Flag:%d, Y:", Y_Flag);
+    for (Index = 0; Index < (TEST_FUNCTIONSET5_LENGTH + 1) * 2; Index++)
+        printf("%u ", Y[Index]);
+    printf("\nA*X:");
+    for (Index = 0; Index < (TEST_FUNCTIONSET5_LENGTH + 1) * 2; Index++)
+        printf("%u ", Temp7[Index]);
+    printf("\nB*Y:");
+    for (Index = 0; Index < (TEST_FUNCTIONSET5_LENGTH + 1) * 2; Index++)
+        printf("%u ", Temp8[Index]);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    
+    /* 欧几里得乘法逆 */
+    /*************************************************************************/
+    Cflint_GCDInverse(A, B, Result, Result1,
+                      Temp1, Temp2, Temp3, Temp4,
+                      Temp5, Temp6, Temp7, Temp8, TEST_FUNCTIONSET5_LENGTH);
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_GCDInverse:::");
+    printf("\n---------------------------------------------------------------");
+    printf("\nA:");
+    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
+        printf("%u ", A[Index]);
+    printf("\nB:");
+    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
+        printf("%u ", B[Index]);
+    printf("\nGCD:");
+    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
+        printf("%u ", Result1[Index]);
+    printf("\nInverse:");
+    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
+        printf("%u ", Result[Index]);
+    printf("\n-------------------------------------------------------------\n");
+    /* 注:Module和Operand如果不互素,模逆不存在 */
+    printf("(Result * A) % B:::Result:\n");
+    Cflint_Multiply(Temp5, Result, A, TEST_FUNCTIONSET5_LENGTH);
+    Cflint_SetValue(Temp6, TEST_FUNCTIONSET5_LENGTH * 2, 0);
+    Cflint_Copy(Temp6, B, TEST_FUNCTIONSET5_LENGTH);
+    Cflint_Modulo(Temp5, Temp5, Temp6, TEST_FUNCTIONSET5_LENGTH * 2);
+    Cflint_Copy(Result, Temp5, TEST_FUNCTIONSET5_LENGTH);
+    for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++)
+        printf("%u ", Result[Index]);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -618,7 +620,7 @@ int main(int argc, char *argv[]) {
     //Test_CflintFunctionSet2();
     //Test_CflintFunctionSet3();
     //Test_CflintFunctionSet4();
-    //Test_CflintFunctionSet5();
+    Test_CflintFunctionSet5();
     //未完成,测试不通过
     //Test_Mentgomery();
     

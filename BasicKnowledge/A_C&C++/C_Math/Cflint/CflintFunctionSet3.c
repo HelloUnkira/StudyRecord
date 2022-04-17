@@ -6,7 +6,7 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 最大公因数为1检查(互素检查):GCD(A,B) == 1 */
+/* 最大公因数为1检查(互素检查) */
 bool Cflint_GCDCheck(CFLINT_TYPE *A,     CFLINT_TYPE *B,
                      CFLINT_TYPE *Temp1, CFLINT_TYPE *Temp2,
                      CFLINT_TYPE *Temp3,    uint32_t  Length)
@@ -40,7 +40,7 @@ bool Cflint_GCDCheck(CFLINT_TYPE *A,     CFLINT_TYPE *B,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 最大公因数:GCD(A,B) */
+/* 最大公因数 */
 void Cflint_GCD(CFLINT_TYPE *Result, CFLINT_TYPE *A,     CFLINT_TYPE *B,
                 CFLINT_TYPE *Temp1,  CFLINT_TYPE *Temp2, CFLINT_TYPE *Temp3,
                    uint32_t  Length)
@@ -73,11 +73,10 @@ void Cflint_GCD(CFLINT_TYPE *Result, CFLINT_TYPE *A,     CFLINT_TYPE *B,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 最小公倍数:LCM(A,B) = A * B / GCD(A,B) */
-void Cflint_LCM(CFLINT_TYPE *Result, CFLINT_TYPE *A, CFLINT_TYPE *B,
-                CFLINT_TYPE *Temp1,  CFLINT_TYPE *Temp2,
-                CFLINT_TYPE *Temp3,  CFLINT_TYPE *Temp4,
-                CFLINT_TYPE *Temp5,     uint32_t  Length)
+/* 最小公倍数 */
+void Cflint_LCM(CFLINT_TYPE *Result, CFLINT_TYPE *A,     CFLINT_TYPE *B,
+                CFLINT_TYPE *Temp1,  CFLINT_TYPE *Temp2, CFLINT_TYPE *Temp3,
+                CFLINT_TYPE *Temp4,  CFLINT_TYPE *Temp5,    uint32_t  Length)
 {
     /* 1.计算A*B */
     Cflint_Multiply(Temp4, A, B, Length);
@@ -92,7 +91,7 @@ void Cflint_LCM(CFLINT_TYPE *Result, CFLINT_TYPE *A, CFLINT_TYPE *B,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 扩展欧几里得算法(Euclidean):A*X + B*Y = 1 */
+/* 扩展欧几里得算法 */
 void Cflint_GCDExtend(CFLINT_TYPE *A,      CFLINT_TYPE *B,
                       CFLINT_TYPE *X,      CFLINT_TYPE *Y,
                       CFLINT_TYPE *X_Flag, CFLINT_TYPE *Y_Flag,
@@ -108,16 +107,13 @@ void Cflint_GCDExtend(CFLINT_TYPE *A,      CFLINT_TYPE *B,
     CFLINT_TYPE *Divisor  = Temp4;
     CFLINT_TYPE *VV = Temp5; CFLINT_TYPE VV_Flag = 0;
     CFLINT_TYPE *TT = Temp6; CFLINT_TYPE TT_Flag = 0;
-    int8_t CompareResult = 0;
     /* 1.初始化:X=1,Y=0 */
     *X_Flag = 0; *Y_Flag = 0;
     Cflint_SetValue(Y, (Length + 1) * 2, 0);
     Cflint_SetValue(X, (Length + 1) * 2, 0);
     Cflint_AdditionBit(X, (Length + 1) * 2, 1);
-    /* 2.初始化:Dividend=A,Divisor=B,VV=1 */
+    /* 2.初始化:Dividend=A,Divisor=B,VV=0 */
     Cflint_SetValue(VV, (Length + 1) * 2, 0);
-    Cflint_SetValue(Dividend, (Length + 1) * 2, 0);
-    Cflint_SetValue(Divisor,  (Length + 1) * 2, 0);
     Cflint_Copy(Dividend, A, Length);
     Cflint_Copy(Divisor,  B, Length);
     /* 3.初始化除数为0检查 */
@@ -136,13 +132,13 @@ void Cflint_GCDExtend(CFLINT_TYPE *A,      CFLINT_TYPE *B,
         /* X = VV, *X_Flag = VV_Flag */
         Cflint_Copy(X, VV, (Length + 1) * 2);
         *X_Flag = VV_Flag;
+        /* VV = TT, VV_Flag = TT_Flag */
+        Cflint_Copy(VV, TT, (Length + 1) * 2);
+        VV_Flag = TT_Flag;
         /* Dividend = Divisor */
         /* Divisor  = Module  */
         Cflint_Copy(Dividend, Divisor, Length);
         Cflint_Copy(Divisor,  Module,  Length);
-        /* VV = TT, VV_Flag = TT_Flag */
-        Cflint_Copy(VV, TT, (Length + 1) * 2);
-        VV_Flag = TT_Flag;
     }
     /* Y = (Dividend - A * X) / B */
     Cflint_SetValue(Temp7, (Length + 1) * 2, 0);
@@ -155,22 +151,68 @@ void Cflint_GCDExtend(CFLINT_TYPE *A,      CFLINT_TYPE *B,
     Cflint_SetValue(Temp8, (Length + 1) * 2, 0);
     Cflint_Copy(Temp8, B, Length);
     /* Y = Temp7 / Temp8 */
-    Cflint_Devide(Quotient, Module, Temp7, Temp8, (Length + 1) * 2);
-    Cflint_Copy(Y, Quotient, (Length + 1) * 2);
+    Cflint_Devide(VV, TT, Temp7, Temp8, (Length + 1) * 2);
+    Cflint_Copy(Y, VV, (Length + 1) * 2);
 }
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 欧几里得乘法逆 */
-void Cflint_GCDInverse(void)
+void Cflint_GCDInverse(CFLINT_TYPE *A,       CFLINT_TYPE *N,
+                       CFLINT_TYPE *Inverse, CFLINT_TYPE *GCD,    
+                       CFLINT_TYPE *Temp1,   CFLINT_TYPE *Temp2,
+                       CFLINT_TYPE *Temp3,   CFLINT_TYPE *Temp4,
+                       CFLINT_TYPE *Temp5,   CFLINT_TYPE *Temp6,
+                       CFLINT_TYPE *Temp7,   CFLINT_TYPE *Temp8, uint32_t Length)
 {
-    //存档
+    /* 固有开销 */
+    CFLINT_TYPE *Quotient = Temp1;
+    CFLINT_TYPE *Module   = Temp2;
+    CFLINT_TYPE *Dividend = Temp3;
+    CFLINT_TYPE *Divisor  = Temp4;
+    CFLINT_TYPE *VV = Temp5;
+    CFLINT_TYPE *TT = Temp6;
+    /* 1.初始化Inverse=1 */
+    Cflint_SetValue(Inverse, Length, 0);
+    Cflint_AdditionBit(Inverse, Length, 1);
+    /* 2.初始化Devidend=A,Divisor=N,VV=0 */
+    Cflint_SetValue(VV, Length, 0);
+    Cflint_Copy(Dividend, A, Length);
+    Cflint_Copy(Divisor,  N, Length);
+    /* 3.Temp7===N */
+    Cflint_SetValue(Temp7, Length * 2, 0);
+    Cflint_Copy(Temp7, N, Length);
+    /* 4.初始化除数为0检查 */
+    if (Cflint_IsZero(Divisor, Length) == true)
+        return;
+    /* 开始主循环直到除数为0 */
+    while (Cflint_IsZero(Divisor, Length) == false) {
+        /* Quotient = Dividend / Divisor */
+        /* Module   = Dividend % Divisor */
+        Cflint_Devide(Quotient, Module, Dividend, Divisor, Length);
+        /* TT = (Inverse - Quotient * VV)%N */
+        Cflint_Multiply(Temp8, Quotient, VV, Length);
+        Cflint_Modulo(Temp8, Temp8, Temp7, Length * 2);
+        /* 蒙哥马利模减 */
+        CFLINT_TYPE Overflow = Cflint_Subtraction(TT, Inverse, Temp8, Length);
+        if (Overflow != 0)
+            Cflint_Addition(TT, TT, Temp7, Length);
+        /* Inverse = VV */
+        Cflint_Copy(Inverse, VV, Length);
+        /* VV = TT */
+        Cflint_Copy(VV, TT, Length);
+        /* Dividend = Divisor */
+        /* Divisor  = Module  */
+        Cflint_Copy(Dividend, Divisor, Length);
+        Cflint_Copy(Divisor,  Module,  Length);
+    }
+    /* GCD=Dividend */
+    Cflint_Copy(GCD, Dividend, Length);
 }
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 扩展欧几里得算法:A*X + B*Y = 1 */
-/* Flag为0表示正数,Flag为1表示负数 */
+/* 扩展欧几里得算法 */
 void Cflint_ExtendGCD(CFLINT_TYPE *A,       CFLINT_TYPE *B,
                       CFLINT_TYPE *X,       CFLINT_TYPE *Y,
                       CFLINT_TYPE *X_Flag,  CFLINT_TYPE *Y_Flag,
