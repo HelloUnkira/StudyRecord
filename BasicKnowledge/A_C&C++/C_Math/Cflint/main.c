@@ -464,6 +464,65 @@ void Test_CflintFunctionSet5(void)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+void Test_CflintFunctionSet6(void)
+{
+    uint32_t Index = 0;
+    #define TEST_FUNCTIONSET6_LENGTH     5
+    CFLINT_TYPE Result[TEST_FUNCTIONSET6_LENGTH] = {0};
+    CFLINT_TYPE Operand[TEST_FUNCTIONSET6_LENGTH] = {0};
+    CFLINT_TYPE Temp1[TEST_FUNCTIONSET6_LENGTH * 2] = {0};
+    CFLINT_TYPE Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
+    CFLINT_TYPE Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
+    CFLINT_TYPE Temp4[TEST_FUNCTIONSET6_LENGTH] = {0};
+    bool Result1 = 0;
+    
+    /* 2次方根整数部运算 */
+    /*************************************************************************/
+    for (Index = 0; Index < TEST_FUNCTIONSET6_LENGTH; Index++)
+        Operand[Index] = TEST_FUNCTIONSET6_LENGTH - Index;
+    /*************************************************************************/
+    /* 2次方根整数部运算 */
+    Cflint_Root2Integer(Result, Operand,
+                        Temp1, Temp2, Temp3, Temp4, TEST_FUNCTIONSET6_LENGTH);
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_Root2Integer:::");
+    printf("\n---------------------------------------------------------------");
+    printf("\nResult:");
+    for (Index = 0; Index < TEST_FUNCTIONSET6_LENGTH; Index++)
+        printf("%u ", Result[Index]);
+    printf("\nOperand:");
+    for (Index = 0; Index < TEST_FUNCTIONSET6_LENGTH; Index++)
+        printf("%u ", Operand[Index]);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    
+    /* 2次方数判别检查 */
+    /*************************************************************************/
+    for (Index = 0; Index < TEST_FUNCTIONSET6_LENGTH; Index++)
+        Operand[Index] = TEST_FUNCTIONSET6_LENGTH - Index;
+    Operand[0] = 1;
+    Operand[1] = 2;
+    /*************************************************************************/
+    Result1 = Cflint_Root2Check(Result, Operand,
+                                Temp1, Temp2, Temp3, Temp4,
+                                TEST_FUNCTIONSET6_LENGTH);
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_Root2Check:::");
+    printf("\n---------------------------------------------------------------");
+    printf("\nResult:");
+    for (Index = 0; Index < TEST_FUNCTIONSET6_LENGTH; Index++)
+        printf("%u ", Result[Index]);
+    printf("\nOperand:");
+    for (Index = 0; Index < TEST_FUNCTIONSET6_LENGTH; Index++)
+        printf("%u ", Operand[Index]);
+    printf("\nResult:%d", Result1);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 /* 测试蒙哥马利模(未完成,测试未通过) */
 void Test_Mentgomery(void)
 {
@@ -620,10 +679,13 @@ int main(int argc, char *argv[]) {
     //Test_CflintFunctionSet2();
     //Test_CflintFunctionSet3();
     //Test_CflintFunctionSet4();
-    Test_CflintFunctionSet5();
+    //Test_CflintFunctionSet5();
+    Test_CflintFunctionSet6();
     //未完成,测试不通过
     //Test_Mentgomery();
     
+
+
     return 0;
 }
 /*****************************************************************************/
