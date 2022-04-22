@@ -474,7 +474,7 @@ void Test_CflintFunctionSet6(void)
     CFLINT_TYPE Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
     CFLINT_TYPE Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
     CFLINT_TYPE Temp4[TEST_FUNCTIONSET6_LENGTH] = {0};
-    bool Result1 = 0;
+    int8_t Result1 = 0;
     
     /* 2次方根整数部运算 */
     /*************************************************************************/
@@ -498,10 +498,12 @@ void Test_CflintFunctionSet6(void)
     
     /* 2次方数判别检查 */
     /*************************************************************************/
-    for (Index = 0; Index < TEST_FUNCTIONSET6_LENGTH; Index++)
-        Operand[Index] = TEST_FUNCTIONSET6_LENGTH - Index;
+    Cflint_SetValue(Operand, TEST_FUNCTIONSET6_LENGTH, 0);
     Operand[0] = 1;
     Operand[1] = 2;
+    Operand[2] = 3;
+    Operand[3] = 2;
+    Operand[4] = 1;
     /*************************************************************************/
     Result1 = Cflint_Root2Check(Result, Operand,
                                 Temp1, Temp2, Temp3, Temp4,
@@ -519,6 +521,15 @@ void Test_CflintFunctionSet6(void)
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/
     
+    /* 符号Jacobi(Operand1/Operand2)计算 */
+    /*************************************************************************/
+    Result[0]  = 3;
+    Operand[0] = 5; 
+    /*************************************************************************/
+    /* 符号Jacobi(Operand1/Operand2)计算 */
+    Result1 = Cflint_JacobiFlag(Result, Operand, Temp1, Temp2, Temp3, 1);
+    printf("Jacobi(%d/%d):Result:%d",Result[0], Operand[0], Result1);
+    /*************************************************************************/
 }
 /*****************************************************************************/
 /*****************************************************************************/

@@ -191,18 +191,28 @@ void Cflint_ClearBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+/* 偶数判断 */
+bool Cflint_IsEven(CFLINT_TYPE *Operand, uint32_t Length)
+{
+    return ((Operand[0] & 1) == 0);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 /* 左移位运算 */
 void Cflint_ShiftLeft2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
 {
-    //一个DIGIT_TYPE字节下进制的位有多少个2进制位
+    /* 特殊检查:空移位 */
+    if (Bits2 == 0)
+        return;
+    /* 一个DIGIT_TYPE字节下进制的位有多少个2进制位 */
+    int64_t Index  = 0;
     int64_t Bits_N = Bits2 / CFLINT_BITS;
     int64_t Bits_2 = Bits2 % CFLINT_BITS;
     int64_t Last_2 = CFLINT_BITS - Bits_2;
     CFLINT_TYPE Bit_N1 = 0, Bit_High = 0;
     CFLINT_TYPE Bit_N2 = 0, Bit_Low  = 0;
-
-    int64_t Index = 0;
-
+    
     for (Index = (int64_t)Length - 1; Index - Bits_N - 1 >= 0; Index--) {
         Bit_N1    = Operand[Index - Bits_N];
         Bit_N2    = Operand[Index - Bits_N - 1];
@@ -227,15 +237,17 @@ void Cflint_ShiftLeft2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
 /* 右移位运算 */
 void Cflint_ShiftRight2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
 {
-    //一个DIGIT_TYPE字节下进制的位有多少个2进制位
+    /* 特殊检查:空移位 */
+    if (Bits2 == 0)
+        return;
+    /* 一个DIGIT_TYPE字节下进制的位有多少个2进制位 */
+    int64_t Index  = 0;
     int64_t Bits_N = Bits2 / CFLINT_BITS;
     int64_t Bits_2 = Bits2 % CFLINT_BITS;
     int64_t Last_2 = CFLINT_BITS - Bits_2;
     CFLINT_TYPE Bit_N1 = 0, Bit_Low  = 0;
     CFLINT_TYPE Bit_N2 = 0, Bit_High = 0;
-
-    int64_t Index = 0;
-
+    
     for (Index = 0; Index + Bits_N + 1 < (int64_t)Length; Index++) {
         Bit_N1    = Operand[Index + Bits_N];
         Bit_N2    = Operand[Index + Bits_N + 1];
@@ -287,6 +299,29 @@ void Cflint_ShiftRightN(CFLINT_TYPE *Operand, uint32_t Length, uint32_t BitsN)
         Operand[Index] = Operand[Index - BitsN];
     for (int64_t Index = (int64_t)BitsN - 1; Index >= 0; Index--)
         Operand[Index] = 0;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 数分解运算 */
+int64_t Cflint_Factor2(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
+                          uint32_t  Length)
+{
+    /* 初始化Operand2=Operand1 */
+    if (Operand2 != Operand1)
+        Cflint_Copy(Operand2, Operand1, Length);
+    /* 初始化Bits2=0 */
+    int64_t Bits2 = 0;
+    /* 特殊检查,Operand1==0 */
+    if (Cflint_IsZero(Operand2, Length) == true)
+        return 0;
+    /* 计算最低非0位所在位置 */
+    while (Cflint_CheckBit2(Operand2, Length, Bits2) == false)
+        Bits2++;
+    /* 再次检查移位可行性 */
+    Cflint_ShiftRight2(Operand2, Length, Bits2);
+    /* 返回K */
+    return Bits2;
 }
 /*****************************************************************************/
 /*****************************************************************************/
