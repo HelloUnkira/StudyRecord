@@ -65,7 +65,7 @@ bool Cflint_IsZero(CFLINT_TYPE *Operand, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 设值:类似memset */
-void Cflint_SetValue(CFLINT_TYPE *Operand, uint32_t Length,  CFLINT_TYPE  Value)
+void Cflint_SetValue(CFLINT_TYPE *Operand, uint32_t Length, CFLINT_TYPE Value)
 {
     for (uint32_t Index = 0; Index < Length; Index++)
         Operand[Index] = Value;
@@ -221,13 +221,15 @@ void Cflint_ShiftLeft2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
         Bit_Low   = (Last_2 >= CFLINT_BITS) ? 0 : Bit_Low;
         Operand[Index] = Bit_High | Bit_Low;
     }
-    Bit_N1 = Operand[Index - Bits_N];
-    //Bit_N2 = Operand[Index - Bits_N - 1];
-    Bit_High  = (Bit_N1 << Bits_2);
-    //Bit_Low   = (Bit_N2 >> Last_2);
-    //Bit_Low   = (Last_2 >= CFLINT_BITS) ? 0 : Bit_Low;
-    Operand[Index] = Bit_High;// | (Bit_N2 >> Last_2);
-
+    {
+        Bit_N1 = Operand[Index - Bits_N];
+        //Bit_N2 = Operand[Index - Bits_N - 1];
+        Bit_High  = (Bit_N1 << Bits_2);
+        //Bit_Low   = (Bit_N2 >> Last_2);
+        //Bit_Low   = (Last_2 >= CFLINT_BITS) ? 0 : Bit_Low;
+        Operand[Index] = Bit_High;// | (Bit_N2 >> Last_2);
+    }
+    
     for (Index = 0; Index - Bits_N < 0; Index++)
         Operand[Index] = 0;
 }
@@ -256,13 +258,15 @@ void Cflint_ShiftRight2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
         Bit_High  = (Last_2 >= CFLINT_BITS) ? 0 : Bit_High;
         Operand[Index] = Bit_Low | Bit_High;
     }
-    Bit_N1 = Operand[Index + Bits_N];
-    //Bit_N2 = Operand[Index + Bits_N + 1];
-    Bit_Low = (Bit_N1 >> Bits_2);
-    //Bit_High = (Bit_N2 << Last_2);
-    //Bit_High = (Last_2 >= CFLINT_BITS) ? 0 : Bit_High;
-    Operand[Index] = Bit_Low;// | (Bit_N2 << Last_2);
-
+    {
+        Bit_N1 = Operand[Index + Bits_N];
+        //Bit_N2 = Operand[Index + Bits_N + 1];
+        Bit_Low = (Bit_N1 >> Bits_2);
+        //Bit_High = (Bit_N2 << Last_2);
+        //Bit_High = (Last_2 >= CFLINT_BITS) ? 0 : Bit_High;
+        Operand[Index] = Bit_Low;// | (Bit_N2 << Last_2);
+    }
+    
     for (Index = (int64_t)Length - Bits_N; Index < (int64_t)Length; Index++)
         Operand[Index] = 0;
 }
