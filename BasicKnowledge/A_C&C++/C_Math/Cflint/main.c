@@ -460,10 +460,6 @@ void Test_CflintFunctionSet6(void)
     #define TEST_FUNCTIONSET6_LENGTH     5
     CFLINT_TYPE Result[TEST_FUNCTIONSET6_LENGTH] = {0};
     CFLINT_TYPE Operand[TEST_FUNCTIONSET6_LENGTH] = {0};
-    CFLINT_TYPE Temp1[TEST_FUNCTIONSET6_LENGTH * 2] = {0};
-    CFLINT_TYPE Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
-    CFLINT_TYPE Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
-    CFLINT_TYPE Temp4[TEST_FUNCTIONSET6_LENGTH] = {0};
     int8_t Result1 = 0;
     
     /* 2次方根整数部运算 */
@@ -472,8 +468,15 @@ void Test_CflintFunctionSet6(void)
         Operand[Index] = TEST_FUNCTIONSET6_LENGTH - Index;
     /*************************************************************************/
     /* 2次方根整数部运算 */
-    Cflint_Root2Integer(Result, Operand,
-                        Temp1, Temp2, Temp3, Temp4, TEST_FUNCTIONSET6_LENGTH);
+    {
+        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET6_LENGTH] = {0};
+        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
+        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
+        CFLINT_TYPE  Temp4[TEST_FUNCTIONSET6_LENGTH] = {0};
+        CFLINT_TYPE *Temp[4] = {Temp1, Temp2, Temp3, Temp4};
+        Cflint_Root2Integer(Result, Operand,
+                            Temp, TEST_FUNCTIONSET6_LENGTH);
+    }
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_Root2Integer:::");
     printf("\n---------------------------------------------------------------");
@@ -495,8 +498,15 @@ void Test_CflintFunctionSet6(void)
     Operand[3] = 2;
     Operand[4] = 1;
     /*************************************************************************/
-    Result1 = Cflint_Root2Check(Result, Operand, Temp1, Temp2, Temp3, Temp4,
-                                TEST_FUNCTIONSET6_LENGTH);
+    {
+        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET6_LENGTH * 2] = {0};
+        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
+        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
+        CFLINT_TYPE  Temp4[TEST_FUNCTIONSET6_LENGTH] = {0};
+        CFLINT_TYPE *Temp[4] = {Temp1, Temp2, Temp3, Temp4};
+        Result1 = Cflint_Root2Check(Result, Operand, Temp,
+                                    TEST_FUNCTIONSET6_LENGTH);
+    }
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_Root2Check:::");
     printf("\n---------------------------------------------------------------");
@@ -516,7 +526,13 @@ void Test_CflintFunctionSet6(void)
     Operand[0] = 5; 
     /*************************************************************************/
     /* 符号Jacobi(Operand1/Operand2)计算 */
-    Result1 = Cflint_JacobiFlag(Result, Operand, Temp1, Temp2, Temp3, 1);
+    {
+        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET6_LENGTH] = {0};
+        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
+        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
+        CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
+        Result1 = Cflint_JacobiFlag(Result, Operand, Temp, 1);
+    }
     printf("Jacobi(%d/%d):Result:%d",Result[0], Operand[0], Result1);
     /*************************************************************************/
 }
@@ -677,12 +693,12 @@ int main(int argc, char *argv[]) {
     /* 这里强转函数指针类型 */
     Cflint_PortInfoCheck((Cflint_PortInfoPrint)printf);
 
-    Test_CflintFunctionSet1();
-    Test_CflintFunctionSet2();
-    Test_CflintFunctionSet3();
-    Test_CflintFunctionSet4();
-    Test_CflintFunctionSet5();
-    //Test_CflintFunctionSet6();
+    // Test_CflintFunctionSet1();
+    // Test_CflintFunctionSet2();
+    // Test_CflintFunctionSet3();
+    // Test_CflintFunctionSet4();
+    // Test_CflintFunctionSet5();
+    Test_CflintFunctionSet6();
     //未完成,测试不通过
     //Test_Mentgomery();
     

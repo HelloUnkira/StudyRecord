@@ -8,8 +8,7 @@
 /*****************************************************************************/
 /* 2次方根整数部运算: */
 void Cflint_Root2Integer(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
-                         CFLINT_TYPE *Temp1,  CFLINT_TYPE *Temp2,
-                         CFLINT_TYPE *Temp3,  CFLINT_TYPE *Temp4, uint32_t Length)
+                         CFLINT_TYPE *Temp[4],   uint32_t  Length)
 {
     /*扩展:B次根整数部分(存档)
      *1.X = 2**[Cflint_Root2Integer(Operand) / B]
@@ -19,10 +18,10 @@ void Cflint_Root2Integer(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
      */
     
     /* 固有开销 */
-    CFLINT_TYPE *X = Temp1;
-    CFLINT_TYPE *Y = Temp2;
-    CFLINT_TYPE *Quotient = Temp3;
-    CFLINT_TYPE *Module   = Temp4;
+    CFLINT_TYPE *X = Temp[0];
+    CFLINT_TYPE *Y = Temp[1];
+    CFLINT_TYPE *Quotient = Temp[2];
+    CFLINT_TYPE *Module   = Temp[3];
     /* 计算E = [log2(Operand)] */
     int64_t Numbers2 = Cflint_Numbers2(Operand, Length);
     /* 生成Y = [2**(E + 2) / 2] */
@@ -49,8 +48,7 @@ void Cflint_Root2Integer(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
 /*****************************************************************************/
 /* 2次方数判别检查 */
 bool Cflint_Root2Check(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
-                       CFLINT_TYPE *Temp1,  CFLINT_TYPE *Temp2,
-                       CFLINT_TYPE *Temp3,  CFLINT_TYPE *Temp4, uint32_t Length)
+                       CFLINT_TYPE *Temp[4],   uint32_t  Length)
 {
     /* 备注:当前未知算法工作异常,临时屏蔽 */
     /*
@@ -96,7 +94,8 @@ bool Cflint_Root2Check(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
                            1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0,
                            0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
                            0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1};
-    uint16_t Temp = 0;
+    
+    uint16_t TT = 0;
     /* 特殊:为0检查 */
     if (Cflint_IsZero(Operand, Length) == true) {
         Cflint_SetValue(Result, Length, 0);
@@ -107,25 +106,25 @@ bool Cflint_Root2Check(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
     if (Q64[Operand[0] & 63] == false)
         ;//return false;
     /* 2.计算Temp = Operand % (65 * 63 * 11) */
-    Cflint_SetValue(Temp1, Length, 0);
-    Temp1[0] = ((uint16_t)(65 * 63 * 11)) >> 0;
-    Temp1[1] = ((uint16_t)(65 * 63 * 11)) >> CFLINT_BITS;
-    Cflint_Modulo(Temp3, Operand, Temp1, Length);
-    Temp |= ((uint16_t)(Temp3[0])) << 0;
-    Temp |= ((uint16_t)(Temp3[1])) << CFLINT_BITS;
+    Cflint_SetValue(Temp[0], Length, 0);
+    Temp[0][0] = ((uint16_t)(65 * 63 * 11)) >> 0;
+    Temp[0][1] = ((uint16_t)(65 * 63 * 11)) >> CFLINT_BITS;
+    Cflint_Modulo(Temp[1], Operand, Temp[0], Length);
+    TT |= ((uint16_t)(Temp[1][0])) << 0;
+    TT |= ((uint16_t)(Temp[1][1])) << CFLINT_BITS;
     /* 3.计算Temp % 63 */
-    if (Q63[Temp % 63] == false)
+    if (Q63[TT % 63] == false)
         ;//return false;
-    /* 4.Temp % 65 */
-    if (Q65[Temp % 65] == false)
+    /* 4.TT % 65 */
+    if (Q65[TT % 65] == false)
         ;//return false;
-    /* 5.temp = Temp % 11 */
-    if (Q11[Temp % 11] == false)
+    /* 5.TT = TT % 11 */
+    if (Q11[TT % 11] == false)
         ;//return false;
     /* 全额检查 */
-    Cflint_Root2Integer(Result, Operand, Temp1, Temp2, Temp3, Temp4, Length);
-    Cflint_Square(Temp1, Result, Length);
-    if (Cflint_Equal(Operand, Temp1, Length) == true)
+    Cflint_Root2Integer(Result, Operand, Temp, Length);
+    Cflint_Square(Temp[0], Result, Length);
+    if (Cflint_Equal(Operand, Temp[0], Length) == true)
         return true;
     return false;
 }
@@ -134,8 +133,7 @@ bool Cflint_Root2Check(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
 /*****************************************************************************/
 /* 符号Jacobi(Operand1/Operand2)计算 */
 int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
-                         CFLINT_TYPE *Temp1,    CFLINT_TYPE *Temp2,
-                         CFLINT_TYPE *Temp3,       uint32_t  Length)
+                         CFLINT_TYPE *Temp[3],     uint32_t  Length)
 {
     /* 优化1: */
     /* K = (-1)**((X**2 - 1) / 8) ==变形优化后==>> */
@@ -148,17 +146,17 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
     /* 固定开销 */
     int8_t  K = 0;
     int64_t V = 0;
-    CFLINT_TYPE *A = Temp1;
-    CFLINT_TYPE *B = Temp2;
-    CFLINT_TYPE *Temp = Temp3;
+    CFLINT_TYPE *A = Temp[0];
+    CFLINT_TYPE *B = Temp[1];
+    CFLINT_TYPE *T = Temp[2];
     /* 初始化:A = Operand1,B = Operand2 */
     Cflint_Copy(A, Operand1, Length);
     Cflint_Copy(B, Operand2, Length);
     /* 第一步:如果B == 0,(当A == 1,K = 1)(当A != 1,K = 0) */
     if (Cflint_IsZero(B, Length) == true) {
-        Cflint_SetValue(Temp, Length, 0);
-        Cflint_AdditionBit(Temp, Length, 1);
-        bool EqualResult = Cflint_Equal(A, Temp, Length);
+        Cflint_SetValue(T, Length, 0);
+        Cflint_AdditionBit(T, Length, 1);
+        bool EqualResult = Cflint_Equal(A, T, Length);
         if (EqualResult == true)
             return 1;
         if (EqualResult == false)
@@ -179,9 +177,9 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
     do {
         /* 第三步:如果A == 0,(当B > 1,K = 0)(当B <= 1, K = K) */
         if (Cflint_IsZero(A, Length) == true) {
-            Cflint_SetValue(Temp, Length, 0);
-            Cflint_AdditionBit(Temp, Length, 1);
-            int8_t CompareResult = Cflint_Compare(B, Temp, Length);
+            Cflint_SetValue(T, Length, 0);
+            Cflint_AdditionBit(T, Length, 1);
+            int8_t CompareResult = Cflint_Compare(B, T, Length);
             if (CompareResult == 1)
                 return 0;
             if (CompareResult != 1)
@@ -195,11 +193,78 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
         /* 第四步:K = (-1)**((A - 1)(B - 1) / 4)*K */
         if ((A[0] & B[0] & 2) != 0)
             K = -K;
-        /* 第四步:Temp = A, A = B % Temp, B = Temp */
-        Cflint_Copy(Temp, A, Length);
-        Cflint_Modulo(A, B, Temp, Length);
-        Cflint_Copy(B, Temp, Length);
+        /* 第四步:T = A, A = B % T, B = T */
+        Cflint_Copy(T, A, Length);
+        Cflint_Modulo(A, B, T, Length);
+        Cflint_Copy(B, T, Length);
     } while (1);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 整数Operand1模奇素数Operand2的平方根运算 */
+bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
+                        CFLINT_TYPE *Result,    CFLINT_TYPE *Temp1,
+                        CFLINT_TYPE *Temp2,     CFLINT_TYPE *Temp3,
+                        CFLINT_TYPE *Temp4,     CFLINT_TYPE *Temp5,     
+                        CFLINT_TYPE *Temp6,     CFLINT_TYPE *Temp7,     
+                        CFLINT_TYPE *Temp8,     CFLINT_TYPE *Temp9,     
+                        CFLINT_TYPE *Temp10,       uint32_t  Length)
+{
+#if 0
+    
+    CFLINT_TYPE *A = Operand1;
+    CFLINT_TYPE *P = Operand2;
+    CFLINT_TYPE *X = Result;
+    /* 固有开销 */
+    CFLINT_TYPE *B = Temp1;
+    CFLINT_TYPE *Q = Temp2;
+    CFLINT_TYPE *T = Temp3;
+    CFLINT_TYPE *Y = Temp4;
+    CFLINT_TYPE *Z = Temp5;
+    /*  */
+    int64_t R = 0, M = 0;
+    /* 性质:P == 0 || P % 2 == 0 */
+    if (Cflint_IsZero(P, Length) == true)
+        return false;
+    if (Cflint_IsEven(P, Length) == true)
+        return false;
+    /* 性质:A == 0 */
+    if (Cflint_IsZero(A, Length) == true) {
+        Cflint_SetValue(X, Length, 0);
+        return true;
+    }
+    /* 第一步:找到一个二次非剩余 */
+    Cflint_Copy(Q, P, Length);
+    Cflint_SubtractionBit(Q, Length, 1);
+    /* 第一步:(2**R) * Q = P - 1 */
+    R = Cflint_Factor2(Q, Q, Length);
+    /* 第一步:寻找一个随机数Z = N, 满足Jacobi(N/P) == -1 */
+    Cflint_SetValue(Z, Length, 0);
+    Cflint_AdditionBit(Z, Length, 2);
+    while (Cflint_JacobiFlag(Z, P) == 1)
+        Cflint_AdditionBit(Z, Length, 1);
+    /* 第二步:计算Z = (N**Q) % P */
+    Cflint_ModuloExponent(Temp10, P,     Z,     Q,
+                          Temp6,  Temp7, Temp8, Temp9, Length);
+    Cflint_Copy(Z, Temp10, Length);
+    /* 第二步:获得Y = Z = (N**Q) % P */
+    Cflint_Copy(Y, Z, Length);
+    /* 第二步:计算Q = (Q - 1) / 2 */
+    Cflint_SubtractionBit(Q, Length, 1);
+    Cflint_ShiftRight2(Q, Length, 1);
+    /* 第二步:计算X = A ** ((P - 1) / 2) % P = A ** Q % P */
+    Cflint_ModuloExponent(Temp10, P,     A,     Q,
+                          Temp6,  Temp7, Temp8, Temp9, Length);
+    Cflint_Copy(X, Temp10, Length);
+    /* 第二步:计算Z = A * (X ** 2) % P */
+    Cflint_Square(Temp10, X, Length);
+    
+    
+    
+    
+    
+#endif
 }
 /*****************************************************************************/
 /*****************************************************************************/
