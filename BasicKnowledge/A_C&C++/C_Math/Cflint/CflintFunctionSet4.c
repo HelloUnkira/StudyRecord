@@ -204,7 +204,7 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /* 整数Operand1模奇素数Operand2的平方根运算 */
 bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
-                        CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[9],
+                        CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[10],
                            uint32_t  Length)
 {
     CFLINT_TYPE *A = Operand1;
@@ -216,8 +216,8 @@ bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     CFLINT_TYPE *T   = Temp[2];
     CFLINT_TYPE *Y   = Temp[3];
     CFLINT_TYPE *Z   = Temp[4];
-    CFLINT_TYPE **TT = Temp + 5;
-    CFLINT_TYPE *T1  = Temp[8];
+    CFLINT_TYPE *T1  = Temp[5];
+    CFLINT_TYPE **TT = Temp + 6;
     
     /*  */
     int64_t R = 0, M = 0;

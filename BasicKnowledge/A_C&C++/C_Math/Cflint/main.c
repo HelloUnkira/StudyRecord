@@ -546,7 +546,7 @@ void Test_CflintFunctionSet6(void)
         Module[Index]  = TEST_FUNCTIONSET6_LENGTH - Index;
     }
     Operand[0] = 7;
-    Module[0] = 1;
+    Module[0]  = 1;
     /*************************************************************************/
     /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
     {
@@ -559,8 +559,9 @@ void Test_CflintFunctionSet6(void)
         CFLINT_TYPE  Temp7[TEST_FUNCTIONSET6_LENGTH * 2] = {0};
         CFLINT_TYPE  Temp8[TEST_FUNCTIONSET6_LENGTH * 2] = {0};
         CFLINT_TYPE  Temp9[TEST_FUNCTIONSET6_LENGTH * 2] = {0};
-        CFLINT_TYPE *Temp[9] = {Temp1, Temp2, Temp3, Temp4,
-                                Temp5, Temp6, Temp7, Temp8, Temp9};
+        CFLINT_TYPE  Temp10[TEST_FUNCTIONSET6_LENGTH * 2] = {0};
+        CFLINT_TYPE *Temp[10] = {Temp1, Temp2, Temp3, Temp4, Temp5,
+                                 Temp6, Temp7, Temp8, Temp9, Temp10};
         /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
         Result1 = Cflint_ModuloRoot2(Operand, Module, Result,
                                      Temp, TEST_FUNCTIONSET6_LENGTH);

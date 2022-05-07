@@ -27,8 +27,9 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
+/* 要求模Operand2一个奇素数且Operand2 > 2 */
 bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
-                        CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[9],
+                        CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[10],
                            uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
