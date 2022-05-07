@@ -363,18 +363,14 @@ bool GeneralDevice_Read(GeneralDevice_Event *Instance, uint32_t UnitTime, uint32
         return false;
     if (GeneralDevice_FrameParse() == false)
         return false;
-    if (GeneralDevice_EventParse(&(Instance->Event),
-                                  (Instance->Data),
-                                 &(Instance->Size)) == false)
+    if (GeneralDevice_EventParse(&(Instance->Event), (Instance->Data), &(Instance->Size)) == false)
         return false;
     return true;
 }
 /*************************************************************************************************/
 bool GeneralDevice_Write(GeneralDevice_Event *Instance, uint32_t UnitTime, uint32_t MaxCount, bool Wait)
 {
-    if (GeneralDevice_EventMake((Instance->Event),
-                                (Instance->Data),
-                                (Instance->Size)) == false)
+    if (GeneralDevice_EventMake((Instance->Event), (Instance->Data), (Instance->Size)) == false)
         return false;
     if (GeneralDevice_FrameMake() == false)
         return false;
