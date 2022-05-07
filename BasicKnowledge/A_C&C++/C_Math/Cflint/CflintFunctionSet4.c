@@ -204,7 +204,7 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /* 整数Operand1模奇素数Operand2的平方根运算 */
 bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
-                        CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[10],
+                        CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[9],
                            uint32_t  Length)
 {
     CFLINT_TYPE *A = Operand1;
@@ -216,9 +216,9 @@ bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     CFLINT_TYPE *T   = Temp[2];
     CFLINT_TYPE *Y   = Temp[3];
     CFLINT_TYPE *Z   = Temp[4];
-    CFLINT_TYPE *T1  = Temp[5];
-    CFLINT_TYPE *T2  = Temp[6];
-    CFLINT_TYPE **TT = Temp + 7;
+    CFLINT_TYPE **TT = Temp + 5;
+    CFLINT_TYPE *T1  = Temp[8];
+    
     /*  */
     int64_t R = 0, M = 0;
     /* 性质:P == 0 || P % 2 == 0 */
@@ -250,22 +250,11 @@ bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     Cflint_ShiftRight2(Q, Length, 1);
     /* 第二步:计算X = A ** ((P - 1) / 2) % P = A ** Q % P */
     Cflint_ModuloExponent(X, P, A, Q, TT, Length);
-    /* 第二步:计算B = A * (X ** 2) % P */
-    Cflint_Square(T1, X, Length);
-    Cflint_SetValue(T2, Length * 2, 0);
-    Cflint_Copy(T2, P, Length);
-    Cflint_Modulo(T1, T1, T2, Length * 2);
-    Cflint_Multiply(T2, T1, A, Length);
-    Cflint_SetValue(T1, Length * 2, 0);
-    Cflint_Copy(T1, P, Length);
-    Cflint_Modulo(T2, T2, T1, Length * 2);
-    Cflint_Copy(B, T2, Length);
+    /* 第二步:计算B = A * (B = X ** 2) % P */
+    Cflint_ModuleSquare(B, P, X, TT, Length);
+    Cflint_ModuleMultiply(B, P, A, B, TT, Length);
     /* 第二步:计算X = A * X % P */
-    Cflint_Multiply(T1, A, X, Length);
-    Cflint_SetValue(T2, Length * 2, 0);
-    Cflint_Copy(T2, P, Length);
-    Cflint_Modulo(T1, T1, T2, Length * 2);
-    Cflint_Copy(X, T1, Length);
+    Cflint_ModuleMultiply(X, P, A, X, TT, Length);
     /* 第二步:计算Q = B, Z = 1 */
     Cflint_Copy(Q, B, Length);
     Cflint_SetValue(Z, Length, 0);
@@ -276,11 +265,7 @@ bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
         bool LoopStatus = true;
         for (M = 0; LoopStatus; M++) {
             /* 计算:Q = Q**2 % P */
-            Cflint_Square(T1, Q, Length);
-            Cflint_SetValue(T2, Length * 2, 0);
-            Cflint_Copy(T2, P, Length);
-            Cflint_Modulo(T1, T1, T2, Length * 2);
-            Cflint_Copy(Q, T1, Length);
+            Cflint_ModuleSquare(Q, P, Q, TT, Length);
             /* 检查 */
             if (Cflint_Equal(B, Z, Length) == false)
                 LoopStatus = false;
@@ -293,24 +278,12 @@ bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
             /* 计算:T = Y**T1 % P */
             Cflint_ModuloExponent(T, P, Y, T1, TT, Length);
             /* 计算:Y = T**2 % P */
-            Cflint_Square(T1, T, Length);
-            Cflint_SetValue(T2, Length * 2, 0);
-            Cflint_Copy(T2, P, Length);
-            Cflint_Modulo(T1, T1, T2, Length * 2);
-            Cflint_Copy(Y, T1, Length);
+            Cflint_ModuleSquare(Y, P, T, TT, Length);
             /* 计算:X = X * T % P */
-            Cflint_Multiply(T1, X, T, Length);
-            Cflint_SetValue(T2, Length * 2, 0);
-            Cflint_Copy(T2, P, Length);
-            Cflint_Modulo(T1, T1, T2, Length * 2);
-            Cflint_Copy(X, T1, Length);
+            Cflint_ModuleMultiply(X, P, X, T, TT, Length);
             /* 计算:B = B * Y % P */
-            Cflint_Multiply(T1, B, Y, Length);
-            Cflint_SetValue(T2, Length * 2, 0);
-            Cflint_Copy(T2, P, Length);
-            Cflint_Modulo(T1, T1, T2, Length * 2);
-            Cflint_Copy(B, T1, Length);
-            /* 计算:Q = B,R = M */
+            Cflint_ModuleMultiply(B, P, B, Y, TT, Length);
+            /* 计算:Q = B, R = M */
             Cflint_Copy(Q, B, Length);
             R = M;
             continue;
