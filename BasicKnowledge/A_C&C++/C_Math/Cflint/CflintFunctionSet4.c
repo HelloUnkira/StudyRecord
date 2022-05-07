@@ -202,7 +202,7 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 整数Operand1模奇素数Operand2的平方根运算 */
+/* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
 bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
                         CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[10],
                            uint32_t  Length)

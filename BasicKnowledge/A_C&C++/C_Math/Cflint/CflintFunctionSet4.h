@@ -14,7 +14,7 @@ void Cflint_Root2Integer(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 2次方数判别检查:Sqrt(Operand)**2 == Operand */
-/* 要求Temp1的长度为Length*2 */
+/* 要求Temp[0]的长度为Length*2 */
 bool Cflint_Root2Check(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
                        CFLINT_TYPE *Temp[4],   uint32_t  Length);
 /*****************************************************************************/
@@ -27,7 +27,7 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
-/* 要求模Operand2一个奇素数且Operand2 > 2 */
+/* 模为Operand2 > 2的奇素数, 要求Temp[6~9]为Length * 2 */
 bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
                         CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[10],
                            uint32_t  Length);
