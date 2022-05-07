@@ -26,7 +26,7 @@ typedef enum GeneralDevice_EventTypeBody {
     GENERAL_DEVICE_EVENT2  = 0x00,
 } GeneralDevice_Type;
 /*************************************************************************************************/
-bool GeneralDevice_Read(GeneralDevice_Event *Instance, uint32_t UnitTime, uint32_t MaxCount);
-bool GeneralDevice_Write(GeneralDevice_Event *Instance, uint32_t UnitTime, uint32_t MaxCount);
+bool GeneralDevice_Read(GeneralDevice_Event *Instance, uint32_t UnitTime, uint32_t MaxCount, bool Wait);
+bool GeneralDevice_Write(GeneralDevice_Event *Instance, uint32_t UnitTime, uint32_t MaxCount, bool Wait);
 /*************************************************************************************************/
 #endif

@@ -226,7 +226,7 @@ static void GeneralDevice_DelayMs(uint32_t Overtime)
 #endif
 }
 /*************************************************************************************************/
-static bool GeneralDevice_FrameTx(uint32_t UnitTime, uint32_t MaxCount)
+static bool GeneralDevice_FrameTx(uint32_t UnitTime, uint32_t MaxCount, bool Wait)
 {
     TransferFrameTxStatus = false;
  
@@ -239,20 +239,22 @@ static bool GeneralDevice_FrameTx(uint32_t UnitTime, uint32_t MaxCount)
     /* 2.传输:(TransferFrameTxData,TransferFrameTxSize)到TX */
     /* 3.结束后:TransferFrameTxStatus == true,注意需要提供部分保护,如果是非中断环境 */
     
-    uint32_t Count = 0;
-    /* 不使用超时机制(死等) */
-    if (MaxCount == 0)
-        while (TransferFrameTxStatus == false)
-            GeneralDevice_DelayMs(UnitTime);
-    /* 使用超时机制 */
-    if (MaxCount != 0)
-        while (TransferFrameTxStatus == false && Count++ < MaxCount)
-            GeneralDevice_DelayMs(UnitTime);
+    if (Wait == true) {
+        uint32_t Count = 0;
+        /* 不使用超时机制(死等) */
+        if (MaxCount == 0)
+            while (TransferFrameTxStatus == false)
+                GeneralDevice_DelayMs(UnitTime);
+        /* 使用超时机制 */
+        if (MaxCount != 0)
+            while (TransferFrameTxStatus == false && Count++ < MaxCount)
+                GeneralDevice_DelayMs(UnitTime);
+    }
     /* 反馈帧状态 */
     return TransferFrameTxStatus;
 }
 /*************************************************************************************************/
-static bool GeneralDevice_FrameRx(uint32_t UnitTime, uint32_t MaxCount)
+static bool GeneralDevice_FrameRx(uint32_t UnitTime, uint32_t MaxCount, bool Wait)
 {
     TransferFrameRxStatus = false;
     
@@ -264,16 +266,18 @@ static bool GeneralDevice_FrameRx(uint32_t UnitTime, uint32_t MaxCount)
     TransferRx_PutData(&TransferFrameRxSize, sizeof(TransferFrameRxSize));
     TransferRx_PutData( TransferFrameRxData,       (TransferFrameRxSize));
     /* 3.结束后:TransferFrameRxStatus == true */
- 
-    uint32_t Count = 0;
-    /* 不使用超时机制(死等) */
-    if (MaxCount == 0)
-        while (TransferFrameRxStatus == false)
-            GeneralDevice_DelayMs(UnitTime);
-    /* 使用超时机制 */
-    if (MaxCount != 0)
-        while (TransferFrameRxStatus == false && Count++ < MaxCount)
-            GeneralDevice_DelayMs(UnitTime);
+    
+    if (Wait == true) {
+        uint32_t Count = 0;
+        /* 不使用超时机制(死等) */
+        if (MaxCount == 0)
+            while (TransferFrameRxStatus == false)
+                GeneralDevice_DelayMs(UnitTime);
+        /* 使用超时机制 */
+        if (MaxCount != 0)
+            while (TransferFrameRxStatus == false && Count++ < MaxCount)
+                GeneralDevice_DelayMs(UnitTime);
+    }
     /* 反馈帧状态 */
     return TransferFrameRxStatus;
 }
@@ -352,10 +356,10 @@ static bool GeneralDevice_EventParse(uint32_t *Event, uint8_t *Data, uint32_t *S
     /*              (EventRxCmd,EventRxData,EventRxSize) */
 }
 /*************************************************************************************************/
-bool GeneralDevice_Read(GeneralDevice_Event *Instance, uint32_t UnitTime, uint32_t MaxCount)
+bool GeneralDevice_Read(GeneralDevice_Event *Instance, uint32_t UnitTime, uint32_t MaxCount, bool Wait)
 {
     /* 接收帧数据,并拆解帧数据 */
-    if (GeneralDevice_FrameRx(UnitTime, MaxCount) == false)
+    if (GeneralDevice_FrameRx(UnitTime, MaxCount, Wait) == false)
         return false;
     if (GeneralDevice_FrameParse() == false)
         return false;
@@ -366,7 +370,7 @@ bool GeneralDevice_Read(GeneralDevice_Event *Instance, uint32_t UnitTime, uint32
     return true;
 }
 /*************************************************************************************************/
-bool GeneralDevice_Write(GeneralDevice_Event *Instance, uint32_t UnitTime, uint32_t MaxCount)
+bool GeneralDevice_Write(GeneralDevice_Event *Instance, uint32_t UnitTime, uint32_t MaxCount, bool Wait)
 {
     if (GeneralDevice_EventMake((Instance->Event),
                                 (Instance->Data),
@@ -374,7 +378,7 @@ bool GeneralDevice_Write(GeneralDevice_Event *Instance, uint32_t UnitTime, uint3
         return false;
     if (GeneralDevice_FrameMake() == false)
         return false;
-    if (GeneralDevice_FrameTx(UnitTime, MaxCount) == false)
+    if (GeneralDevice_FrameTx(UnitTime, MaxCount, Wait) == false)
         return false;
     return true;
 }
