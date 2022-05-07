@@ -470,6 +470,34 @@ void Cflint_Modulo(CFLINT_TYPE *Module, CFLINT_TYPE *Operand0,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+/* 模乘运算 */
+void Cflint_ModuleMultiply(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
+                           CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1,
+                           CFLINT_TYPE *Temp[2],     uint32_t  Length)
+{
+    Cflint_Multiply(Temp[0], Operand0, Operand1, Length);
+    Cflint_SetValue(Temp[1], Length * 2, 0);
+    Cflint_Copy(Temp[1], Module, Length);
+    Cflint_Modulo(Temp[0], Temp[0], Temp[1], Length * 2);
+    Cflint_Copy(Result, Temp[0], Length);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 模方运算 */
+void Cflint_ModuleSquare(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
+                         CFLINT_TYPE *Operand, CFLINT_TYPE *Temp[2],
+                            uint32_t  Length)
+{
+    Cflint_Square(Temp[0], Operand, Length);
+    Cflint_SetValue(Temp[1], Length * 2, 0);
+    Cflint_Copy(Temp[1], Module, Length);
+    Cflint_Modulo(Temp[0], Temp[0], Temp[1], Length * 2);
+    Cflint_Copy(Result, Temp[0], Length);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 /* 模幂运算 */
 void Cflint_ModuloExponent(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
                            CFLINT_TYPE *Operand, CFLINT_TYPE *Exponent,
