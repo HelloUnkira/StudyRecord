@@ -66,21 +66,18 @@ void Cflint_Modulo(CFLINT_TYPE *Module, CFLINT_TYPE *Operand0,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 模幂运算:Result = (Operand**Exponent) % Module */
-/* 要求:Temp1,Temp2,Temp3,Temp4的长度为Length*2 */
+/* 要求:Temp[0~4]的长度为Length*2 */
 void Cflint_ModuloExponent(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
                            CFLINT_TYPE *Operand, CFLINT_TYPE *Exponent,
-                           CFLINT_TYPE *Temp1,   CFLINT_TYPE *Temp2,
-                           CFLINT_TYPE *Temp3,   CFLINT_TYPE *Temp4,
-                              uint32_t  Length);
+                           CFLINT_TYPE *Temp[4],    uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 模逆运算: Result = (1 / Operand) % Module */
 /* 要求:Operand < Module且互素 */
 void Cflint_ModuleInverse(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
-                          CFLINT_TYPE *Module, CFLINT_TYPE *Temp1,
-                          CFLINT_TYPE *Temp2,  CFLINT_TYPE *Temp3,
-                          CFLINT_TYPE *Temp4,     uint32_t  Length);
+                          CFLINT_TYPE *Module, CFLINT_TYPE *Temp[4],
+                             uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

@@ -473,45 +473,51 @@ void Cflint_Modulo(CFLINT_TYPE *Module, CFLINT_TYPE *Operand0,
 /* 模幂运算 */
 void Cflint_ModuloExponent(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
                            CFLINT_TYPE *Operand, CFLINT_TYPE *Exponent,
-                           CFLINT_TYPE *Temp1,   CFLINT_TYPE *Temp2,
-                           CFLINT_TYPE *Temp3,   CFLINT_TYPE *Temp4,
-                              uint32_t  Length)
+                           CFLINT_TYPE *Temp[4],    uint32_t  Length)
 {
+    /* 固有开销 */
+    CFLINT_TYPE *X = Temp[0];  //保留Result
+    CFLINT_TYPE *Y = Temp[1];  //保留Module
+    CFLINT_TYPE *A = Temp[2];  //保留Operand
+    CFLINT_TYPE *B = Temp[3];  //保留Operand
+    
     /* 特例:除数为0检查 */
     if (Cflint_IsZero(Module, Length) == true)
         return;
-    /* 初始化Temp,清除空间 */
-    Cflint_SetValue(Temp1, Length * 2, 0);  //保留Result
-    Cflint_SetValue(Temp2, Length * 2, 0);  //保留Module
-    Cflint_SetValue(Temp3, Length * 2, 0);  //保留Operand
-    Cflint_SetValue(Temp4, Length * 2, 0);  //保留Operand
-    /* 初始化Result,数值为1 */
-    Cflint_AdditionBit(Temp1, Length, 1);
-    Cflint_Copy(Temp2, Module, Length);
-    Cflint_Modulo(Temp3, Operand, Module, Length);
-    /* 计算有效位数个数 */
+    /* 初始化:X == 1, Y == Module */
+    Cflint_SetValue(X, Length * 2, 0);
+    Cflint_AdditionBit(X, Length * 2, 1);
+    Cflint_SetValue(Y, Length * 2, 0);
+    Cflint_Copy(Y, Module, Length);
+    /* 初始化:A == Operand % Module, B == 0 */
+    Cflint_SetValue(A, Length * 2, 0);
+    Cflint_Modulo(A, Operand, Module, Length);
+    Cflint_SetValue(B, Length * 2, 0);
+    /* 计算:2**Numbers <= Exponent < 2**(Numbers + 1) */
     int64_t Numbers = Cflint_Numbers2(Exponent, Length);
-    /* 计算1的个数用于确定,是否存在2的幂次方 */
+    /* 检查:2**K == Exponent */
     bool NumbersOnlyOne = Cflint_IsExponent2(Exponent, Length);
     /* 特殊优化场景:指数为2的幂 */
     if (NumbersOnlyOne == true) {
         /* 一个数的0次幂为1 */
         if (Numbers == -1) {
-            Cflint_Copy(Result, Temp1, Length);
+            Cflint_Copy(Result, X, Length);
             return;
         }
         /* 一个数的1次幂为本身 */
         if (Numbers == 0) {
-            Cflint_Modulo(Temp1, Temp3, Temp2, Length * 2);
-            Cflint_Copy(Result, Temp1, Length);
+            Cflint_Modulo(X, A, Y, Length * 2);
+            Cflint_Copy(Result, X, Length);
             return;
         }
+        /* 顺向迭代 */
         for (int64_t Bits2 = 1; Bits2 <= Numbers; Bits2++) {
-            Cflint_Square(Temp4, Temp3, Length);
-            Cflint_Copy(Temp3, Temp4, Length);
-            Cflint_Modulo(Temp1, Temp3, Temp2, Length * 2);
+            /* 计算:X = A**2 % Y */
+            Cflint_Square(B, A, Length);
+            Cflint_Copy(A, B, Length);
+            Cflint_Modulo(X, A, Y, Length * 2);
         }
-        Cflint_Copy(Result, Temp1, Length);
+        Cflint_Copy(Result, X, Length);
         return;
     }
     /* 普通场景 */
@@ -522,13 +528,15 @@ void Cflint_ModuloExponent(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
             uint32_t Bit2 = Bits2 % CFLINT_BITS;
             /* 逆向迭代 */
             if ((Exponent[BitN] & (1 << Bit2)) != 0) {
-                Cflint_Multiply(Temp4, Temp1, Temp3, Length);
-                Cflint_Modulo(Temp1, Temp4, Temp2, Length * 2);
+                /* 计算:X = X * A % Y */
+                Cflint_Multiply(B, X, A, Length);
+                Cflint_Modulo(X, B, Y, Length * 2);
             }
-            Cflint_Square(Temp4, Temp3, Length);
-            Cflint_Modulo(Temp3, Temp4, Temp2, Length * 2);
+            /* 计算:A = A**2 % Y */
+            Cflint_Square(B, A, Length);
+            Cflint_Modulo(A, B, Y, Length * 2);
         }
-        Cflint_Copy(Result, Temp1, Length);
+        Cflint_Copy(Result, X, Length);
         return;
     }
 }
@@ -537,15 +545,14 @@ void Cflint_ModuloExponent(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
 /*****************************************************************************/
 /* 模逆运算 */
 void Cflint_ModuleInverse(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
-                          CFLINT_TYPE *Module, CFLINT_TYPE *Temp1,
-                          CFLINT_TYPE *Temp2,  CFLINT_TYPE *Temp3,
-                          CFLINT_TYPE *Temp4,     uint32_t  Length)
+                          CFLINT_TYPE *Module, CFLINT_TYPE *Temp[4],
+                             uint32_t  Length)
 {
     /* 固有额外空间开销 */
-    CFLINT_TYPE *A = Temp1;
-    CFLINT_TYPE *B = Temp2;
-    CFLINT_TYPE *U = Temp3;
-    CFLINT_TYPE *V = Temp4;
+    CFLINT_TYPE *A = Temp[0];
+    CFLINT_TYPE *B = Temp[1];
+    CFLINT_TYPE *U = Temp[2];
+    CFLINT_TYPE *V = Temp[3];
 
     /* 1.除数为0检查 */
     if (Cflint_IsZero(Operand, Length) == true) {
