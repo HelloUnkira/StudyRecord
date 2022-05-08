@@ -335,6 +335,91 @@ bool Cflint_ModuloPkRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+/* 二次剩余计算:((Result**2) % (Operand2 * Operand3) ==  */
+/*               (Operand1)  % (Operand2 * Operand3))    */
+bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
+                         CFLINT_TYPE *Operand3,  CFLINT_TYPE *Result,
+                         CFLINT_TYPE *Temp[12],     uint32_t  Length)
+{
+    CFLINT_TYPE  *A  = Operand1;
+    CFLINT_TYPE  *P  = Operand2;
+    CFLINT_TYPE  *Q  = Operand3;
+    CFLINT_TYPE  *X  = Result;
+    CFLINT_TYPE  *XP = Temp[0];
+    CFLINT_TYPE  *XQ = Temp[1];
+    CFLINT_TYPE **TT = Temp + 2;
+    CFLINT_TYPE  *U  = Temp[2]; CFLINT_TYPE U_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE  *V  = Temp[3]; CFLINT_TYPE V_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE **TX = Temp + 4;
+    CFLINT_TYPE  *N  = Temp[4]; //(Length+1)*2
+    CFLINT_TYPE  *X0 = Temp[5]; CFLINT_TYPE X0_Flag = 0; //Length * 2
+    CFLINT_TYPE  *X1 = Temp[6]; CFLINT_TYPE X1_Flag = 0; //Length * 2
+    CFLINT_TYPE  *X2 = Temp[7]; CFLINT_TYPE X2_Flag = 0; //Length * 2
+    CFLINT_TYPE  *X3 = Temp[8]; CFLINT_TYPE X3_Flag = 0; //Length * 2
+    CFLINT_TYPE  *T0 = Temp[9];     //Length * 2
+    CFLINT_TYPE  *T1 = Temp[10];    //Length * 4
+    CFLINT_TYPE  *T2 = Temp[11];    //Length * 4
+    /* 查验:A == 0 */
+    if (Cflint_IsZero(A, Length) == true) {
+        Cflint_SetValue(X, Length, 0);
+        return true;
+    }
+    /* 解算:((XP**2) % P == A % P) */
+    if (Cflint_ModuloP1Root2(A, P, XP, TT, Length) == false)
+        return false;
+    /* 解算:((XQ**2) % Q == A % Q) */
+    if (Cflint_ModuloP1Root2(A, Q, XQ, TT, Length) == false)
+        return false;
+    /* 解算:P * U + Q * V = GCD(P, Q) */
+    Cflint_GCDExtend(P, Q, U, V, &U_Flag, &V_Flag, TX, Length);
+    /* 计算:N = P * Q */
+    N[Length * 2 + 0] = 0;
+    N[Length * 2 + 1] = 0;
+    Cflint_Multiply(N, P, Q, Length);
+    Cflint_SetValue(T2, Length * 4, 0);
+    Cflint_Copy(T2, N, Length * 2);
+    /* 计算:U = P * XQ * U % N */
+    Cflint_Modulo(U, U, N, (Length + 1) * 2);
+    Cflint_Multiply(T0, P, XQ, Length);
+    Cflint_Multiply(T1, T0, U, Length * 2);
+    Cflint_Modulo(T1, T1, T2, Length * 4);
+    Cflint_Copy(U, T1, Length * 2);
+    /* 计算:V = Q * XP * V % N */
+    Cflint_Modulo(V, V, N, (Length + 1) * 2);
+    Cflint_Multiply(T0, Q, XP, Length);
+    Cflint_Multiply(T1, T0, V, Length * 2);
+    Cflint_Modulo(T1, T1, T2, Length * 4);
+    Cflint_Copy(V, T1, Length * 2);
+    /* 计算4个X: */
+    CFLINT_TYPE Overflow = 0;
+    /* 计算:X0 = (U + V) % N, X1 = -X0 % N = N - X0 */
+    Overflow = Cflint_FlagSum(X0, &X0_Flag, U, U_Flag, V, V_Flag, Length);
+    Cflint_FlagModulo(X0, X0, N, X0_Flag, Length);
+    Cflint_Subtraction(X1, N, X0, Length);
+    /* 计算:U_Flag~~ */
+    U_Flag = (U_Flag == 0) ? 1 : 0;
+    /* 计算:X2 = (V - U) % N, X3 = -X2 % N = N - X2 */
+    Overflow = Cflint_FlagSum(X2, &X2_Flag, U, U_Flag, V, V_Flag, Length);
+    Cflint_FlagModulo(X2, X2, N, X2_Flag, Length);
+    Cflint_Subtraction(X3, N, X0, Length);
+    /* X = Min(X0, X1, X2, X3) */
+    CFLINT_TYPE *X_Min0 = NULL;
+    CFLINT_TYPE *X_Min1 = NULL;
+    CFLINT_TYPE *X_Min2 = NULL;
+    int8_t CompareResult1 = Cflint_Compare(X0, X1, Length * 2);
+    int8_t CompareResult2 = Cflint_Compare(X2, X3, Length * 2);
+    X_Min1 = (CompareResult1 == -1) ? X0 : X1;
+    X_Min2 = (CompareResult1 == -1) ? X2 : X3;
+    int8_t CompareResult0 = Cflint_Compare(X_Min1, X_Min2, Length * 2);
+    X_Min0 = (CompareResult1 == -1) ? X_Min1 : X_Min2;
+    /* 返回最小的根 */
+    Cflint_Copy(X, X_Min0, Length * 2);
+    return 0;
+}
+
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 #endif
 /*****************************************************************************/
 /*****************************************************************************/

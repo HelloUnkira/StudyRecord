@@ -729,6 +729,25 @@ CFLINT_TYPE Cflint_FlagSum(CFLINT_TYPE *Result,   CFLINT_TYPE *ResultFlag,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+/* 带符号模运算:Result = Operand1 * (Operand1_Flag) % Operand2 */
+/* 备注:大数运算本身是无符号语义运算,这里是为某些数学运算额外扩展 */
+void Cflint_FlagModulo(CFLINT_TYPE *Result,   CFLINT_TYPE *Operand1,
+                       CFLINT_TYPE *Operand2, CFLINT_TYPE  Operand1_Flag,
+                          uint32_t  Length)
+{
+    if (Operand1_Flag == 0) {
+        Cflint_Modulo(Result, Operand1, Operand2, Length);
+        return;
+    }
+    if (Operand1_Flag == 1) {
+        Cflint_Modulo(Result, Operand1, Operand2, Length);
+        Cflint_Subtraction(Result, Operand1, Result, Length);
+        return;
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 #endif
 /*****************************************************************************/
 /*****************************************************************************/
