@@ -1,3 +1,12 @@
 
 BasicKnowledge\T_Test\SGui_Test\*.o
 BasicKnowledge/T_Test/SGui_Test/*.o
+
+BasicKnowledge\A_C&C++\C_Math\Cflint\*.o
+BasicKnowledge/A_C&C++/C_Math/Cflint/*.o
+BasicKnowledge\A_C&C++\C_Math\Cflint\*.gch
+BasicKnowledge/A_C&C++/C_Math/Cflint/*.gch
+BasicKnowledge\A_C&C++\C_Math\Cflint\*.bat
+BasicKnowledge/A_C&C++/C_Math/Cflint/*.bat
+BasicKnowledge\A_C&C++\C_Math\Cflint\temp
+BasicKnowledge/A_C&C++/C_Math/Cflint/temp
