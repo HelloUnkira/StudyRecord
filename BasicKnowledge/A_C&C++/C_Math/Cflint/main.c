@@ -270,11 +270,11 @@ void Test_CflintFunctionSet4(void)
         CFLINT_TYPE  Temp3 [TEST_FUNCTIONSET4_LENGTH] = {0};
         CFLINT_TYPE  Temp4 [TEST_FUNCTIONSET4_LENGTH] = {0};
         CFLINT_TYPE *Temp[4] = {Temp1, Temp2, Temp3, Temp4};
-        Cflint_ModuleInverse(Result, Operand, Module,
+        Cflint_ModuloInverse(Result, Operand, Module,
                              Temp, TEST_FUNCTIONSET4_LENGTH);
     }
     printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_ModuleInverse:::");
+    printf("Cflint_ModuloInverse:::");
     printf("\n---------------------------------------------------------------");
     printf("\nOperand:");
     for (Index = 0; Index < TEST_FUNCTIONSET4_LENGTH; Index++)
@@ -563,11 +563,11 @@ void Test_CflintFunctionSet6(void)
         CFLINT_TYPE *Temp[10] = {Temp1, Temp2, Temp3, Temp4, Temp5,
                                  Temp6, Temp7, Temp8, Temp9, Temp10};
         /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
-        Result1 = Cflint_ModuloRoot2(Operand, Module, Result,
-                                     Temp, TEST_FUNCTIONSET6_LENGTH);
+        Result1 = Cflint_ModuloP1Root2(Operand, Module, Result,
+                                       Temp, TEST_FUNCTIONSET6_LENGTH);
     }
     printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_ModuloRoot2:::");
+    printf("Cflint_ModuloP1Root2:::");
     printf("\n---------------------------------------------------------------");
     printf("\nResult:");
     for (Index = 0; Index < TEST_FUNCTIONSET6_LENGTH; Index++)

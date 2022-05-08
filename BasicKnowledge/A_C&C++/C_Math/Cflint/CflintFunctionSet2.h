@@ -60,14 +60,23 @@ void Cflint_Modulo(CFLINT_TYPE *Module, CFLINT_TYPE *Operand0,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 模(加,减)运算:省略,先(乘,方)后模;先(加,减,)后和差 */
-/* 模逆运算:乘法逆,见欧几里得乘法逆 */
+/* 模和运算:Result = (Operand0 + Operand1) % Module */
+void Cflint_ModuloAddition(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
+                           CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1,
+                           CFLINT_TYPE *Temp[2],     uint32_t  Length);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 模差运算:Result = (Operand0 - Operand1) % Module */
+void Cflint_ModuloSubtraction(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
+                              CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1,
+                              CFLINT_TYPE *Temp[2],     uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 模乘运算:Result = (Operand0 * Operand1) % Module */
 /* 要求:Temp[0~1]的长度为Length*2 */
-void Cflint_ModuleMultiply(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
+void Cflint_ModuloMultiply(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
                            CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1,
                            CFLINT_TYPE *Temp[2],     uint32_t  Length);
 /*****************************************************************************/
@@ -75,7 +84,7 @@ void Cflint_ModuleMultiply(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
 /*****************************************************************************/
 /* 模方运算:Result = (Operand * Operand) % Module */
 /* 要求:Temp[0~1]的长度为Length*2 */
-void Cflint_ModuleSquare(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
+void Cflint_ModuloSquare(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
                          CFLINT_TYPE *Operand, CFLINT_TYPE *Temp[2],
                             uint32_t  Length);
 /*****************************************************************************/
@@ -91,7 +100,7 @@ void Cflint_ModuloExponent(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
 /*****************************************************************************/
 /* 模逆运算: Result = (1 / Operand) % Module */
 /* 要求:Operand < Module且互素 */
-void Cflint_ModuleInverse(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
+void Cflint_ModuloInverse(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
                           CFLINT_TYPE *Module, CFLINT_TYPE *Temp[4],
                              uint32_t  Length);
 /*****************************************************************************/

@@ -470,8 +470,39 @@ void Cflint_Modulo(CFLINT_TYPE *Module, CFLINT_TYPE *Operand0,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+/* 模和运算 */
+void Cflint_ModuloAddition(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
+                           CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1,
+                           CFLINT_TYPE *Temp[2],     uint32_t  Length)
+{
+    Cflint_Modulo(Temp[0], Operand0, Module, Length);
+    Cflint_Modulo(Temp[1], Operand1, Module, Length);
+    
+    if (Cflint_Addition(Temp[0], Temp[0], Temp[1], Length) != 0 ||
+        Cflint_Compare(Temp[0], Module, Length) != -1)
+        Cflint_Subtraction(Temp[0], Temp[0], Module, Length);
+    Cflint_Copy(Result, Temp[0], Length);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 模差运算 */
+void Cflint_ModuloSubtraction(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
+                              CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1,
+                              CFLINT_TYPE *Temp[2],     uint32_t  Length)
+{
+    Cflint_Modulo(Temp[0], Operand0, Module, Length);
+    Cflint_Modulo(Temp[1], Operand1, Module, Length);
+    
+    if (Cflint_Subtraction(Temp[0], Temp[0], Temp[1], Length) != 0)
+        Cflint_Addition(Temp[0], Temp[0], Module, Length);
+    Cflint_Copy(Result, Temp[0], Length);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 /* 模乘运算 */
-void Cflint_ModuleMultiply(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
+void Cflint_ModuloMultiply(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
                            CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1,
                            CFLINT_TYPE *Temp[2],     uint32_t  Length)
 {
@@ -485,7 +516,7 @@ void Cflint_ModuleMultiply(CFLINT_TYPE *Result,   CFLINT_TYPE *Module,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 模方运算 */
-void Cflint_ModuleSquare(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
+void Cflint_ModuloSquare(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
                          CFLINT_TYPE *Operand, CFLINT_TYPE *Temp[2],
                             uint32_t  Length)
 {
@@ -572,7 +603,7 @@ void Cflint_ModuloExponent(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 模逆运算 */
-void Cflint_ModuleInverse(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
+void Cflint_ModuloInverse(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
                           CFLINT_TYPE *Module, CFLINT_TYPE *Temp[4],
                              uint32_t  Length)
 {

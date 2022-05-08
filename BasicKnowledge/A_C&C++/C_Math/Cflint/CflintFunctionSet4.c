@@ -203,9 +203,9 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
-bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
-                        CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[10],
-                           uint32_t  Length)
+bool Cflint_ModuloP1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
+                          CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[10],
+                             uint32_t  Length)
 {
     CFLINT_TYPE *A = Operand1;
     CFLINT_TYPE *P = Operand2;
@@ -251,10 +251,10 @@ bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     /* 第二步:计算X = A ** ((P - 1) / 2) % P = A ** Q % P */
     Cflint_ModuloExponent(X, P, A, Q, TT, Length);
     /* 第二步:计算B = A * (B = X ** 2) % P */
-    Cflint_ModuleSquare(B, P, X, TT, Length);
-    Cflint_ModuleMultiply(B, P, A, B, TT, Length);
+    Cflint_ModuloSquare(B, P, X, TT, Length);
+    Cflint_ModuloMultiply(B, P, A, B, TT, Length);
     /* 第二步:计算X = A * X % P */
-    Cflint_ModuleMultiply(X, P, A, X, TT, Length);
+    Cflint_ModuloMultiply(X, P, A, X, TT, Length);
     /* 第二步:计算Q = B, Z = 1 */
     Cflint_Copy(Q, B, Length);
     Cflint_SetValue(Z, Length, 0);
@@ -265,7 +265,7 @@ bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
         bool LoopStatus = true;
         for (M = 0; LoopStatus; M++) {
             /* 计算:Q = Q**2 % P */
-            Cflint_ModuleSquare(Q, P, Q, TT, Length);
+            Cflint_ModuloSquare(Q, P, Q, TT, Length);
             /* 检查 */
             if (Cflint_Equal(B, Z, Length) == false)
                 LoopStatus = false;
@@ -278,11 +278,11 @@ bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
             /* 计算:T = Y**T1 % P */
             Cflint_ModuloExponent(T, P, Y, T1, TT, Length);
             /* 计算:Y = T**2 % P */
-            Cflint_ModuleSquare(Y, P, T, TT, Length);
+            Cflint_ModuloSquare(Y, P, T, TT, Length);
             /* 计算:X = X * T % P */
-            Cflint_ModuleMultiply(X, P, X, T, TT, Length);
+            Cflint_ModuloMultiply(X, P, X, T, TT, Length);
             /* 计算:B = B * Y % P */
-            Cflint_ModuleMultiply(B, P, B, Y, TT, Length);
+            Cflint_ModuloMultiply(B, P, B, Y, TT, Length);
             /* 计算:Q = B, R = M */
             Cflint_Copy(Q, B, Length);
             R = M;
@@ -291,6 +291,46 @@ bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
         return false;
     }
     return true;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 扩展二次剩余计算:(X(K)**2) % P == A % (P**K) */
+bool Cflint_ModuloPkRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
+                          CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[10],
+                              int64_t  Exponent,     uint32_t  Length)
+{
+    /* 递推公式如下:
+     * (X(K) * 2 * X(K - 1)) + (X(K - 1)**2 - A) / P == 0 % P
+     * ============>
+     * X(K) == ((A % P - (X(K - 1)**2) % P) % P) / ((2 * P * X(K - 1)) % P)
+     * X(K) == ((A % P - (X(K - 1)**2) % P) % P) / (X(K - 1) % P)
+     */
+    
+    CFLINT_TYPE  *A  = Operand1;
+    CFLINT_TYPE  *P  = Operand2;
+    CFLINT_TYPE  *X  = Result;
+    CFLINT_TYPE **TT = Temp;
+    CFLINT_TYPE **TX = Temp + 6;
+    CFLINT_TYPE  *T1 = Temp[0];
+    CFLINT_TYPE  *T2 = Temp[1];
+    CFLINT_TYPE  *T3 = Temp[2];
+    CFLINT_TYPE  *T4 = Temp[3];
+    /* 解算:X(K - 1)**2 = A % P**(K - 1) */
+    if (Cflint_ModuloP1Root2(A, P, X, TT, Length) == false)
+        return false;
+    /* 逆向递归 */
+    for (uint32_t K = 0; K < Exponent; K++) {
+        /* 计算:T1 = (X(K - 1)**2) % P */
+        Cflint_ModuloSquare(T1, X, P, TX, Length);
+        /* 计算:T1 = ((A - (X(K - 1)**2)) % P) */
+        Cflint_ModuloSubtraction(T1, P, A, T1, TX, Length);
+        /* 计算:T2 = X(K - 1) % P */
+        Cflint_Modulo(T2, X, P ,Length);
+        /* 计算:Quotient = T1 / T2 */
+        Cflint_Devide(T3, T4, T1, T2, Length);
+        Cflint_Modulo(X, T3, P, Length);
+    }
 }
 /*****************************************************************************/
 /*****************************************************************************/

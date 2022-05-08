@@ -28,9 +28,16 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
 /* 模为Operand2 > 2的奇素数, 要求Temp[6~9]为Length * 2 */
-bool Cflint_ModuloRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
-                        CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[10],
-                           uint32_t  Length);
+bool Cflint_ModuloP1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
+                          CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[10],
+                             uint32_t  Length);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 扩展二次剩余计算:(X(K)**2) % P == A % (P**K) */
+bool Cflint_ModuloPkRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
+                          CFLINT_TYPE *Result,    CFLINT_TYPE *Temp[10],
+                              int64_t  Exponent,     uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
