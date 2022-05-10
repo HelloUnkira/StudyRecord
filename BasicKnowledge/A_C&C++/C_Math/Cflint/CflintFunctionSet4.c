@@ -414,7 +414,7 @@ bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     X_Min0 = (CompareResult1 == -1) ? X_Min1 : X_Min2;
     /* 返回最小的根 */
     Cflint_Copy(X, X_Min0, Length * 2);
-    return 0;
+    return true;
 }
 
 /*****************************************************************************/
