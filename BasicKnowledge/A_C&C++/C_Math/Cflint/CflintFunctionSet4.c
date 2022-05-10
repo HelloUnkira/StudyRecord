@@ -339,36 +339,47 @@ bool Cflint_ModuloPkRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
 /*               (Operand1)  % (Operand2 * Operand3))    */
 bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
                          CFLINT_TYPE *Operand3,  CFLINT_TYPE *Result,
-                         CFLINT_TYPE *Temp[12],     uint32_t  Length)
+                         CFLINT_TYPE *Temp[13],     uint32_t  Length)
 {
     CFLINT_TYPE  *A  = Operand1;
     CFLINT_TYPE  *P  = Operand2;
     CFLINT_TYPE  *Q  = Operand3;
     CFLINT_TYPE  *X  = Result;
-    CFLINT_TYPE  *XP = Temp[0];
-    CFLINT_TYPE  *XQ = Temp[1];
-    CFLINT_TYPE **TT = Temp + 2;
-    CFLINT_TYPE  *U  = Temp[2]; CFLINT_TYPE U_Flag = 0; //(Length+1)*2
-    CFLINT_TYPE  *V  = Temp[3]; CFLINT_TYPE V_Flag = 0; //(Length+1)*2
-    CFLINT_TYPE **TX = Temp + 4;
-    CFLINT_TYPE  *N  = Temp[4]; //(Length+1)*2
-    CFLINT_TYPE  *X0 = Temp[5]; CFLINT_TYPE X0_Flag = 0; //Length * 2
-    CFLINT_TYPE  *X1 = Temp[6]; CFLINT_TYPE X1_Flag = 0; //Length * 2
-    CFLINT_TYPE  *X2 = Temp[7]; CFLINT_TYPE X2_Flag = 0; //Length * 2
-    CFLINT_TYPE  *X3 = Temp[8]; CFLINT_TYPE X3_Flag = 0; //Length * 2
-    CFLINT_TYPE  *T0 = Temp[9];     //Length * 2
-    CFLINT_TYPE  *T1 = Temp[10];    //Length * 4
-    CFLINT_TYPE  *T2 = Temp[11];    //Length * 4
+    CFLINT_TYPE  *T  = Temp[0];
+    CFLINT_TYPE  *XP = Temp[1];
+    CFLINT_TYPE  *XQ = Temp[2];
+    CFLINT_TYPE **TT = Temp + 3;
+    CFLINT_TYPE  *U  = Temp[3]; CFLINT_TYPE U_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE  *V  = Temp[4]; CFLINT_TYPE V_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE **TX = Temp + 5;
+    CFLINT_TYPE  *N  = Temp[5]; //(Length+1)*2
+    CFLINT_TYPE  *X0 = Temp[6]; CFLINT_TYPE X0_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE  *X1 = Temp[7]; CFLINT_TYPE X1_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE  *X2 = Temp[8]; CFLINT_TYPE X2_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE  *X3 = Temp[9]; CFLINT_TYPE X3_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE  *T0 = Temp[10];    //(Length+1)*2
+    CFLINT_TYPE  *T1 = Temp[11];    //Length * 4
+    CFLINT_TYPE  *T2 = Temp[12];    //Length * 4
     /* 查验:A == 0 */
-    if (Cflint_IsZero(A, Length) == true) {
-        Cflint_SetValue(X, Length, 0);
+    if (Cflint_IsZero(A, Length * 2) == true) {
+        Cflint_SetValue(X, Length * 2, 0);
         return true;
     }
+    /* 计算:T = A % P */
+    Cflint_SetValue(T0, Length * 2, 0);
+    Cflint_Copy(T0, P, Length);
+    Cflint_Modulo(T1, A, T0, Length * 2);
+    Cflint_Copy(T, T1, Length);
     /* 解算:((XP**2) % P == A % P) */
-    if (Cflint_ModuloP1Root2(A, P, XP, TT, Length) == false)
+    if (Cflint_ModuloP1Root2(T, P, XP, TT, Length) == false)
         return false;
+    /* 计算:T = A % Q */
+    Cflint_SetValue(T0, Length * 2, 0);
+    Cflint_Copy(T0, Q, Length);
+    Cflint_Modulo(T1, A, T0, Length * 2);
+    Cflint_Copy(T, T1, Length);
     /* 解算:((XQ**2) % Q == A % Q) */
-    if (Cflint_ModuloP1Root2(A, Q, XQ, TT, Length) == false)
+    if (Cflint_ModuloP1Root2(T, Q, XQ, TT, Length) == false)
         return false;
     /* 解算:P * U + Q * V = GCD(P, Q) */
     Cflint_GCDExtend(P, Q, U, V, &U_Flag, &V_Flag, TX, Length);
@@ -393,15 +404,15 @@ bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     /* 计算4个X: */
     CFLINT_TYPE Overflow = 0;
     /* 计算:X0 = (U + V) % N, X1 = -X0 % N = N - X0 */
-    Overflow = Cflint_FlagSum(X0, &X0_Flag, U, U_Flag, V, V_Flag, Length);
-    Cflint_FlagModulo(X0, X0, N, X0_Flag, Length);
-    Cflint_Subtraction(X1, N, X0, Length);
+    Overflow = Cflint_FlagSum(X0, &X0_Flag, U, U_Flag, V, V_Flag, Length * 2);
+    Cflint_FlagModulo(X0, X0, N, X0_Flag, Length * 2);
+    Cflint_Subtraction(X1, N, X0, Length * 2);
     /* 计算:U_Flag~~ */
     U_Flag = (U_Flag == 0) ? 1 : 0;
     /* 计算:X2 = (V - U) % N, X3 = -X2 % N = N - X2 */
-    Overflow = Cflint_FlagSum(X2, &X2_Flag, U, U_Flag, V, V_Flag, Length);
-    Cflint_FlagModulo(X2, X2, N, X2_Flag, Length);
-    Cflint_Subtraction(X3, N, X0, Length);
+    Overflow = Cflint_FlagSum(X2, &X2_Flag, U, U_Flag, V, V_Flag, Length * 2);
+    Cflint_FlagModulo(X2, X2, N, X2_Flag, Length * 2);
+    Cflint_Subtraction(X3, N, X2, Length * 2);
     /* X = Min(X0, X1, X2, X3) */
     CFLINT_TYPE *X_Min0 = NULL;
     CFLINT_TYPE *X_Min1 = NULL;

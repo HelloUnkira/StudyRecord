@@ -43,13 +43,12 @@ bool Cflint_ModuloPkRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /* 二次剩余计算:((Result**2) % (Operand2 * Operand3) ==  */
 /*               (Operand1)  % (Operand2 * Operand3))    */
-/* 模为Operand2,Operand3 > 2的奇素数, Result为Length * 2 */
-/* 要求Temp[2~4]  为(Length+1)*2 */
-/* 要求Temp[5~9]  为Length * 2 */
-/* 要求Temp[10~11]为Length * 4 */
+/* 模为Operand2,Operand3 > 2的奇素数, Operand1, Result为Length * 2 */
+/* 要求Temp[3~10]  为(Length+1)*2 */
+/* 要求Temp[11~12]为Length * 4 */
 bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
                          CFLINT_TYPE *Operand3,  CFLINT_TYPE *Result,
-                         CFLINT_TYPE *Temp[12],     uint32_t  Length);
+                         CFLINT_TYPE *Temp[13],     uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
