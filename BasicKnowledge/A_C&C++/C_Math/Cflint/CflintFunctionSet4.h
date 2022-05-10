@@ -43,6 +43,7 @@ bool Cflint_ModuloPkRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /* 二次剩余计算:((Result**2) % (Operand2 * Operand3) ==  */
 /*               (Operand1)  % (Operand2 * Operand3))    */
+/* 这里是求最小平方根,意外返回:当Result == 0时不满足二次剩余 */
 /* 模为Operand2,Operand3 > 2的奇素数, Operand1, Result为Length * 2 */
 /* 要求Temp[3~10]  为(Length+1)*2 */
 /* 要求Temp[11~12]为Length * 4 */
