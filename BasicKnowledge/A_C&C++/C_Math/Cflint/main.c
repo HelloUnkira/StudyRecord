@@ -326,6 +326,34 @@ void Test_CflintFunctionSet5(void)
     B[0] = 1;
     /*************************************************************************/
     
+    /*************************************************************************/
+    /* 素数判别检查 */
+    {
+        CFLINT_TYPE Result[TEST_FUNCTIONSET5_LENGTH] = {1, 0, 1};
+        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
+        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
+        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
+        CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
+        Check = Cflint_IsPrime(Result, Temp, TEST_FUNCTIONSET5_LENGTH);
+    }
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_IsPrime:::%d", Check);
+    printf("\n---------------------------------------------------------------");
+    /*************************************************************************/
+    /* 素数判别检查 */
+    {
+        CFLINT_TYPE Result[TEST_FUNCTIONSET5_LENGTH] = {1, 1, 1};
+        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
+        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
+        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
+        CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
+        Check = Cflint_IsPrime(Result, Temp, TEST_FUNCTIONSET5_LENGTH);
+    }
+    printf("\n-------------------------------------------------------------\n");
+    printf("Cflint_IsPrime:::%d", Check);
+    printf("\n---------------------------------------------------------------");
+    /*************************************************************************/
+    
     /* 欧几里得互素检查运算 */
     /*************************************************************************/
     {
@@ -711,6 +739,21 @@ void Test_CflintFunctionSet8(void)
     Cflint_Multiply(Temp0, Module1, Module2, TEST_FUNCTIONSET8_LENGTH);
     /*************************************************************************/
     {
+        CFLINT_TYPE Result1[3] = {1, 0, 1};
+        CFLINT_TYPE Result2[3] = {7, 1, 1};
+        CFLINT_TYPE  Temp1[3] = {0};
+        CFLINT_TYPE  Temp2[3] = {0};
+        CFLINT_TYPE  Temp3[3] = {0};
+        CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
+        bool Check1 = Cflint_IsPrime(Result1, Temp, 3);
+        bool Check2 = Cflint_IsPrime(Result2, Temp, 3);
+        printf("\n---------------------------------------------------------\n");
+        printf("Cflint_IsPrime:::%d\n", Check1);
+        printf("Cflint_IsPrime:::%d\n", Check2);
+        printf("\n-----------------------------------------------------------");
+    }
+    /*************************************************************************/
+    {
         CFLINT_TYPE  Temp1[TEST_FUNCTIONSET8_LENGTH] = {0};
         CFLINT_TYPE  Temp2[TEST_FUNCTIONSET8_LENGTH] = {0};
         CFLINT_TYPE  Temp3[TEST_FUNCTIONSET8_LENGTH] = {0};
@@ -1062,7 +1105,7 @@ int main(int argc, char *argv[]) {
     // Test_CflintFunctionSet5();
     // Test_CflintFunctionSet6();
     // Test_CflintFunctionSet7();
-    Test_CflintFunctionSet8();
+    // Test_CflintFunctionSet8();
     //未完成,测试不通过
     //Test_Mentgomery();
     
