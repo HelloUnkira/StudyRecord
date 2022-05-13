@@ -7,3 +7,4 @@ double CordixTan(double Angle);
 double CordixArctan(double Y, double X);
 /*****************************************************************************/
 #endif
+ 

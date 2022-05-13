@@ -349,17 +349,17 @@ bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     CFLINT_TYPE  *XP = Temp[1];
     CFLINT_TYPE  *XQ = Temp[2];
     CFLINT_TYPE **TT = Temp + 3;
-    CFLINT_TYPE  *U  = Temp[3]; CFLINT_TYPE U_Flag = 0; //(Length+1)*2
-    CFLINT_TYPE  *V  = Temp[4]; CFLINT_TYPE V_Flag = 0; //(Length+1)*2
-    CFLINT_TYPE **TX = Temp + 5;
-    CFLINT_TYPE  *N  = Temp[5]; //(Length+1)*2
+    CFLINT_TYPE  *U  = Temp[3]; CFLINT_TYPE U_Flag = 0;  //(Length+1)*2
+    CFLINT_TYPE  *V  = Temp[4]; CFLINT_TYPE V_Flag = 0;  //(Length+1)*2
+    CFLINT_TYPE  *N  = Temp[5];  //(Length+1)*2
+    CFLINT_TYPE **TX = Temp + 6;
     CFLINT_TYPE  *X0 = Temp[6]; CFLINT_TYPE X0_Flag = 0; //(Length+1)*2
     CFLINT_TYPE  *X1 = Temp[7]; CFLINT_TYPE X1_Flag = 0; //(Length+1)*2
     CFLINT_TYPE  *X2 = Temp[8]; CFLINT_TYPE X2_Flag = 0; //(Length+1)*2
     CFLINT_TYPE  *X3 = Temp[9]; CFLINT_TYPE X3_Flag = 0; //(Length+1)*2
-    CFLINT_TYPE  *T0 = Temp[10];    //(Length+1)*2
-    CFLINT_TYPE  *T1 = Temp[11];    //Length * 4
-    CFLINT_TYPE  *T2 = Temp[12];    //Length * 4
+    CFLINT_TYPE  *T0 = Temp[10]; //(Length+1)*2
+    CFLINT_TYPE  *T1 = Temp[11]; //Length * 4
+    CFLINT_TYPE  *T2 = Temp[12]; //Length * 4
     /* 查验:A == 0 */
     if (Cflint_IsZero(A, Length * 2) == true) {
         Cflint_SetValue(X, Length * 2, 0);
@@ -382,7 +382,7 @@ bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     if (Cflint_ModuloP1Root2(T, Q, XQ, TT, Length) == false)
         return false;
     /* 解算:P * U + Q * V = GCD(P, Q) */
-    Cflint_GCDExtend(P, Q, U, V, &U_Flag, &V_Flag, TX, Length);
+    Cflint_GCDExtend(P, Q, N, U, &U_Flag, V, &V_Flag, TX, Length);
     /* 计算:N = P * Q */
     N[Length * 2 + 0] = 0;
     N[Length * 2 + 1] = 0;
@@ -427,7 +427,49 @@ bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     Cflint_Copy(X, X_Min0, Length * 2);
     return true;
 }
-
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 线性同余方程组计算:X == Ai % Mi,当i != j时, GCD(Mi, Mj) == 1 */
+int8_t Cflint_LCE(CFLINT_TYPE **Operands, CFLINT_TYPE *Result, uint64_t Number,
+                  CFLINT_TYPE  *Temp[11],    uint32_t  Length)
+{
+    CFLINT_TYPE *Ai  = NULL;
+    CFLINT_TYPE *Mi  = NULL;
+    CFLINT_TYPE *GCD = Temp[0];
+    CFLINT_TYPE *M   = Temp[1];
+    CFLINT_TYPE *X   = Result;  CFLINT_TYPE X_Flag = 0;
+    CFLINT_TYPE *U   = Temp[2]; CFLINT_TYPE U_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE *V   = Temp[3]; CFLINT_TYPE V_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE *TT  = Temp + 4;
+    CFLINT_TYPE *T1  = Temp[10];
+    CFLINT_TYPE *T0  = Temp[10];
+    uint32_t Index = 0;
+    int8_t Error = true;
+    /* 无同余方程容错 */
+    if (Number == 0)
+        return true;
+    /* 第一步:载入第一个同余方程 */
+    Cflint_Copy(X, Operands[Index * 2 + 0], Length);
+    Cflint_Copy(M, Operands[Index * 2 + 1], Length);
+    /* 第二步:循环解算同余方程 */
+    for (Index = 1; Index < Number; Index++) {
+        /* 载入其余同余方程 */
+        Ai = Operands[Index * 2 + 0];
+        Mi = Operands[Index * 2 + 1];
+        /* 解算扩展欧几里得方程 */
+        Cflint_GCDExtend(M, Mi, GCD, U, &U_Flag, V, &V_Flag, TT, Length);
+        /* 非素检查:GCD == 1 */
+        if (Cflint_SubtractionBit(GCD, Length) != 0 ||
+            Cflint_IsZero(GCD, Length) == true)
+            return -1;
+        
+        
+        
+    }
+    
+    
+}
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

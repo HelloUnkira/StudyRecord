@@ -122,44 +122,43 @@ void Cflint_LCM(CFLINT_TYPE *Result, CFLINT_TYPE *A, CFLINT_TYPE *B,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 扩展欧几里得算法 */
-void Cflint_GCDExtend(CFLINT_TYPE *A,      CFLINT_TYPE *B,
-                      CFLINT_TYPE *X,      CFLINT_TYPE *Y,
-                      CFLINT_TYPE *X_Flag, CFLINT_TYPE *Y_Flag,
-                      CFLINT_TYPE *Temp[8],   uint32_t  Length)
+void Cflint_GCDExtend(CFLINT_TYPE *A, CFLINT_TYPE *B, CFLINT_TYPE *GCD,
+                      CFLINT_TYPE *X, CFLINT_TYPE *X_Flag,
+                      CFLINT_TYPE *Y, CFLINT_TYPE *Y_Flag,
+                      CFLINT_TYPE *Temp[7],   uint32_t  Length)
 {
     /*案例代码:
-     *uint64_t extend_gcd(uint64_t a, uint64_t b, uint64_t &x, uint64_t &y)
+     *uint64_t GCDExtend(uint64_t A, uint64_t B, uint64_t &X, uint64_t &Y)
      *{
-     *    if (b == 0) {
-     *        x = 1;
-     *        y = 0;
-     *        return a;
+     *    if (B == 0) {
+     *        X = 1;
+     *        Y = 0;
+     *        return A;
      *    } else {
-     *        uint64_t q   = a / b;
-     *        uint64_t m   = a % b;
-     *        uint64_t gcd = extend_gcd(b, m, x, y);
-     *        uint64_t t = x; x = y; y = t;
-     *        y = y - q * x;
-     *        return gcd;
+     *        uint64_t Q   = A / B;
+     *        uint64_t M   = A % B;
+     *        uint64_t GCD = GCDExtend(B, M, X, Y);
+     *        uint64_t T = X; X = Y; Y = T; Y = Y - Q * X;
+     *        return GCD;
      *    }
      *}
-    */
+     */
     
     /* 固有开销 */
-    CFLINT_TYPE *Quotient = Temp[0];
-    CFLINT_TYPE *Module   = Temp[1];
-    CFLINT_TYPE *Dividend = Temp[2];
-    CFLINT_TYPE *Divisor  = Temp[3];
-    CFLINT_TYPE *VV = Temp[4]; CFLINT_TYPE VV_Flag = 0;
-    CFLINT_TYPE *TT = Temp[5]; CFLINT_TYPE TT_Flag = 0;
-    CFLINT_TYPE *T1 = Temp[6];
-    CFLINT_TYPE *T2 = Temp[7];
+    CFLINT_TYPE *Dividend = GCD;
+    CFLINT_TYPE *Divisor  = Temp[0];
+    CFLINT_TYPE *Quotient = Temp[1];
+    CFLINT_TYPE *Module   = Temp[2];
+    CFLINT_TYPE *VV = Temp[3]; CFLINT_TYPE VV_Flag = 0;
+    CFLINT_TYPE *TT = Temp[4]; CFLINT_TYPE TT_Flag = 0;
+    CFLINT_TYPE *T1 = Temp[5];
+    CFLINT_TYPE *T2 = Temp[6];
     /* 1.初始化:X=1,Y=0 */
     *X_Flag = 0; *Y_Flag = 0;
     Cflint_SetValue(Y, (Length + 1) * 2, 0);
     Cflint_SetValue(X, (Length + 1) * 2, 0);
     Cflint_AdditionBit(X, (Length + 1) * 2, 1);
-    /* 2.初始化:Dividend=A,Divisor=B,VV=0 */
+    /* 2.初始化:Dividend = A, Divisor = B, VV = 0 */
     Cflint_SetValue(VV, (Length + 1) * 2, 0);
     Cflint_Copy(Dividend, A, Length);
     Cflint_Copy(Divisor,  B, Length);

@@ -10,15 +10,11 @@ int main(int argc, char *argv[]) {
         double Cos =  CordixCos(t);
         double Tan =  CordixTan(t);
         double ATan = CordixArctan(Sin, Cos);
-        printf("\nCordix:\n");
-        printf("CordixSin(%lf) = %lf\n", t, Sin);
-        printf("CordixCos(%lf) = %lf\n", t, Cos);
-        printf("CordixTan(%lf) = %lf\n", t, Tan);
-        printf("CordixArctan(x) = %lf\n", ATan);
-        printf("\nC std lib:\n");
-        printf("sin(%lf) = %lf\n", t, sin(t));
-        printf("cos(%lf) = %lf\n", t, cos(t));
-        printf("tan(%lf) = %lf\n", t, tan(t));
-        printf("atan(x) = %lf\n",  atan2(sin(t), cos(t)));
+        printf("\n\n");
+        printf("CordixSin(%lf) = %.10lf, sin(%lf) = %.10lf\n", t, Sin, t, sin(t));
+        printf("CordixCos(%lf) = %.10lf, cos(%lf) = %.10lf\n", t, Cos, t, cos(t));
+        printf("CordixTan(%lf) = %.10lf, tan(%lf) = %.10lf\n", t, Tan, t, tan(t));
+        printf("CordixArctan(x) = %.9lf, atan(x) = %.9lf\n", ATan, atan2(sin(t), cos(t)));
+        printf("\n\n");
     }
 }

@@ -31,11 +31,11 @@ void Cflint_LCM(CFLINT_TYPE *Result, CFLINT_TYPE *A, CFLINT_TYPE *B,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 扩展欧几里得算法:A * X + B * Y = GCD(A, B) */
-/* Flag为0表示正数,Flag为1表示负数,要求X,Y,Temp[4~7]的长度为(Length+1)*2 */
-void Cflint_GCDExtend(CFLINT_TYPE *A,      CFLINT_TYPE *B,
-                      CFLINT_TYPE *X,      CFLINT_TYPE *Y,
-                      CFLINT_TYPE *X_Flag, CFLINT_TYPE *Y_Flag,
-                      CFLINT_TYPE *Temp[8],   uint32_t  Length);
+/* Flag为0表示正数,Flag为1表示负数,要求X,Y,Temp[3~6]的长度为(Length+1)*2 */
+void Cflint_GCDExtend(CFLINT_TYPE *A, CFLINT_TYPE *B, CFLINT_TYPE *GCD,
+                      CFLINT_TYPE *X, CFLINT_TYPE *X_Flag,
+                      CFLINT_TYPE *Y, CFLINT_TYPE *Y_Flag,
+                      CFLINT_TYPE *Temp[7],   uint32_t  Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

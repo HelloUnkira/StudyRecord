@@ -389,14 +389,13 @@ void Test_CflintFunctionSet5(void)
         CFLINT_TYPE  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
         CFLINT_TYPE  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
         CFLINT_TYPE  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp4[TEST_FUNCTIONSET5_LENGTH] = {0};
+        CFLINT_TYPE  Temp4[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
         CFLINT_TYPE  Temp5[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
         CFLINT_TYPE  Temp6[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
         CFLINT_TYPE  Temp7[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp8[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE *Temp[8] = {Temp1, Temp2, Temp3, Temp4,
-                                Temp5, Temp6, Temp7, Temp8};
-        Cflint_GCDExtend(A, B, X, Y, &X_Flag, &Y_Flag,
+        CFLINT_TYPE *Temp[7] = {Temp1, Temp2, Temp3, Temp4,
+                                Temp5, Temp6, Temp7};
+        Cflint_GCDExtend(A, B, Result, X, &X_Flag, Y, &Y_Flag,
                          Temp, TEST_FUNCTIONSET5_LENGTH);
     }
     /*************************************************************************/
