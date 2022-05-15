@@ -54,7 +54,7 @@ bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 线性同余方程组计算:X == Ai % Mi,当i != j时, GCD(Mi, Mj) == 1 */
-/* Result,Temps[0~5]为LengthMax */
+/* Result,Temps[0~5]为LengthMax,返回值-2表示LengthMax过小 */
 /* 要求Temp[3~4]为(Length+1)*2 */
 /* 要求Temp[5~9]为(Length+1)*4 */
 int8_t Cflint_LCE(CFLINT_TYPE **Operands, CFLINT_TYPE *Result,   uint64_t Number,
