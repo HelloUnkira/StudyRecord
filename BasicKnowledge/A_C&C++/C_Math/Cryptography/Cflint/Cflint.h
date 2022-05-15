@@ -46,6 +46,7 @@ static inline void Cflint_PortInfoCheck(Cflint_PortInfoPrint Print)
 #define CFLINT_USE_FUNCTION_SET2
 #define CFLINT_USE_FUNCTION_SET3
 #define CFLINT_USE_FUNCTION_SET4
+#define CFLINT_USE_FUNCTION_SET5
 #define CFLINT_USE_MENTGOMERY   /* 蒙哥马利功能(依赖:CFLINT_USE_BASE) */
 /*****************************************************************************/
 /*****************************************************************************/
@@ -63,7 +64,8 @@ static inline void Cflint_PortInfoCheck(Cflint_PortInfoPrint Print)
 #include "CflintFunctionSet1.h"     /* 简介:辅助功能,位逻辑运算功能 */
 #include "CflintFunctionSet2.h"     /* 简介:基础运算功能 */
 #include "CflintFunctionSet3.h"     /* 简介:大数欧几里得运算功能 */
-#include "CflintFunctionSet4.h"     /* 简介:求根及其牛顿迭代式 */
+#include "CflintFunctionSet4.h"     /* 简介:求根及其二次剩余 */
+#include "CflintFunctionSet5.h"     /* 简介:素性相关 */
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

@@ -6,39 +6,6 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 素数判别检查 */
-bool Cflint_IsPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[3], uint32_t Length)
-{
-    /* 固有开销 */
-    CFLINT_TYPE *Module   = Temp[1];
-    CFLINT_TYPE *Divisor  = Temp[2];
-    /* 单独检查:2, 3 */
-    Cflint_SetValue(Module, Length, 0);
-    /* 单独检查:生成2,匹配2 */
-    Module[0] = 2;
-    if(Cflint_Equal(X, Module, Length) == true)
-        return true;
-    /* 单独检查:生成3,匹配3 */
-    Module[0] = 3;
-    if(Cflint_Equal(X, Module, Length) == true)
-        return true;
-    /* 解算:Module = X % 6 */
-    Cflint_SetValue(Divisor, Length, 0);
-    Divisor[0] = 6;
-    Cflint_Modulo(Module, X, Divisor, Length);
-    /* 验证是否为孪生素数1:(6 * N - 1) % 6 = 5 */
-    Divisor[0] = 5;
-    if(Cflint_Equal(Divisor, Module, Length) == true)
-        return true;
-    /* 验证是否为孪生素数2:(6 * N + 1) % 6 = 1 */
-    Divisor[0] = 1;
-    if(Cflint_Equal(Divisor, Module, Length) == true)
-        return true;
-    return false;
-}
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
 /* 最大公因数为1检查(互素检查) */
 bool Cflint_GCDCheck(CFLINT_TYPE *A, CFLINT_TYPE *B, CFLINT_TYPE *Temp[3],
                         uint32_t  Length)

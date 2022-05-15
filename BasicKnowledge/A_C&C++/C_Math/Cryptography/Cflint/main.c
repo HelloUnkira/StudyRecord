@@ -334,10 +334,10 @@ void Test_CflintFunctionSet5(void)
         CFLINT_TYPE  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
         CFLINT_TYPE  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
         CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
-        Check = Cflint_IsPrime(Result, Temp, TEST_FUNCTIONSET5_LENGTH);
+        Check = Cflint_IsPrime1(Result, Temp, TEST_FUNCTIONSET5_LENGTH);
     }
     printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_IsPrime:::%d", Check);
+    printf("Cflint_IsPrime1:::%d", Check);
     printf("\n---------------------------------------------------------------");
     /*************************************************************************/
     /* 素数判别检查 */
@@ -347,10 +347,10 @@ void Test_CflintFunctionSet5(void)
         CFLINT_TYPE  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
         CFLINT_TYPE  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
         CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
-        Check = Cflint_IsPrime(Result, Temp, TEST_FUNCTIONSET5_LENGTH);
+        Check = Cflint_IsPrime1(Result, Temp, TEST_FUNCTIONSET5_LENGTH);
     }
     printf("\n-------------------------------------------------------------\n");
-    printf("Cflint_IsPrime:::%d", Check);
+    printf("Cflint_IsPrime1:::%d", Check);
     printf("\n---------------------------------------------------------------");
     /*************************************************************************/
     
@@ -744,11 +744,11 @@ void Test_CflintFunctionSet8(void)
         CFLINT_TYPE  Temp2[3] = {0};
         CFLINT_TYPE  Temp3[3] = {0};
         CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
-        bool Check1 = Cflint_IsPrime(Result1, Temp, 3);
-        bool Check2 = Cflint_IsPrime(Result2, Temp, 3);
+        bool Check1 = Cflint_IsPrime1(Result1, Temp, 3);
+        bool Check2 = Cflint_IsPrime1(Result2, Temp, 3);
         printf("\n---------------------------------------------------------\n");
-        printf("Cflint_IsPrime:::%d\n", Check1);
-        printf("Cflint_IsPrime:::%d\n", Check2);
+        printf("Cflint_IsPrime1:::%d\n", Check1);
+        printf("Cflint_IsPrime1:::%d\n", Check2);
         printf("\n-----------------------------------------------------------");
     }
     /*************************************************************************/
