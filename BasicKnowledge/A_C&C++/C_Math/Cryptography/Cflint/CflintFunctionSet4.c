@@ -107,8 +107,8 @@ bool Cflint_Root2Check(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
         ;//return false;
     /* 2.计算Temp = Operand % (65 * 63 * 11) */
     Cflint_SetValue(Temp[0], Length, 0);
-    Temp[0][0] = ((uint16_t)(65 * 63 * 11)) >> 0;
-    Temp[0][1] = ((uint16_t)(65 * 63 * 11)) >> CFLINT_BITS;
+    Temp[0][0] = (CFLINT_TYPE)((65 * 63 * 11) >> 0);
+    Temp[0][1] = (CFLINT_TYPE)((65 * 63 * 11) >> CFLINT_BITS);
     Cflint_Modulo(Temp[1], Operand, Temp[0], Length);
     TT |= ((uint16_t)(Temp[1][0])) << 0;
     TT |= ((uint16_t)(Temp[1][1])) << CFLINT_BITS;
@@ -431,44 +431,92 @@ bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 线性同余方程组计算:X == Ai % Mi,当i != j时, GCD(Mi, Mj) == 1 */
-int8_t Cflint_LCE(CFLINT_TYPE **Operands, CFLINT_TYPE *Result, uint64_t Number,
-                  CFLINT_TYPE  *Temp[11],    uint32_t  Length)
+int8_t Cflint_LCE(CFLINT_TYPE **Operands, CFLINT_TYPE *Result,   uint64_t Number,
+                  CFLINT_TYPE  *Temps[5], CFLINT_TYPE *Temp[10], uint32_t Length,
+                     uint32_t   LengthMax)
 {
-    CFLINT_TYPE *Ai  = NULL;
-    CFLINT_TYPE *Mi  = NULL;
-    CFLINT_TYPE *GCD = Temp[0];
-    CFLINT_TYPE *M   = Temp[1];
-    CFLINT_TYPE *X   = Result;  CFLINT_TYPE X_Flag = 0;
-    CFLINT_TYPE *U   = Temp[2]; CFLINT_TYPE U_Flag = 0; //(Length+1)*2
-    CFLINT_TYPE *V   = Temp[3]; CFLINT_TYPE V_Flag = 0; //(Length+1)*2
-    CFLINT_TYPE *TT  = Temp + 4;
-    CFLINT_TYPE *T1  = Temp[10];
-    CFLINT_TYPE *T0  = Temp[10];
-    uint32_t Index = 0;
-    int8_t Error = true;
+    /* 固有开销1:不可控变长开销 */
+    uint32_t L_MX  = 0;
+    uint32_t L_UV  = 0;
+    CFLINT_TYPE  *X   = Result;  CFLINT_TYPE X_Flag = 0;
+    CFLINT_TYPE  *M   = Temps[0];
+    CFLINT_TYPE  *UL  = Temps[1];
+    CFLINT_TYPE  *VL  = Temps[2];
+    CFLINT_TYPE  *TL0 = Temps[3];
+    CFLINT_TYPE  *TL1 = Temps[4];
+    /* 固有开销1:定长开销 */
+    CFLINT_TYPE  *GCD = Temp[0];
+    CFLINT_TYPE  *U   = Temp[1]; CFLINT_TYPE U_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE  *V   = Temp[2]; CFLINT_TYPE V_Flag = 0; //(Length+1)*2
+    CFLINT_TYPE **TT  = Temp + 3;
+    CFLINT_TYPE  *T0  = Temp[3];
+    CFLINT_TYPE  *T1  = Temp[4];
     /* 无同余方程容错 */
     if (Number == 0)
         return true;
     /* 第一步:载入第一个同余方程 */
-    Cflint_Copy(X, Operands[Index * 2 + 0], Length);
-    Cflint_Copy(M, Operands[Index * 2 + 1], Length);
+    L_MX = Length;
+    Cflint_Copy(X, Operands[0 * 2 + 0], Length);
+    Cflint_Copy(M, Operands[0 * 2 + 1], Length);
     /* 第二步:循环解算同余方程 */
-    for (Index = 1; Index < Number; Index++) {
+    for (uint32_t Index = 1; Index < Number; Index++) {
         /* 载入其余同余方程 */
-        Ai = Operands[Index * 2 + 0];
-        Mi = Operands[Index * 2 + 1];
+        CFLINT_TYPE *Ai = Operands[Index * 2 + 0];
+        CFLINT_TYPE *Mi = Operands[Index * 2 + 1];
+        /* GCD(M, Mi) = GCD(M % Mi, Mi),这里将M化为Length长度 */
+        if (LengthMax < L_MX * 2)
+            return -2;
+        Cflint_SetValue(TL1, L_MX, 0);
+        Cflint_Copy(TL1, Mi, Length);
+        Cflint_Modulo(TL0, M, TL1, L_MX);
         /* 解算扩展欧几里得方程 */
-        Cflint_GCDExtend(M, Mi, GCD, U, &U_Flag, V, &V_Flag, TT, Length);
+        Cflint_GCDExtend(TL0, Mi, GCD, U, &U_Flag, V, &V_Flag, TT, Length);
         /* 非素检查:GCD == 1 */
-        if (Cflint_SubtractionBit(GCD, Length) != 0 ||
-            Cflint_IsZero(GCD, Length) == true)
+        if (Cflint_SubtractionBit(GCD, Length, 1) != 0)
             return -1;
-        
-        
-        
+        if (Cflint_IsZero(GCD, Length) == false)
+            return -1;
+        /* 计算U = U * Ai, U的长度为理论最大值(Length + 1) * 4 */
+        Cflint_Copy(T0, U, (Length + 1) * 2);
+        Cflint_SetValue(T1, (Length + 1) * 2, 0);
+        Cflint_Copy(T1, Ai, Length);
+        Cflint_Multiply(U, T0, T1, (Length + 1) * 2);
+        /* 计算V = V * Mi, V的长度为理论最大值(Length + 1) * 4 */
+        Cflint_Copy(T0, V, (Length + 1) * 2);
+        Cflint_SetValue(T1, (Length + 1) * 2, 0);
+        Cflint_Copy(T1, Mi, Length);
+        Cflint_Multiply(V, T0, T1, (Length + 1) * 2);
+        /* 计算最大范围: */
+        L_UV = (L_MX > (Length + 1) * 4) ? L_MX : (Length + 1) * 4;
+        if (LengthMax <= L_UV + 1)
+            return -2;
+        /* 计算变长乘:UL = U * M */
+        Cflint_SetValue(T0, L_UV, 0);
+        Cflint_SetValue(T1, L_UV, 0);
+        Cflint_Copy(T0, U, (Length + 1) * 4);
+        Cflint_Copy(T0, M, L_MX);
+        Cflint_Multiply(UL, T0, T1, L_MX);
+        /* 计算变长乘:VL = V * X */
+        Cflint_SetValue(T0, L_UV, 0);
+        Cflint_SetValue(T1, L_UV, 0);
+        Cflint_Copy(T0, V, (Length + 1) * 4);
+        Cflint_Copy(T0, X, L_MX);
+        Cflint_Multiply(VL, T0, T1, L_MX);
+        /* 计算和:X * X_Flag = U * Ai * M * U_Flag + V * Mi * X * V_Flag */
+        X[L_UV] = Cflint_FlagSum(X, &X_Flag, UL, U_Flag, VL, V_Flag, L_UV);
+        /* 计算乘:M *= Mi,这里需要对其归化 */
+        Cflint_SetValue(T1, L_MX, 0);
+        Cflint_Copy(T1, Mi, Length);
+        Cflint_Multiply(T0, M, T1, L_MX);
+        L_MX = (Cflint_Numbers2(T0, L_MX * 2) + 1) / CFLINT_BITS;
+        /* 计算模:X*X_Flag %= M */
+        uint32_t L_MXUV = L_MX > (L_UV + 1) ? L_MX : (L_UV + 1);
+        Cflint_SetValue(T0, L_MXUV, 0);
+        Cflint_SetValue(T1, L_MXUV, 0);
+        Cflint_Copy(T0, X, L_UV + 1);
+        Cflint_Copy(T1, M, L_MX);
+        Cflint_FlagModulo(X, T0, T1, X_Flag, L_MXUV);
     }
-    
-    
 }
 /*****************************************************************************/
 /*****************************************************************************/

@@ -874,7 +874,7 @@ void Test_CflintFunctionSet8(void)
             Result1 = Cflint_Modulo1Root2(Operand, Module1, Module2, Result,
                                           Temp, TEST_FUNCTIONSET8_LENGTH);
             {
-                static count = 0;
+                static uint32_t count = 0;
                 /* 事实上很难找 */
                 if (count++ > 1000000) {
                     count = 0;
