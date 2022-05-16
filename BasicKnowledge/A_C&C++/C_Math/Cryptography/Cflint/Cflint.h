@@ -47,7 +47,8 @@ static inline void Cflint_PortInfoCheck(Cflint_PortInfoPrint Print)
 #define CFLINT_USE_FUNCTION_SET3
 #define CFLINT_USE_FUNCTION_SET4
 #define CFLINT_USE_FUNCTION_SET5
-#define CFLINT_USE_MENTGOMERY   /* 蒙哥马利功能(依赖:CFLINT_USE_BASE) */
+#define CFLINT_USE_RSA              /* 该部分不是完全的实现 */
+#define CFLINT_USE_MENTGOMERY       /* 蒙哥马利功能 */
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -65,12 +66,12 @@ static inline void Cflint_PortInfoCheck(Cflint_PortInfoPrint Print)
 #include "CflintFunctionSet2.h"     /* 简介:基础运算功能 */
 #include "CflintFunctionSet3.h"     /* 简介:大数欧几里得运算功能 */
 #include "CflintFunctionSet4.h"     /* 简介:求根及其二次剩余 */
-#include "CflintFunctionSet5.h"     /* 简介:素性相关 */
+#include "CflintFunctionSet5.h"     /* 简介:素性相关,未完善 */
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 蒙哥马利运算相关接口 */
-#include "CflintMentgomery.h"
+#include "CflintRSA.h"              /* 这里只提供流程,未提供完全实现 */
+#include "CflintMentgomery.h"       /* 蒙哥马利运算相关接口 */
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

@@ -39,12 +39,12 @@ void Test_CflintFunctionSet1(void)
     /* 掩码运算 */
     /*************************************************************************/
     for (Index = 0; Index < TEST_FUNCTIONSET1_LENGTH * 2; Index++)
-        Result[Index] = ~0;
+        Result[Index] = (CFLINT_TYPE)(~0);
     Cflint_Mask2(Result, TEST_FUNCTIONSET1_LENGTH * 2, CFLINT_BITS * 4 + 3);
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_Mask2:::Result:\n");
     for (Index = 0; Index < TEST_FUNCTIONSET1_LENGTH * 2; Index++)
-        printf("%llx ", Result[Index]);
+        printf("%x ", (CFLINT_TYPE)(Result[Index]));
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/
 }
