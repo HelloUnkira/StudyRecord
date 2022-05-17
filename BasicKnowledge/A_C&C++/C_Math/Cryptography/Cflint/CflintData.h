@@ -54,6 +54,7 @@
 #define CFLINT_BYTEHIGHEST  /* 平台字:最高位为1 */
 #define CFLINT_BYTEALL      /* 平台字:全字为1 */
 #define CFLINT_BITS         /* 平台字占有二进制位数 */
+#define CFLINT_BYTE         /* 平台字占有字节数 */
 #define CFLINT_TYPE         /* 平台字占有字节数 */
 #define CFLINT_TYPE_2       /* 关键字优化 */
 #elif   CFLINT_TYPE_PORT == 1
@@ -61,6 +62,7 @@
 #define CFLINT_BYTEHIGHEST  CFLINT_BYTE1HIGHEST
 #define CFLINT_BYTEALL      CFLINT_BYTE1ALL
 #define CFLINT_BITS         CFLINT_BITS1
+#define CFLINT_BYTE         CFLINT_BYTE1
 #define CFLINT_TYPE         CFLINT_TYPE1
 #define CFLINT_TYPE_2       CFLINT_TYPE2
 #elif   CFLINT_TYPE_PORT == 2
@@ -68,6 +70,7 @@
 #define CFLINT_BYTEHIGHEST  CFLINT_BYTE2HIGHEST
 #define CFLINT_BYTEALL      CFLINT_BYTE2ALL
 #define CFLINT_BITS         CFLINT_BITS2
+#define CFLINT_BYTE         CFLINT_BYTE2
 #define CFLINT_TYPE         CFLINT_TYPE2
 #define CFLINT_TYPE_2       CFLINT_TYPE4
 #elif   CFLINT_TYPE_PORT == 4
@@ -75,6 +78,7 @@
 #define CFLINT_BYTEHIGHEST  CFLINT_BYTE4HIGHEST
 #define CFLINT_BYTEALL      CFLINT_BYTE4ALL
 #define CFLINT_BITS         CFLINT_BITS4
+#define CFLINT_BYTE         CFLINT_BYTE4
 #define CFLINT_TYPE         CFLINT_TYPE4
 #define CFLINT_TYPE_2       CFLINT_TYPE8
 #elif   CFLINT_TYPE_PORT == 8
@@ -82,6 +86,7 @@
 #define CFLINT_BYTEHIGHEST  CFLINT_BYTE8HIGHEST
 #define CFLINT_BYTEALL      CFLINT_BYTE8ALL
 #define CFLINT_BITS         CFLINT_BITS8
+#define CFLINT_BYTE         CFLINT_BYTE8
 #define CFLINT_TYPE         CFLINT_TYPE8
 //#define CFLINT_TYPE_2        CFLINT_TYPE16
 #else

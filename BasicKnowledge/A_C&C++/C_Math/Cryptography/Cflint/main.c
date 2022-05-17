@@ -6,6 +6,32 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+#if 0
+#elif 1  /* Windows */
+#include <windows.h>
+#include <wincrypt.h>
+int32_t Calculate_RNG(uint8_t *dest, uint32_t size)
+{
+    HCRYPTPROV prov;
+    
+    if (!CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL,
+                                                CRYPT_VERIFYCONTEXT))
+        return 0;
+
+    CryptGenRandom(prov, size, (BYTE *)dest);
+    CryptReleaseContext(prov, 0);
+    return 1;
+}
+#else
+int32_t Calculate_RNG(uint8_t *dest, uint32_t size)
+{
+    return 0;
+}
+#endif
+
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 void Test_CflintFunctionSet1(void)
 {
     uint32_t Index = 0;
@@ -44,7 +70,7 @@ void Test_CflintFunctionSet1(void)
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_Mask2:::Result:\n");
     for (Index = 0; Index < TEST_FUNCTIONSET1_LENGTH * 2; Index++)
-        printf("%x ", (CFLINT_TYPE)(Result[Index]));
+        printf("%x ", Result[Index]);
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/
 }

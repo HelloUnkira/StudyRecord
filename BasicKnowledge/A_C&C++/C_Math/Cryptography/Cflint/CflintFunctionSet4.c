@@ -107,8 +107,8 @@ bool Cflint_Root2Check(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
         ;//return false;
     /* 2.计算Temp = Operand % (65 * 63 * 11) */
     Cflint_SetValue(Temp[0], Length, 0);
-    Temp[0][0] = (CFLINT_TYPE)((65 * 63 * 11) >> 0);
-    Temp[0][1] = (CFLINT_TYPE)((65 * 63 * 11) >> CFLINT_BITS);
+    Temp[0][0] = (CFLINT_TYPE)((CFLINT_TYPE)(65 * 63 * 11) >> 0);
+    Temp[0][1] = (CFLINT_TYPE)((CFLINT_TYPE)(65 * 63 * 11) >> CFLINT_BITS);
     Cflint_Modulo(Temp[1], Operand, Temp[0], Length);
     TT |= ((uint16_t)(Temp[1][0])) << 0;
     TT |= ((uint16_t)(Temp[1][1])) << CFLINT_BITS;

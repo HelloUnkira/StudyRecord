@@ -350,6 +350,98 @@ void Cflint_Mask2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+void Cflint_Native1ToBytes(uint8_t *Bytes, uint8_t *Native, uint32_t Length)
+{
+    for (uint32_t Index = 0; Index < Length; Index++)
+        Bytes[Index] = Native[Length - 1 - Index];
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+void Cflint_BytesToNative1(uint8_t *Bytes, uint8_t *Native, uint32_t Length)
+{
+    for (uint32_t Index = 0; Index < Length; Index++)
+        Native[Index] = Bytes[Length - 1 - Index];
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+void Cflint_Native2ToBytes(uint8_t *Bytes, uint16_t *Native, uint32_t Length)
+{
+    for (uint32_t Index = 0; Index < Length; Index++) {
+        Bytes[Index * 2 + 0] = (uint8_t)(Native[Length - 1 - Index] >> 8);
+        Bytes[Index * 2 + 1] = (uint8_t)(Native[Length - 1 - Index] >> 0);
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+void Cflint_BytesToNative2(uint8_t *Bytes, uint16_t *Native, uint32_t Length)
+{
+    for (uint32_t Index = 0; Index < Length; Index++) {
+        Native[Index] |= (uint16_t)Bytes[(Length - 1 - Index) * 2 + 0] << 8;
+        Native[Index] |= (uint16_t)Bytes[(Length - 1 - Index) * 2 + 1] << 0;
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+void Cflint_Native4ToBytes(uint8_t *Bytes, uint32_t *Native, uint32_t Length)
+{
+    for (uint32_t Index = 0; Index < Length; Index++) {
+        Bytes[Index * 4 + 0] = (uint8_t)(Native[Length - 1 - Index] >> 24);
+        Bytes[Index * 4 + 1] = (uint8_t)(Native[Length - 1 - Index] >> 16);
+        Bytes[Index * 4 + 2] = (uint8_t)(Native[Length - 1 - Index] >>  8);
+        Bytes[Index * 4 + 3] = (uint8_t)(Native[Length - 1 - Index] >>  0);
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+void Cflint_BytesToNative4(uint8_t *Bytes, uint32_t *Native, uint32_t Length)
+{
+    for (uint32_t Index = 0; Index < Length; Index++) {
+        Native[Index] |= (uint32_t)Bytes[(Length - 1 - Index) * 4 + 0] << 24;
+        Native[Index] |= (uint32_t)Bytes[(Length - 1 - Index) * 4 + 1] << 16;
+        Native[Index] |= (uint32_t)Bytes[(Length - 1 - Index) * 4 + 2] <<  8;
+        Native[Index] |= (uint32_t)Bytes[(Length - 1 - Index) * 4 + 3] <<  0;
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+void Cflint_Native8ToBytes(uint8_t *Bytes, uint64_t *Native, uint32_t Length)
+{
+    for (uint32_t Index = 0; Index < Length; Index++) {
+        Bytes[Index * 8 + 0] = (uint8_t)(Native[Length - 1 - Index] >> 56);
+        Bytes[Index * 8 + 1] = (uint8_t)(Native[Length - 1 - Index] >> 48);
+        Bytes[Index * 8 + 2] = (uint8_t)(Native[Length - 1 - Index] >> 40);
+        Bytes[Index * 8 + 3] = (uint8_t)(Native[Length - 1 - Index] >> 32);
+        Bytes[Index * 8 + 4] = (uint8_t)(Native[Length - 1 - Index] >> 24);
+        Bytes[Index * 8 + 5] = (uint8_t)(Native[Length - 1 - Index] >> 16);
+        Bytes[Index * 8 + 6] = (uint8_t)(Native[Length - 1 - Index] >>  8);
+        Bytes[Index * 8 + 7] = (uint8_t)(Native[Length - 1 - Index] >>  0);
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+void Cflint_BytesToNative8(uint8_t *Bytes, uint64_t *Native, uint32_t Length)
+{
+    for (uint32_t Index = 0; Index < Length; Index++) {
+        Native[Index] |= (uint64_t)Bytes[(Length - 1 - Index) * 8 + 0] << 56;
+        Native[Index] |= (uint64_t)Bytes[(Length - 1 - Index) * 8 + 1] << 48;
+        Native[Index] |= (uint64_t)Bytes[(Length - 1 - Index) * 8 + 2] << 40;
+        Native[Index] |= (uint64_t)Bytes[(Length - 1 - Index) * 8 + 3] << 32;
+        Native[Index] |= (uint64_t)Bytes[(Length - 1 - Index) * 8 + 4] << 24;
+        Native[Index] |= (uint64_t)Bytes[(Length - 1 - Index) * 8 + 5] << 16;
+        Native[Index] |= (uint64_t)Bytes[(Length - 1 - Index) * 8 + 6] <<  8;
+        Native[Index] |= (uint64_t)Bytes[(Length - 1 - Index) * 8 + 7] <<  0;
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 #endif
 /*****************************************************************************/
 /*****************************************************************************/
