@@ -4,6 +4,7 @@
 //遵守C99标准
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 /*Cflint(Abbr):
  *C Functions For Large Integers In Number Theory And Cryptography

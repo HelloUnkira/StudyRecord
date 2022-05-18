@@ -3,11 +3,31 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+/* Windows */
+#include <windows.h>
+#include <wincrypt.h>
+bool Calculate_RNG(CFLINT_TYPE *dest, uint32_t size)
+{
+    size *= CFLINT_BYTE;
+    
+    HCRYPTPROV prov;
+    
+    if (!CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL,
+                                                CRYPT_VERIFYCONTEXT))
+        return false;
+
+    CryptGenRandom(prov, size, (BYTE *)dest);
+    CryptReleaseContext(prov, 0);
+    return true;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 void Test_CflintFunctionSet1(void)
 {
     uint32_t Index = 0;
     #define TEST_FUNCTIONSET1_LENGTH    10
-    CFLINT_TYPE Result[TEST_FUNCTIONSET1_LENGTH] = {0};
+    CFLINT_TYPE Result[TEST_FUNCTIONSET1_LENGTH * 2] = {0};
     
     /* 左移位运算 */
     /*************************************************************************/
@@ -1130,6 +1150,41 @@ void Test_Mentgomery(void)
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/
 #endif
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 测试椭圆曲线(未完成,测试未通过) */
+void Test_ECC(void)
+{
+    CFLINT_TYPE RNGTest[Ecc_Curve_Size1];
+    CFLINT_TYPE PublicKey[Ecc_Curve_Size1 * 2];
+    CFLINT_TYPE PrivateKey[Ecc_Curve_Size1];
+    CFLINT_TYPE SecretKey[Ecc_Curve_Size1];
+    bool Result1 = false;
+    bool Result2 = false;
+    bool Result3 = false;
+    
+    Ecc_RNG_Function(Calculate_RNG);
+    Calculate_RNG(RNGTest, Ecc_Curve_Size1);
+    
+    /*************************************************************************/
+    printf("\n-------------------------------------------------------------\n");
+    printf("Calculate_RNG:::");
+    for (uint32_t Index = 0; Index < Ecc_Curve_Size1; Index++)
+        printf("%llx ", RNGTest[Index]);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    printf("\n-------------------------------------------------------------\n");
+    Result1 = Ecc_MakeKey(PublicKey, PrivateKey);
+    Result2 = Ecc_ShareSecret(PublicKey, PrivateKey, SecretKey);
+    Result3 = Ecc_ValidKey(PublicKey);
+    /* 公钥校验不通过,有待审查 */
+    printf("Ecc_MakeKey:%d\n",      Result1);
+    printf("Ecc_ShareSecret:%d\n",  Result2);
+    printf("Ecc_ValidKey:%d\n",     Result3);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
 }
 /*****************************************************************************/
 /*****************************************************************************/
