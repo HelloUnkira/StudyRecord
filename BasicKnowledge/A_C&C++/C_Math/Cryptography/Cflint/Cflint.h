@@ -19,6 +19,9 @@
 /*****************************************************************************/
 /* 辅助功能:测试阶段所用于确定平台信息明细 */
 typedef void (*Cflint_PortInfoPrint)(const char *Parameter, uint32_t Result);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 static inline void Cflint_PortInfoCheck(Cflint_PortInfoPrint Print)
 {
     /* 如果已知对应信息,可直接配置本函数内的宏的值 */
@@ -29,7 +32,7 @@ static inline void Cflint_PortInfoCheck(Cflint_PortInfoPrint Print)
     /* 平台字节对齐配置项:==sizeof(void *) */
     /* 注意:平台字节对齐可加速运算,但如果需要指定其他类型 */
     /* 可以直接修改其为非平台字节对齐类型 */
-    #define CFLINT_TYPE_PORT     1
+    #define CFLINT_TYPE_PORT     4
     Print("Port Byte Alignment:%u\r\n", sizeof(void *));
     /* ----------平台大小端序检查---------- */
     /* 大小端序配置项:(小端序:0;大端序:1) */
@@ -47,8 +50,9 @@ static inline void Cflint_PortInfoCheck(Cflint_PortInfoPrint Print)
 #define CFLINT_USE_FUNCTION_SET3
 #define CFLINT_USE_FUNCTION_SET4
 #define CFLINT_USE_FUNCTION_SET5
-#define CFLINT_USE_RSA              /* 该部分不是完全的实现 */
-#define CFLINT_USE_MENTGOMERY       /* 蒙哥马利功能 */
+#define EXTEND_USE_MENTGOMERY       /* 蒙哥马利功能 */
+#define EXTEND_USE_RSA              /* 该部分不是完全的实现 */
+#define EXTEND_USE_ECC
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -70,8 +74,9 @@ static inline void Cflint_PortInfoCheck(Cflint_PortInfoPrint Print)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-#include "CflintRSA.h"              /* 这里只提供流程,未提供完全实现 */
-#include "CflintMentgomery.h"       /* 蒙哥马利运算相关接口 */
+#include "Extend_RSA.h"              /* 这里只提供流程,未提供完全实现 */
+#include "Extend_ECC.h"
+#include "Extend_Mentgomery.h"       /* 蒙哥马利运算相关接口 */
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
