@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <string.h>
 #include "AES128.h"
 #include "RC4.h"
 /*****************************************************************************/
@@ -18,13 +20,13 @@ void Test_AES128(void)
     for (int32_t Index = 0; Index < TEST_AES128TEXTLEN; Index++)
         printf("%c", Text[Index]);
     printf("\n-------------------------------------------------------------\n");
-    AES128_Run((uint8_t *)Text, TEST_AES128TEXTLEN, Key, 0);
+    AES128_Run(Text, TEST_AES128TEXTLEN, Key, 0);
     printf("\n-------------------------------------------------------------\n");
     printf("AES128:Encrypt Code:");
     for (int32_t Index = 0; Index < TEST_AES128TEXTLEN; Index++)
         printf("%c", Text[Index]);
     printf("\n-------------------------------------------------------------\n");
-    AES128_Run((uint8_t *)Text, TEST_AES128TEXTLEN, Key, 1);
+    AES128_Run(Text, TEST_AES128TEXTLEN, Key, 1);
     printf("\n-------------------------------------------------------------\n");
     printf("AES128:Decrypt Code:");
     for (int32_t Index = 0; Index < TEST_AES128TEXTLEN; Index++)
@@ -38,30 +40,29 @@ void Test_AES128(void)
 void Test_RC4(void)
 {
 #define TEST_RC4TEXTLEN  64
-    uint8_t TextIn [TEST_RC4TEXTLEN] = "hello world and my friend";
-    uint8_t TextOut[TEST_RC4TEXTLEN] = {0};
-    uint8_t BKey[256]  = {0};
+    uint8_t Text[TEST_RC4TEXTLEN] = "hello world and my friend";
+    uint8_t Key[256] = {0};
+    uint8_t RC4Key[256] = {0};
     for (int32_t Index = 0; Index < 256; Index++)
-        BKey[Index] = Index;
+        Key[Index] = Index;
     /* 初始化秘钥状态矩阵 */
-    RC4Key  Key;
-    RC4Set(&Key, BKey, 256);
+    RC4Set(RC4Key, Key, 256);
     printf("\n-------------------------------------------------------------\n");
     printf("RC4:Source Code:");
     for (int32_t Index = 0; Index < TEST_RC4TEXTLEN; Index++)
-        printf("%c", TextIn[Index]);
+        printf("%c", Text[Index]);
     printf("\n-------------------------------------------------------------\n");
-    RC4Run(&Key, TextIn, TextOut, TEST_RC4TEXTLEN);
+    RC4Run(RC4Key, Text, TEST_RC4TEXTLEN);
     printf("\n-------------------------------------------------------------\n");
     printf("RC4:Encrypt Code:");
     for (int32_t Index = 0; Index < TEST_RC4TEXTLEN; Index++)
-        printf("%c", TextOut[Index]);
+        printf("%c", Text[Index]);
     printf("\n-------------------------------------------------------------\n");
-    RC4Run(&Key, TextOut, TextIn, TEST_RC4TEXTLEN);
+    RC4Run(RC4Key, Text, TEST_RC4TEXTLEN);
     printf("\n-------------------------------------------------------------\n");
     printf("RC4:Decrypt Code:");
     for (int32_t Index = 0; Index < TEST_RC4TEXTLEN; Index++)
-        printf("%c", TextIn[Index]);
+        printf("%c", Text[Index]);
     printf("\n-------------------------------------------------------------\n");
 }
 /*****************************************************************************/
