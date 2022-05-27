@@ -279,6 +279,39 @@ void SGui_Container_Test(void)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+void SGui_Event_Test(void)
+{
+    uint32_t Event1   = 1;
+    uint32_t Length1  = 7;
+    uint8_t  Data1[7] = "Event1";
+
+    uint32_t Event2   = 2;
+    uint32_t Length2  = 7;
+    uint8_t  Data2[7] = "Event2";
+    
+    uint32_t Event3   = 3;
+    uint32_t Length3  = 7;
+    uint8_t  Data3[7] = "Event3";
+
+    SGui_EventEnqueue(Event2, Length2, Data2);
+    SGui_EventEnqueue(Event1, Length1, Data1);
+    SGui_EventEnqueue(Event3, Length3, Data3);
+    
+    uint32_t Event  = 0;
+    uint32_t Length = 0;
+    uint8_t *Data   = NULL;
+    
+    while (SGui_EventIsEmpty() == false) {
+        
+        SGui_EventDequeue(&Event, &Length, &Data);
+        
+        printf("Event:%d,Length:%d,Data:%s\n", Event, Length, Data);
+        
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 
 
 
@@ -294,6 +327,9 @@ int main(int argc, char *argv[])
     // SGui_ClipRegion1_Test();
     // SGui_ClipRegion2_Test();
     // SGui_Container_Test();
+    // SGui_Event_Test();
+
+
 
     return 0;
 }

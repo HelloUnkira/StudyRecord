@@ -141,8 +141,8 @@ bool SGui_ClipRectIsVaild(SGui_Area Rect)
 {
     bool Result = true;
     /* 本集与补集运算 */
-    if (Rect.LU.X == SGUI_COORB_INVALID && Rect.LU.Y == SGUI_COORB_INVALID &&
-        Rect.RB.X == SGUI_COORB_INVALID && Rect.RB.Y == SGUI_COORB_INVALID)
+    if (Rect.LU.X == SGUI_COORD_INVALID && Rect.LU.Y == SGUI_COORD_INVALID &&
+        Rect.RB.X == SGUI_COORD_INVALID && Rect.RB.Y == SGUI_COORD_INVALID)
         Result = false;
     
     if (Rect.LU.X >= Rect.RB.X  || Rect.LU.Y >= Rect.RB.Y)
