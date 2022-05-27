@@ -14,14 +14,14 @@
 /* 控件基类 */
 typedef struct SGuiWidgetBody {
     /* 当前控件的父控件,祖先控件无父控件 */
-    SGui_Handle Parent;
+    uint32_t  Parent;
     /* 相对父控件的剪切域(如果父容器存在) */
     /* 相对画布的相对剪切域(如果父容器不存在) */
     SGui_Area Clip;
     /* 事件派发回调(派发未知事件到控件) */
     SGui_EventCallback Callback;
     /* 控件背景:控件绘制前的绘制动作 */
-    SGui_Color Background;
+    SGui_Pixel Background;
     /* 派生控件类型 */
     uint32_t WidgetType;
 } SGuiWidget;
