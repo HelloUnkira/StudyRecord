@@ -32,6 +32,7 @@
 /*************************************************************************************************/
 /* SGUI_CORE: */
 #include "SGui_Pixel.h"
+#include "SGui_Surface.h"
 #include "SGui_Handle.h"
 #include "SGui_ClipRegion.h"
 #include "SGui_Container.h"
