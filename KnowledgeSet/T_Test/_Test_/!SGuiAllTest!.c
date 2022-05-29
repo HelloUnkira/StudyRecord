@@ -223,58 +223,6 @@ void SGui_ClipRegion2_Test(void)
 /*****************************************************************************/
 void SGui_Container_Test(void)
 {
-    #define SGUI_SOURCE_LENGTH_TEST  10
-    uint32_t Index = 0;
-    uint32_t Array[SGUI_SOURCE_LENGTH_TEST]  = {0,1,2,3,4,5,6,7,8,9};
-    
-    /* 获得一个容器 */
-    uint32_t Container = SGui_ContainerTake();
-    /* 这里的测试时,句柄直接用的数组下标代替 */
-    uint32_t *Source = NULL;
-    uint32_t  Number = 0;
-    
-    for (Index = 0; Index < SGUI_SOURCE_LENGTH_TEST; Index++)
-        SGui_ContainerAdd(Container, Index);
-    
-    /* 打乱 */
-    for (Index = 0; Index < SGUI_SOURCE_LENGTH_TEST; Index++) {
-        uint32_t TempIndex = random() % SGUI_SOURCE_LENGTH_TEST;
-        uint32_t Temp = Array[Index];
-        Array[Index] = Array[TempIndex];
-        Array[TempIndex] = Temp;
-    }
-
-    printf("Array:");
-    for (Index = 0; Index < SGUI_SOURCE_LENGTH_TEST; Index++)
-        printf("%d ", Array[Index]);
-    printf("\n");
-
-    /* 获取资源 */
-    SGui_ContainerLengthGet(Container, &Number);
-    Source = SGUI_ALLOC(sizeof(uint32_t) * Number);
-    SGui_ContainerSetGet(Container, Source);
-
-    for (Index = 0; Index < SGUI_SOURCE_LENGTH_TEST; Index++)
-        printf("Array[%d]:%d\n", Source[Index], Array[Source[Index]]);
-
-    printf("Number:%d\n", Number);
-    for (Index = 0; Index < SGUI_SOURCE_LENGTH_TEST; Index++)
-        printf("Source[%d]:%d\n", Index, Source[Index]);
-
-    for (Index = 0; Index < SGUI_SOURCE_LENGTH_TEST; Index++)
-        SGui_ContainerRemove(Container, Source[Index]);
-    SGUI_FREE(Source);
-
-    /* 获取资源 */
-    SGui_ContainerLengthGet(Container, &Number);
-    Source = SGUI_ALLOC(sizeof(uint32_t) * Number);
-    SGui_ContainerSetGet(Container, Source);
-    
-    for (Index = 0; Index < SGUI_SOURCE_LENGTH_TEST; Index++)
-        printf("Source[%d]:%d\n", Index, Source[Index]);
-    SGUI_FREE(Source);
-    /* 释放 */
-    SGui_ContainerGive(Container);
 }
 /*****************************************************************************/
 /*****************************************************************************/
