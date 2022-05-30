@@ -17,9 +17,9 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 typedef struct SimpleGui_AnimationUnit {
+    SGui_Handle Handle;     /* 控件句柄记录 */
     uint32_t Period;        /* 周期 */
     uint32_t Remainder;     /* 周期下的计数余值 */
-    uint32_t Handle;        /* 句柄记录 */
     uint32_t Label:8;       /* 句柄标号 */
     uint32_t Valid:1;       /* 该单元是否有效 */
     uint32_t Execute:1;     /* 该单元是否执行 */
@@ -29,11 +29,11 @@ typedef struct SimpleGui_AnimationUnit {
 /*************************************************************************************************/
 /*************************************************************************************************/
 typedef struct SimpleGui_Animation {
-    uint64_t RecordCount;
-    void   (*EventDispatchCallback)(uint32_t Handle, uint8_t Label);
     SGui_AnimationUnit *Unit;
     uint32_t Length;
     uint32_t Number;
+    uint64_t RecordCount;
+    void   (*EventDispatchCallback)(SGui_Handle Handle, uint8_t Label);
     uint8_t  Valid:1;       /* 是否启动 */
 } SGui_Animation;
 /*************************************************************************************************/
@@ -77,7 +77,7 @@ void SGui_AnimationMSHandler(void)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-void SGui_AnimationRegister(void (*EventCallback)(uint32_t Handle, uint8_t Label))
+void SGui_AnimationRegister(void (*EventCallback)(SGui_Handle Handle, uint8_t Label))
 {
     Animation.EventDispatchCallback = EventCallback;
 }
@@ -85,7 +85,7 @@ void SGui_AnimationRegister(void (*EventCallback)(uint32_t Handle, uint8_t Label
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 创建一个动画 */
-void SGui_AnimationCreate(uint32_t Handle, uint8_t Label)
+void SGui_AnimationCreate(SGui_Handle Handle, uint8_t Label)
 {
     /* 遍历检查是否存在冲突项 */
     for (uint32_t Index = 0; Index < Animation.Length; Index++) {
@@ -132,7 +132,7 @@ void SGui_AnimationCreate(uint32_t Handle, uint8_t Label)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 销毁一个动画 */
-void SGui_AnimationDestroy(uint32_t Handle, uint8_t Label)
+void SGui_AnimationDestroy(SGui_Handle Handle, uint8_t Label)
 {
     /* 寻找到目标动画单元 */
     for (uint32_t Index = 0; Index < Animation.Length; Index++) {
@@ -170,7 +170,7 @@ void SGui_AnimationDestroy(uint32_t Handle, uint8_t Label)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 启动一个动画 */
-void SGui_AnimationStart(uint32_t Handle, uint8_t Label, uint32_t Period, bool Repeat)
+void SGui_AnimationStart(SGui_Handle Handle, uint8_t Label, uint32_t Period, bool Repeat)
 {
     /* 寻找到目标动画单元 */
     for (uint32_t Index = 0; Index < Animation.Length; Index++) {
@@ -195,7 +195,7 @@ void SGui_AnimationStart(uint32_t Handle, uint8_t Label, uint32_t Period, bool R
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 停止一个动画 */
-void SGui_AnimationStop(uint32_t Handle, uint8_t Label)
+void SGui_AnimationStop(SGui_Handle Handle, uint8_t Label)
 {
     /* 寻找到目标动画单元 */
     for (uint32_t Index = 0; Index < Animation.Length; Index++) {
@@ -215,7 +215,7 @@ void SGui_AnimationStop(uint32_t Handle, uint8_t Label)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 中止一个动画 */
-void SGui_AnimationAbort(uint32_t Handle, uint8_t Label)
+void SGui_AnimationAbort(SGui_Handle Handle, uint8_t Label)
 {
     /* 寻找到目标动画单元 */
     for (uint32_t Index = 0; Index < Animation.Length; Index++) {
@@ -235,7 +235,7 @@ void SGui_AnimationAbort(uint32_t Handle, uint8_t Label)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 恢复一个动画 */
-void SGui_AnimationResume(uint32_t Handle, uint8_t Label)
+void SGui_AnimationResume(SGui_Handle Handle, uint8_t Label)
 {
     /* 寻找到目标动画单元 */
     for (uint32_t Index = 0; Index < Animation.Length; Index++) {
