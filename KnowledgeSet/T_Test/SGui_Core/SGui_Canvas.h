@@ -11,9 +11,10 @@
 /*************************************************************************************************/
 /* 画布 */
 typedef struct SimpleGui_Canvas {
-    SGui_Pixel *Zone;   /* 绘制空间地址 */
-    SGui_Coord  Width;  /* 绘制空间宽度 */
-    SGui_Coord  Height; /* 绘制空间高度 */
+    SGui_Pixel *Zone;       /* 绘制空间地址 */
+    SGui_Coord  Width;      /* 绘制空间宽度 */
+    SGui_Coord  Height;     /* 绘制空间高度 */
+    SGui_Area   Clip;       /* 绘制空间剪切域 */
 } SGui_Canvas;
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -24,15 +25,15 @@ typedef struct SimpleGui_Canvas {
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 画布绘制坐标:(X,Y)转缓冲区偏移量(程序扫描转换时均采用行列扫描) */
-static inline SGui_Coord SGui_CanvasOffset(SGui_Canvas *Surface, SGui_Dot Dot)
+static inline SGui_Coord SGui_CanvasOffset(SGui_Canvas *Surface, SGui_Dot *Dot)
 {
 #if 0
 #elif (SGui_CanvasLayout == 0)
     /* 缓冲区布局为:宽*高时(像素点一行一行存储) */
-    return (Dot.X + Dot.Y * Surface->Width);
+    return (Dot->X + Dot->Y * Surface->Width);
 #elif (SGui_CanvasLayout == 1)
     /* 缓冲区布局为:高*宽时(像素点一列一列存储) */
-    return (Dot.X + Dot.Y * Surface->Height);
+    return (Dot->X + Dot->Y * Surface->Height);
 #else
 #error "SGui_CanvasLayout: Unsupported Surface Layout Way"
 #endif
@@ -41,7 +42,7 @@ static inline SGui_Coord SGui_CanvasOffset(SGui_Canvas *Surface, SGui_Dot Dot)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 画布绘制像素点(不携带剪切域检查): */
-static inline bool SGui_CanvasDrawPixel(SGui_Canvas *Surface, SGui_Dot Dot, SGui_Pixel Pixel)
+static inline void SGui_CanvasDrawPixel(SGui_Canvas *Surface, SGui_Dot *Dot, SGui_Pixel Pixel)
 {
     Surface->Zone[SGui_CanvasOffset(Surface, Dot)] = Pixel;
 }

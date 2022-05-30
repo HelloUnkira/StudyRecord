@@ -45,8 +45,12 @@ static inline void SGui_ContainerAdd(SGui_Container *Container, SGui_Handle Hand
 static inline void SGui_ContainerRemove(SGui_Container *Container, SGui_Handle Handle)
 {
     for (SGui_Handle Index = 0; Index < Container->Length; Index++)
-        if (Container->Handle[Index] == Handle)
-            Container->Handle[Index]  = SGUI_HANDLE_INVALID;
+        if (Container->Handle[Index] == Handle) {
+            for (SGui_Handle Index1 = Index; Index1 + 1 < Container->Length; Index1++)
+                Container->Handle[Index1] = Container->Handle[Index1 + 1];
+            Container->Handle[Container->Length - 1] = SGUI_HANDLE_INVALID;
+            break;
+        }
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
