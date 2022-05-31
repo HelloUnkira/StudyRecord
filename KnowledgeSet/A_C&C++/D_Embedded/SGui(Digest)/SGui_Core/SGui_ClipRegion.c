@@ -17,68 +17,68 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 俩个剪切域交集 */
-SGui_Area SGui_ClipRectAnd(SGui_Area Rect1, SGui_Area Rect2)
+SGui_Area SGui_ClipRectAnd(SGui_Area Clip1, SGui_Area Clip2)
 {
-    SGui_Area_Define(Rect);
+    SGui_Area_Define(Clip);
     
-    Rect.LU.X = SGUI_MAX(Rect1.LU.X, Rect2.LU.X);
-    Rect.LU.Y = SGUI_MAX(Rect1.LU.Y, Rect2.LU.Y);
-    Rect.RB.X = SGUI_MIN(Rect1.RB.X, Rect2.RB.X);
-    Rect.RB.Y = SGUI_MIN(Rect1.RB.Y, Rect2.RB.Y);
+    Clip.LU.X = SGUI_MAX(Clip1.LU.X, Clip2.LU.X);
+    Clip.LU.Y = SGUI_MAX(Clip1.LU.Y, Clip2.LU.Y);
+    Clip.RB.X = SGUI_MIN(Clip1.RB.X, Clip2.RB.X);
+    Clip.RB.Y = SGUI_MIN(Clip1.RB.Y, Clip2.RB.Y);
 
-    return Rect;
+    return Clip;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 俩个剪切域并集 */
-SGui_Area SGui_ClipRectOr(SGui_Area Rect1, SGui_Area Rect2)
+SGui_Area SGui_ClipRectOr(SGui_Area Clip1, SGui_Area Clip2)
 {
-    SGui_Area_Define(Rect);
+    SGui_Area_Define(Clip);
 
-    Rect.LU.X = SGUI_MIN(Rect1.LU.X, Rect2.LU.X);
-    Rect.LU.Y = SGUI_MIN(Rect1.LU.Y, Rect2.LU.Y);
-    Rect.RB.X = SGUI_MAX(Rect1.RB.X, Rect2.RB.X);
-    Rect.RB.Y = SGUI_MAX(Rect1.RB.Y, Rect2.RB.Y);
+    Clip.LU.X = SGUI_MIN(Clip1.LU.X, Clip2.LU.X);
+    Clip.LU.Y = SGUI_MIN(Clip1.LU.Y, Clip2.LU.Y);
+    Clip.RB.X = SGUI_MAX(Clip1.RB.X, Clip2.RB.X);
+    Clip.RB.Y = SGUI_MAX(Clip1.RB.Y, Clip2.RB.Y);
 
-    return Rect;
+    return Clip;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 俩个剪切域联合 */
-SGui_Area SGui_ClipRectUnion(SGui_Area Rect1, SGui_Area Rect2)
+SGui_Area SGui_ClipRectUnion(SGui_Area Clip1, SGui_Area Clip2)
 {
-    SGui_Area_Define(Rect);
+    SGui_Area_Define(Clip);
 
     /* 剪切域求和要求:剪切域互相平行或垂直 */
 
     /* 剪切域垂直: */
-    if (Rect1.LU.X == Rect2.LU.X && Rect1.RB.X == Rect2.RB.X) {
+    if (Clip1.LU.X == Clip2.LU.X && Clip1.RB.X == Clip2.RB.X) {
         /* 场景1:非相交 */
-        if (Rect1.RB.Y < Rect2.LU.Y || Rect2.RB.Y < Rect1.LU.Y)
-            return Rect;
+        if (Clip1.RB.Y < Clip2.LU.Y || Clip2.RB.Y < Clip1.LU.Y)
+            return Clip;
         /* 场景2:相交 */
-        Rect.LU.X = (Rect1.LU.X, Rect2.LU.X);
-        Rect.RB.X = (Rect1.RB.X, Rect2.RB.X);
-        Rect.LU.Y = SGUI_MIN(Rect1.LU.Y, Rect2.LU.Y);
-        Rect.RB.Y = SGUI_MAX(Rect1.RB.Y, Rect2.RB.Y);
-        return Rect;
+        Clip.LU.X = (Clip1.LU.X, Clip2.LU.X);
+        Clip.RB.X = (Clip1.RB.X, Clip2.RB.X);
+        Clip.LU.Y = SGUI_MIN(Clip1.LU.Y, Clip2.LU.Y);
+        Clip.RB.Y = SGUI_MAX(Clip1.RB.Y, Clip2.RB.Y);
+        return Clip;
     }
     /* 剪切域平行: */
-    if (Rect1.LU.Y == Rect2.LU.Y && Rect1.RB.Y == Rect2.RB.Y) {
+    if (Clip1.LU.Y == Clip2.LU.Y && Clip1.RB.Y == Clip2.RB.Y) {
         /* 场景1:非相交 */
-        if (Rect1.RB.X < Rect2.LU.X || Rect2.RB.X < Rect1.LU.X)
-            return Rect;
+        if (Clip1.RB.X < Clip2.LU.X || Clip2.RB.X < Clip1.LU.X)
+            return Clip;
         /* 场景2:相交 */
-        Rect.LU.Y = (Rect1.LU.Y, Rect2.LU.Y);
-        Rect.RB.Y = (Rect1.RB.Y, Rect2.RB.Y);
-        Rect.LU.X = SGUI_MIN(Rect1.LU.X, Rect2.LU.X);
-        Rect.RB.X = SGUI_MAX(Rect1.RB.X, Rect2.RB.X);
-        return Rect;
+        Clip.LU.Y = (Clip1.LU.Y, Clip2.LU.Y);
+        Clip.RB.Y = (Clip1.RB.Y, Clip2.RB.Y);
+        Clip.LU.X = SGUI_MIN(Clip1.LU.X, Clip2.LU.X);
+        Clip.RB.X = SGUI_MAX(Clip1.RB.X, Clip2.RB.X);
+        return Clip;
     }
     /*  */
-    return Rect;
+    return Clip;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -137,15 +137,15 @@ uint32_t SGui_ClipRectSub(SGui_Area *Result, SGui_Area master, SGui_Area slave)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 剪切域存在检查 */
-bool SGui_ClipRectIsVaild(SGui_Area Rect)
+bool SGui_ClipRectIsVaild(SGui_Area Clip)
 {
     bool Result = true;
     /* 本集与补集运算 */
-    if (Rect.LU.X == SGUI_COORD_INVALID || Rect.LU.Y == SGUI_COORD_INVALID ||
-        Rect.RB.X == SGUI_COORD_INVALID || Rect.RB.Y == SGUI_COORD_INVALID)
+    if (Clip.LU.X == SGUI_COORD_INVALID || Clip.LU.Y == SGUI_COORD_INVALID ||
+        Clip.RB.X == SGUI_COORD_INVALID || Clip.RB.Y == SGUI_COORD_INVALID)
         Result = false;
     
-    if (Rect.LU.X >= Rect.RB.X  || Rect.LU.Y >= Rect.RB.Y)
+    if (Clip.LU.X >= Clip.RB.X  || Clip.LU.Y >= Clip.RB.Y)
         Result = false;
 
     return Result;
@@ -168,12 +168,12 @@ bool SGui_ClipRectCheck1(SGui_Area Child, SGui_Area Parent)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 剪切域包含关系检查2:(点包含) */
-bool SGui_ClipRectCheck2(SGui_Dot Dot, SGui_Area Rect)
+bool SGui_ClipRectCheck2(SGui_Dot Dot, SGui_Area Clip)
 {
     bool Result = false;
     /* 本集与补集运算 */
-    if (Dot.X >= Rect.LU.X && Dot.X <= Rect.RB.X &&
-        Dot.Y >= Rect.LU.Y && Dot.Y <= Rect.RB.Y)
+    if (Dot.X >= Clip.LU.X && Dot.X <= Clip.RB.X &&
+        Dot.Y >= Clip.LU.Y && Dot.Y <= Clip.RB.Y)
         Result = true;
 
     return Result;
@@ -212,7 +212,7 @@ static SGui_SList List = {0};
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 简化1: 剪切域阵列递归添加剪切域 */
-static void SGui_ClipRectsUnitRecurveMerge(SGui_ClipRectsUnit *Unit, SGui_Area Rect)
+static void SGui_ClipRectsUnitRecurveMerge(SGui_ClipRectsUnit *Unit, SGui_Area Clip)
 {
     /* 如果剪切域可以合并 */
     /* 合并后的剪切域要继续检查 */
@@ -225,7 +225,7 @@ static void SGui_ClipRectsUnitRecurveMerge(SGui_ClipRectsUnit *Unit, SGui_Area R
             /* 创建一个临时剪切域 */
             SGui_Area_Define(Temp);
             /* 尝试联合剪切域 */
-            Temp = SGui_ClipRectUnion(Rect, (Unit->Slave)[Index]);
+            Temp = SGui_ClipRectUnion(Clip, (Unit->Slave)[Index]);
             /* 联合剪切域成功时 */
             if (SGui_ClipRectIsVaild(Temp) == true) {
                 /* 移除原生剪切域 */
@@ -233,7 +233,7 @@ static void SGui_ClipRectsUnitRecurveMerge(SGui_ClipRectsUnit *Unit, SGui_Area R
                 /* 扣除记录 */
                 Unit->Number++;
                 /* 获得合并后剪切域 */
-                Rect = Temp;
+                Clip = Temp;
                 /* 这个位点的剪切域已经失效,考虑纪录索引 */
                 Recover = Recover < Index ? Recover : Index;
                 /* 将索引拉到最开始,重制整个流程 */
@@ -248,7 +248,7 @@ static void SGui_ClipRectsUnitRecurveMerge(SGui_ClipRectsUnit *Unit, SGui_Area R
     if (Recover == Unit->Length);
     if (Recover != Unit->Length) {
         /* 载入合并后的剪切域(如果可以合并) */
-        (Unit->Slave)[Recover] = Rect;
+        (Unit->Slave)[Recover] = Clip;
         /* 添加记录 */
         Unit->Number--;
     }
@@ -325,10 +325,10 @@ uint32_t SGui_ClipRectsTake(void)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 释放一个剪切域集合 */
-void SGui_ClipRectsGive(uint32_t Rects)
+void SGui_ClipRectsGive(uint32_t Clips)
 {
     /* 1.遍历链表,确认是哪一个管理单元 */
-    SGui_ClipRectsUnit *Unit = SGui_SNodeUnitSearch(&List, Rects);
+    SGui_ClipRectsUnit *Unit = SGui_SNodeUnitSearch(&List, Clips);
     /* 2.剪切域阵列单元移除出阵列中 */
     if (Unit == NULL);
     if (Unit != NULL) {
@@ -345,15 +345,15 @@ void SGui_ClipRectsGive(uint32_t Rects)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 为剪切域集合设置主域 */
-void SGui_ClipRectsMasterSet(uint32_t Rects, SGui_Area Rect)
+void SGui_ClipRectsMasterSet(uint32_t Clips, SGui_Area Clip)
 {
     /* 1.遍历链表,确认是哪一个管理单元 */
-    SGui_ClipRectsUnit *Unit = SGui_SNodeUnitSearch(&List, Rects);
+    SGui_ClipRectsUnit *Unit = SGui_SNodeUnitSearch(&List, Clips);
     /* 2.剪切域阵列单元设置主域 */
     if (Unit == NULL);
     if (Unit != NULL) {
         /* 设置主域 */
-        Unit->Master = Rect;
+        Unit->Master = Clip;
 
         /* 重置剪切域空间 */
         SGUI_FREE(Unit->Slave);
@@ -367,56 +367,56 @@ void SGui_ClipRectsMasterSet(uint32_t Rects, SGui_Area Rect)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 为剪切域集合获取主域 */
-SGui_Area SGui_ClipRectsMasterGet(uint32_t Rects)
+SGui_Area SGui_ClipRectsMasterGet(uint32_t Clips)
 {
-    SGui_Area_Define(Rect);
+    SGui_Area_Define(Clip);
     /* 1.遍历链表,确认是哪一个管理单元 */
-    SGui_ClipRectsUnit *Unit = SGui_SNodeUnitSearch(&List, Rects);
+    SGui_ClipRectsUnit *Unit = SGui_SNodeUnitSearch(&List, Clips);
     /* 2.剪切域阵列单元设置主域 */
     if (Unit == NULL);
     if (Unit != NULL) {
         /* 获取主域 */
-        Rect = Unit->Master;
+        Clip = Unit->Master;
     }
-    return Rect;
+    return Clip;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 剪切域集合添加剪切域 */
-void SGui_ClipRectsSlaveAdd(uint32_t Rects, SGui_Area Rect)
+void SGui_ClipRectsSlaveAdd(uint32_t Clips, SGui_Area Clip)
 {
     /* 1.遍历链表,确认是哪一个管理单元 */
-    SGui_ClipRectsUnit *Unit = SGui_SNodeUnitSearch(&List, Rects);
+    SGui_ClipRectsUnit *Unit = SGui_SNodeUnitSearch(&List, Clips);
     /* 2.剪切域阵列单元添加剪切域 */
     if (Unit == NULL);
     if (Unit != NULL) {
         /* 先确认有效剪切域 */
-        Rect = SGui_ClipRectAnd(Unit->Master, Rect);
+        Clip = SGui_ClipRectAnd(Unit->Master, Clip);
         /* 剪切域递归迭代到剪切域阵列中 */
-        if (SGui_ClipRectIsVaild(Rect) == true)
-            SGui_ClipRectsUnitRecurveMerge(Unit, Rect);
+        if (SGui_ClipRectIsVaild(Clip) == true)
+            SGui_ClipRectsUnitRecurveMerge(Unit, Clip);
     }
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 剪切域集合移除剪切域 */
-void SGui_ClipRectsSlaveRemove(uint32_t Rects, SGui_Area Rect)
+void SGui_ClipRectsSlaveRemove(uint32_t Clips, SGui_Area Clip)
 {
     uint32_t Count4    =  0;
     SGui_Area Rects4[4] = {0};
     int32_t Index = 0, Index1 = 0;
     /* 1.遍历链表,确认是哪一个管理单元 */
-    SGui_ClipRectsUnit *Unit  = SGui_SNodeUnitSearch(&List, Rects);
+    SGui_ClipRectsUnit *Unit  = SGui_SNodeUnitSearch(&List, Clips);
     SGui_ClipRectsUnit *Unit1 = NULL;
     /* 2.先确认剪切域的有效性 */
     if (Unit == NULL);
     if (Unit != NULL) {
         /* 计算剪切域是否与主域相交 */
-        Rect = SGui_ClipRectAnd(Unit->Master, Rect);
+        Clip = SGui_ClipRectAnd(Unit->Master, Clip);
         /* 如果剪切域与主域不相交,无法移除 */
-        if (SGui_ClipRectIsVaild(Rect) == false)
+        if (SGui_ClipRectIsVaild(Clip) == false)
             return;
     }
     /* 3.生成一个临时的剪切域集合,进行过程记录 */
@@ -437,7 +437,7 @@ void SGui_ClipRectsSlaveRemove(uint32_t Rects, SGui_Area Rect)
             if (SGui_ClipRectIsVaild((Unit->Slave)[Index]) == false)
                 continue;
             /* 2.计算与有效剪切域的交集 */
-            SGui_Area Rect_sub = SGui_ClipRectAnd(Rect, (Unit->Slave)[Index]);
+            SGui_Area Rect_sub = SGui_ClipRectAnd(Clip, (Unit->Slave)[Index]);
             /* 3.跳过不相交的有效剪切域 */
             if (SGui_ClipRectIsVaild(Rect_sub) == false)
                 continue;
@@ -483,11 +483,11 @@ void SGui_ClipRectsSlaveRemove(uint32_t Rects, SGui_Area Rect)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 获取剪切域集合长度 */
-void SGui_ClipRectsSlaveLengthGet(uint32_t Rects, uint32_t *Length)
+void SGui_ClipRectsSlaveLengthGet(uint32_t Clips, uint32_t *Length)
 {
     uint32_t Index = 0;
     /* 1.遍历链表,确认是哪一个管理单元 */
-    SGui_ClipRectsUnit *Unit  = SGui_SNodeUnitSearch(&List, Rects);
+    SGui_ClipRectsUnit *Unit  = SGui_SNodeUnitSearch(&List, Clips);
     /* 2.确认剪切域的有效性 */
     if (Unit == NULL)
         *Length = 0;
@@ -498,11 +498,11 @@ void SGui_ClipRectsSlaveLengthGet(uint32_t Rects, uint32_t *Length)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 获取剪切域集合 */
-void SGui_ClipRectsSlaveSetGet(uint32_t Rects, SGui_Area *Slave)
+void SGui_ClipRectsSlaveSetGet(uint32_t Clips, SGui_Area *Slave)
 {
     uint32_t Index = 0;
     /* 1.遍历链表,确认是哪一个管理单元 */
-    SGui_ClipRectsUnit *Unit  = SGui_SNodeUnitSearch(&List, Rects);
+    SGui_ClipRectsUnit *Unit  = SGui_SNodeUnitSearch(&List, Clips);
     /* 2.确认剪切域的有效性 */
     if (Unit != NULL)
         for (Index = 0; Index < Unit->Length; Index++)

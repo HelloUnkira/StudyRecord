@@ -101,6 +101,7 @@ void SGui_EngineExecuteTask(void *Pointer)
             case SGui_EventType_Animation:
                 SGui_AnimationAdaptorEventExecute(Length, Data);
                 break;
+            /* .... */
             default: break;    
             }
         }
