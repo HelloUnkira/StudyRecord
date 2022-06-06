@@ -1,0 +1,87 @@
+双机通讯方案:
+    第一层:平台数据传输层(DMC_Port):
+        实现俩个接口:包发送和包接收接口
+        
+    第二层:双机通讯协议传输层
+    
+        握手与挥手流程(双向俩次握手)(可参考TCP):
+        其中挥手流程失败,报一下警告即可,下一次握手流程会重新覆盖它
+            发起方(主机,客户端):
+                1.发送协议包
+                    Linker/DisLinker(uint8_t) + Random(uint8_t) + CRC
+                2.接收协议包
+                    Linker/DisLinker(uint8_t) + Random(uint8_t) + CRC
+                    意外情况:超时,校验失败,随机数翻转检查失败
+                             回到1,次数过多终止,投送警告
+                3.随机数翻转
+                    Random ~= Random;
+                4.计数器+1,大于2次退出,流程正常结束,否则回到1
+                
+            接收方(从机,服务器):
+                1.接收协议包(第一次接收无超时)
+                    Linker/DisLinker(uint8_t) + Random(uint8_t) + CRC
+                    意外情况:超时,校验失败,随机数翻转检查失败(第一次无需检查),
+                             回到1,次数过多终止,投送警告
+                2.随机数翻转
+                    Random ~= Random;
+                3.发送协议包
+                    Linker/DisLinker(uint8_t) + Random(uint8_t) + CRC
+                4.计数器+1,大于2次退出,流程正常结束,否则回到1
+
+
+
+        心跳机制(由接收方(从机,服务器)主动定时发起,如果没有正确的反馈,接收方(从机,服务器)单方面断联)
+            接收方:
+                1.发送协议包:
+                    Heart(uint8_t) + Random(uint8_t) + CRC
+                2.接收协议包:
+                    Random(uint8_t) + CRC
+                    意外情况:超时,随机数检查失败,重传,次数过多,投送警告,单方面断联
+            发起方:
+                1.接收协议包:
+                    Heart(uint8_t) + Random(uint8_t) + CRC
+                2.发送协议包:
+                    Random(uint8_t) + CRC
+
+
+
+        MTU更新机制(由发送方主动发起)
+            发起方:
+                1.发送协议包:
+                    MTU(uint8_t) + MTU_New(uint8_t) + Test(uint8_t) + Random(uint8_t) + CRC
+                2.接收协议包:
+                    MTU(uint8_t) + Random(uint8_t) + CRC
+                    意外情况:超时,随机数检查失败,重传,次数过多,投送警告,单方面断联
+                3.MTU更新测试:
+                    发送协议包:
+                    /* ...... */
+                    接收协议包:
+                    /* ...... */
+                    记录发送与接收协议包中出错次数,达到阈值回退
+            接收方:
+                1.接收协议包:
+                    MTU(uint8_t) + MTU_New(uint8_t) + Test(uint8_t) + Random(uint8_t) + CRC
+                2.发送协议包:
+                    MTU(uint8_t) + Random(uint8_t) + CRC
+                3.MTU更新测试:
+                    接收协议包:
+                    /* ...... */
+                    发送协议包:
+                    /* ...... */
+                    记录发送与接收协议包中出错次数,达到阈值回退
+
+
+
+        (重传机制(DMC_Parse): 也可使用互锁双比特位纠察机制完成重传机制)
+        发送流程
+            1.发送协议包:
+                Protocol(uint8_t) + Length(uint32_t) + Data(uint8_t[]) + Random(uint8_t) + CRC
+            2.接收协议包:
+                Random(uint8_t) + CRC
+                意外情况:超时,随机数检查失败,重传,次数过多,投送警告,单方面断联
+        接收流程
+            1.接收协议包:
+                Protocol(uint8_t) + Length(uint32_t) + Data(uint8_t[]) + Random(uint8_t) + CRC
+                超时无协议包到达,处理上一协议包,同一Random协议包到达过多,投送警告,单方面断联
+            2.发送协议包:
+                Random(uint8_t) + CRC
