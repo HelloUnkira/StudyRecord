@@ -28,12 +28,12 @@ void GeneralDevice_Close(void)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 传输状态标记: */
+/* 传输状态记录:传输完毕后要--,满足嵌套语义不支持并发语义 */
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static bool TransferFrameTxStatus = true;
-static bool TransferFrameRxStatus = true;
+static uint32_t TransferPackageTxCount = 0;
+static uint32_t TransferPackageRxCount = 0;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -281,60 +281,62 @@ static void GeneralDevice_DelayMs(uint32_t Overtime)
 /*************************************************************************************************/
 static bool GeneralDevice_FrameTx(uint32_t UnitTime, uint32_t MaxCount, bool Wait)
 {
-    TransferFrameTxStatus = false;
+    uint32_t PackageCount = TransferPackageTxCount;
  
     /* 将系统接口适配到此处 */
     /* 无论是DMA传输,是TX中断传输,还是TX阻塞传输 */
     /* 一共分为两个流程 */
     /* 1.将数据包从数据中心取出: */
+    TransferPackageTxCount++;
     TransferTx_GetData(&TransferFrameTxSize, sizeof(TransferFrameTxSize));
     TransferTx_GetData( TransferFrameTxData,       (TransferFrameTxSize));
     /* 2.传输:(TransferFrameTxData,TransferFrameTxSize)到TX */
-    /* 3.结束后:TransferFrameTxStatus == true,注意需要提供部分保护,如果是非中断环境 */
+    /* 3.结束后:TransferPackageTxCount--,注意需要提供部分保护,如果是非中断环境 */
     
     if (Wait == true) {
         uint32_t Count = 0;
         /* 不使用超时机制(死等) */
         if (MaxCount == 0)
-            while (TransferFrameTxStatus == false)
+            while (PackageCount != TransferPackageTxCount)
                 GeneralDevice_DelayMs(UnitTime);
         /* 使用超时机制 */
         if (MaxCount != 0)
-            while (TransferFrameTxStatus == false && Count++ < MaxCount)
+            while (PackageCount != TransferPackageTxCount && Count++ < MaxCount)
                 GeneralDevice_DelayMs(UnitTime);
     }
     /* 反馈帧状态 */
-    return TransferFrameTxStatus;
+    return PackageCount == TransferPackageTxCount;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 static bool GeneralDevice_FrameRx(uint32_t UnitTime, uint32_t MaxCount, bool Wait)
 {
-    TransferFrameRxStatus = false;
+    uint32_t PackageCount = TransferPackageRxCount;
     
     /* 将系统接口适配到此处 */
     /* 无论是DMA传输,是RX中断传输,还是RX阻塞传输 */
     /* 一共分为两个流程 */
     /* 1.传输:(TransferFrameRxData,TransferFrameRxSize)从RX */
     /* 2.将数据包向数据中心存入 */
+    TransferPackageRxCount++;
     TransferRx_PutData(&TransferFrameRxSize, sizeof(TransferFrameRxSize));
     TransferRx_PutData( TransferFrameRxData,       (TransferFrameRxSize));
-    /* 3.结束后:TransferFrameRxStatus == true */
+    /* 3.结束后:TransferPackageRxCount-- */
     
     if (Wait == true) {
         uint32_t Count = 0;
         /* 不使用超时机制(死等) */
         if (MaxCount == 0)
-            while (TransferFrameRxStatus == false)
+            while (PackageCount != TransferPackageRxCount)
                 GeneralDevice_DelayMs(UnitTime);
         /* 使用超时机制 */
         if (MaxCount != 0)
-            while (TransferFrameRxStatus == false && Count++ < MaxCount)
+            while (PackageCount != TransferPackageRxCount && Count++ < MaxCount)
                 GeneralDevice_DelayMs(UnitTime);
     }
     /* 反馈帧状态 */
-    return TransferFrameRxStatus;
+    return PackageCount == TransferPackageRxCount;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
