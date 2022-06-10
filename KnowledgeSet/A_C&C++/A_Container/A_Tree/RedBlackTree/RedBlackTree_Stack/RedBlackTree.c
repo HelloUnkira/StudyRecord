@@ -1,179 +1,242 @@
-//C std lib
 #include <stdint.h>
 #include <stdbool.h>
-
-#define   REDBLACKTREE_C
-#include "RedBlackTree.h"
-
-/*静态内联:
- *因为部分动作引用过多,静态内联可能造成额外空间开销
- *所以可以使用该宏去除内联特性
- *但接口必须保持静态特性,因为它不可以向上层暴露
- *评估中......
- */
-#define STATIC_INLINE static inline
-
-/* 错误检查宏 */
-#ifndef ERROR_PRINT
-#define ERROR_PRINT(target, str) 
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#if 1
+#include <stdio.h>
+#define ERROR_PRINT(Condition, String)  if (Condition) printf("%s\n",(String));
+#else
+#define ERROR_PRINT(Condition, String)
 #endif
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 红黑树核心(红黑树容器) */
-struct RedBlackTreeContainer {
-	struct RedBlackTreeContainer *RightChild;   //节点左孩子
-	struct RedBlackTreeContainer *LeftChild;    //节点右孩子
-    void  *DataAndColor;                        //要维护的上层数据集索引(含节点)
-};
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+typedef struct RedBlackTree_Node {
+    struct RedBlackTree_Node *LeftChildAndColor;    //节点左孩子和颜色
+	struct RedBlackTree_Node *RightChild;           //节点右孩子
+} RBT_Node;
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 红黑树核心(红黑树集合) */
-struct RedBlackTreeSet {
-	struct RedBlackTreeContainer  *RB_Root;
-    uint8_t (*KeyCompare)(void *ThisData, void *ThatData);
-    uint8_t (*KeyConfirm)(void *ThatData, void *TargetData);
+typedef struct RedBlackTree_Tree {
+	RBT_Node *Root;
+    uint8_t (*KeyCompare)(RBT_Node *ThisNode, RBT_Node *ThatNode);
+    uint8_t (*KeyConfirm)(RBT_Node *ThisNode, RBT_Node *ThatNode);
     //红黑树维护与追踪时需要使用到的堆栈
-    struct RedBlackTreeContainer **StackIterator;
-    uint32_t StackLength;   //堆栈的元素最大容量(堆栈大小)
-    uint32_t MaxDepth;      //红黑树最大深度
-    uint32_t NodeNumber;    //红黑树中的节点数量
-
-};
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/* 核心转义 */
-typedef struct RedBlackTreeContainer    RB_Node;
-typedef struct RedBlackTreeSet          RB_Tree;
-//ThisData严格小于ThatData返回非零值
-typedef uint8_t (*RBT_KeyCompare)(void *ThisData, void *ThatData);
-//ThisData与TargetData的关键字一致返回0
-typedef uint8_t (*RBT_KeyComfirm)(void *ThatData, void *TargetData);
-
-typedef enum {RED = 0,  BLACK = 1}  RB_Color;
-typedef enum {LEFT = 0, RIGHT = 1}  RB_Side;
-typedef enum {ERROR = 2}            RB_Error;
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+    RBT_Node **TraceStack;
+    uint32_t   StackLength; //堆栈的元素最大容量(堆栈大小)
+    uint32_t   MaxDepth;    //红黑树最大深度
+    uint32_t   NodeNumber;  //红黑树中的节点数量
+} RBT_Tree;
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+//ThisNode严格小于ThatNode返回非零值
+typedef uint8_t (*RBT_KeyCompare)(RBT_Node *ThisNode, RBT_Node *ThatNode);
+//ThisNode与ThatNode的关键字一致返回0
+typedef uint8_t (*RBT_KeyConfirm)(RBT_Node *ThisNode, RBT_Node *ThatNode);
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+typedef enum {RED = 0,  BLACK = 1}  RBT_Color;      //节点颜色
+typedef enum {LEFT = 0, RIGHT = 1}  RBT_Side;       //节点关系
+typedef enum {ERROR = 2}            RBT_Error;
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 地址等价整型,满足: sizeof(RBT_VoidSTarType) >= sizeof(void *) */
+#define RBT_VoidSTarType uint64_t
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 红黑树集合抽象方法 */
-STATIC_INLINE RB_Node * RBTreeGetRoot(RB_Tree *Tree)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void RBT_TreeSetRoot(RBT_Tree *Tree, RBT_Node *Root)
 {
-    return Tree->RB_Root;
+    Tree->Root = Root;
 }
-
-STATIC_INLINE void RBTreeSetRoot(RB_Tree *Tree, RB_Node *Root)
-{
-    Tree->RB_Root = Root;
-}
-
-STATIC_INLINE void RBTreeSetCompare(RB_Tree *Tree, RBT_KeyCompare Compare)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void RBT_TreeSetCompare(RBT_Tree *Tree, RBT_KeyCompare Compare)
 {
     Tree->KeyCompare = Compare;
 }
-   
-STATIC_INLINE void RBTreeSetComfirm(RB_Tree *Tree, RBT_KeyComfirm Comfirm)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void RBT_TreeSetConfirm(RBT_Tree *Tree, RBT_KeyConfirm Confirm)
 {
-    Tree->KeyConfirm = Comfirm;
+    Tree->KeyConfirm = Confirm;
 }
-
-STATIC_INLINE uint8_t RBTreeCompare(RB_Tree *Tree, void *Data1, void *Data2)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void RBT_TreeSetStack(RBT_Tree *Tree, RBT_Node **Stack)
 {
-    return Tree->KeyCompare(Data1, Data2);
+    Tree->TraceStack = Stack;
 }
-
-STATIC_INLINE uint8_t RBTreeComfirm(RB_Tree *Tree, void *Data1, void *Data2)
-{
-    return Tree->KeyConfirm(Data1, Data2);
-}
-
-STATIC_INLINE RB_Node ** RBTreeGetStack(RB_Tree *Tree)
-{
-    return Tree->StackIterator;
-}
-
-STATIC_INLINE void RBTreeSetStack(RB_Tree *Tree, RB_Node **Stack)
-{
-    Tree->StackIterator = Stack;
-}
-
-STATIC_INLINE uint32_t RBTreeGetStackLength(RB_Tree *Tree)
-{
-    return Tree->StackLength;
-}
-
-STATIC_INLINE void RBTreeSetStackLength(RB_Tree *Tree, uint32_t Length)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void RBT_TreeSetStackLength(RBT_Tree *Tree, uint32_t Length)
 {
     Tree->StackLength = Length;
 }
-
-STATIC_INLINE uint32_t RBTreeGetMaxDepth(RB_Tree *Tree)
-{
-    return Tree->MaxDepth;
-}
-
-STATIC_INLINE void RBTreeSetMaxDepth(RB_Tree *Tree, uint32_t Depth)
-{
-    Tree->MaxDepth = Depth;
-}
-
-STATIC_INLINE uint32_t RBTreeGetNodeNumber(RB_Tree *Tree)
-{
-    return Tree->NodeNumber;
-}
-
-STATIC_INLINE void RBTreeSetNodeNumber(RB_Tree *Tree, uint32_t Number)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void RBT_TreeSetNodeNumber(RBT_Tree *Tree, uint32_t Number)
 {
     Tree->NodeNumber = Number;
 }
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/* 红黑树容器抽象方法(获取) */
-
-STATIC_INLINE void * RBNodeGetData(RB_Node *Node)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void RBT_TreeSetMaxDepth(RBT_Tree *Tree, uint32_t Depth)
 {
-    VOID_STAR_TYPE Result = 0;
-    
-    Result |= (VOID_STAR_TYPE)(Node->DataAndColor);
-    Result &= (VOID_STAR_TYPE)(~1);
-
-    return (void *)Result;
+    Tree->MaxDepth = Depth;
 }
-
-STATIC_INLINE uint8_t RBNodeGetColor(RB_Node *Node)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline RBT_Node * RBT_TreeGetRoot(RBT_Tree *Tree)
 {
-    VOID_STAR_TYPE Result = 0;
-    
-    Result |= (VOID_STAR_TYPE)(Node->DataAndColor);
-    Result &= (VOID_STAR_TYPE)(1);
-    
-    return (uint8_t)Result;
+    return Tree->Root;
 }
-
-STATIC_INLINE RB_Node * RBNodeGetChild(RB_Node *Node, uint8_t Side)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline uint8_t RBT_TreeCompare(RBT_Tree *Tree, RBT_Node *Node1, RBT_Node *Node2)
 {
-    if (Side == LEFT)
-        return Node->LeftChild;
+    return Tree->KeyCompare(Node1, Node2);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline uint8_t RBT_TreeConfirm(RBT_Tree *Tree, RBT_Node *Node1, RBT_Node *Node2)
+{
+    return Tree->KeyConfirm(Node1, Node2);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline RBT_Node ** RBT_TreeGetStack(RBT_Tree *Tree)
+{
+    return Tree->TraceStack;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline uint32_t RBT_TreeGetStackLength(RBT_Tree *Tree)
+{
+    return Tree->StackLength;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline uint32_t RBT_TreeGetMaxDepth(RBT_Tree *Tree)
+{
+    return Tree->MaxDepth;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline uint32_t RBT_TreeGetNodeNumber(RBT_Tree *Tree)
+{
+    return Tree->NodeNumber;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 红黑树容器抽象方法 */
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void RBT_NodeSetColor(RBT_Node *Node, RBT_Color Color)
+{
+    RBT_VoidSTarType Result = 0;
+    
+    Result |= (RBT_VoidSTarType)(Node->LeftChildAndColor);
+    Result &= (RBT_VoidSTarType)(~1);
+    Result |= (RBT_VoidSTarType)(Color & 1);
+    
+    Node->LeftChildAndColor = (RBT_Node *)(Result);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void RBT_NodeSetChild(RBT_Node *Node, RBT_Node *Child, RBT_Side Side)
+{
+    if (Side == LEFT) {
+        
+        RBT_VoidSTarType Result = 0;
+        
+        Result |= (RBT_VoidSTarType)(Node->LeftChildAndColor);
+        Result &= (RBT_VoidSTarType)(1);
+        Result |= (RBT_VoidSTarType)(Child);
+        
+        Node->LeftChildAndColor = (RBT_Node *)Result;
+    }
+    if (Side == RIGHT)
+        Node->RightChild = Child;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline RBT_Color RBT_NodeGetColor(RBT_Node *Node)
+{
+    RBT_VoidSTarType Result = 0;
+    
+    Result |= (RBT_VoidSTarType)(Node->LeftChildAndColor);
+    Result &= (RBT_VoidSTarType)(1);
+    
+    return (RBT_Color)Result;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline RBT_Node * RBT_NodeGetChild(RBT_Node *Node, RBT_Side Side)
+{
+    if (Side == LEFT) {
+        RBT_VoidSTarType Result = 0;
+        
+        Result |= (RBT_VoidSTarType)(Node->LeftChildAndColor);
+        Result &= (RBT_VoidSTarType)(~1);
+        
+        return (RBT_Node *)Result;
+    }
     if (Side == RIGHT)
         return Node->RightChild;
     return NULL;
 }
-
-STATIC_INLINE uint8_t RBNodeGetSide(RB_Node *Node, RB_Node *Parent)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline RBT_Side RBT_NodeGetSide(RBT_Node *Node, RBT_Node *Parent)
 {
-    if (Node == Parent->LeftChild)
+    RBT_VoidSTarType Result = 0;
+    
+    Result |= (RBT_VoidSTarType)(Parent->LeftChildAndColor);
+    Result &= (RBT_VoidSTarType)(~1);
+    
+    RBT_Node *LeftChildAndColor = (RBT_Node *)Result;
+    
+    if (Node == LeftChildAndColor)
         return LEFT;
     if (Node == Parent->RightChild)
         return RIGHT;
     return ERROR;
 }
-
-STATIC_INLINE uint8_t RBNodeGetOtherSide(uint8_t Side)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline RBT_Side RBT_NodeGetOtherSide(RBT_Side Side)
 {
     if (Side == LEFT)
         return RIGHT;
@@ -181,162 +244,96 @@ STATIC_INLINE uint8_t RBNodeGetOtherSide(uint8_t Side)
         return LEFT;
     return ERROR;
 }
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/* 红黑树容器抽象方法(设置) */
-
-STATIC_INLINE void RBNodeSetData(RB_Node *Node, void *Data)
-{
-    VOID_STAR_TYPE Result1 = 0;
-    VOID_STAR_TYPE Result2 = 0;
-    
-    Result1 |= (VOID_STAR_TYPE)(Node->DataAndColor);
-    Result1 &= (VOID_STAR_TYPE)(1);
-    Result2 |= (VOID_STAR_TYPE)(Data);
-    Result2 &= (VOID_STAR_TYPE)(~1);
-
-    Node->DataAndColor = (void *)(Result1 | Result2);
-}
-
-STATIC_INLINE void RBNodeSetColor(RB_Node *Node, uint8_t Color)
-{
-    VOID_STAR_TYPE Result = 0;
-    
-    Result |= (VOID_STAR_TYPE)(Node->DataAndColor);
-    Result &= (VOID_STAR_TYPE)(~1);
-    Result |= (VOID_STAR_TYPE)(Color & 1);
-    
-    Node->DataAndColor = (void *)(Result);
-}
-
-STATIC_INLINE void RBNodeSetChild(RB_Node *Node, RB_Node *Child, uint8_t Side)
-{
-    if (Side == LEFT)
-        Node->LeftChild  = Child;
-    if (Side == RIGHT)
-        Node->RightChild = Child;
-}
-
-STATIC_INLINE void RBNodeSetBlack(RB_Node *Node)
-{
-    VOID_STAR_TYPE Result = 0;
-    
-    Result |= (VOID_STAR_TYPE)(Node->DataAndColor);
-    Result &= (VOID_STAR_TYPE)(~1);
-    Result |= (VOID_STAR_TYPE)(BLACK);
-    
-    Node->DataAndColor = (void *)(Result);
-}
-    
-STATIC_INLINE void RBNodeSetRed(RB_Node *Node)
-{
-    VOID_STAR_TYPE Result = 0;
-    
-    Result |= (VOID_STAR_TYPE)(Node->DataAndColor);
-    Result &= (VOID_STAR_TYPE)(~1);
-    Result |= (VOID_STAR_TYPE)(RED);
-    
-    Node->DataAndColor = (void *)(Result);
-}
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 辅助定制宏,美化代码,剔除边缘逻辑 */
 #define RETURN_EMPTY(target) if (target) return;
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+#define RETURN_NULL(Target)  if (Target) return NULL;
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 红黑树核心动作:交换(左右旋转) */
-static void RBT_RotateNode(RB_Node **Stack, int32_t Size)
+static void RBT_RotateNode(RBT_Node **Stack, int32_t Size)
 {
     ERROR_PRINT(Stack == NULL,  "RBT_RotateNode: Stack");
     ERROR_PRINT(Size < 2,       "RBT_RotateNode: Size");
     //到栈顶位置获得父子节点
-    RB_Node *Parent = Stack[Size - 2];
-    RB_Node *Child  = Stack[Size - 1];
+    RBT_Node *Parent = Stack[Size - 2];
+    RBT_Node *Child  = Stack[Size - 1];
     //获得父子节点的关系
-    uint8_t Side        = RBNodeGetSide(Child, Parent);
-    uint8_t OtherSide   = RBNodeGetOtherSide(Side);
+    RBT_Side Side       = RBT_NodeGetSide(Child, Parent);
+    RBT_Side OtherSide  = RBT_NodeGetOtherSide(Side);
     ERROR_PRINT(Side == ERROR,  "RBT_RotateNode: Child:Side");
     //获得子节点的俩个孩子
-    RB_Node *OuterChild = RBNodeGetChild(Child, Side);
-    RB_Node *InnerChild = RBNodeGetChild(Child, OtherSide);
+    RBT_Node *OuterChild = RBT_NodeGetChild(Child, Side);
+    RBT_Node *InnerChild = RBT_NodeGetChild(Child, OtherSide);
     //存在祖父节点
     if (Size >= 3) {
         //获取祖父节点索引
-        RB_Node *GrandParent = Stack[Size - 3];
+        RBT_Node *GrandParent = Stack[Size - 3];
         //获得祖父与父亲的关系
-        uint8_t ParentSide = RBNodeGetSide(Parent, GrandParent);
+        RBT_Side ParentSide = RBT_NodeGetSide(Parent, GrandParent);
         ERROR_PRINT(ParentSide == ERROR, "RBT_RotateNode: Parent:Side");
         //现在孩子成为新的父节点
-        RBNodeSetChild(GrandParent, Child, ParentSide);
+        RBT_NodeSetChild(GrandParent, Child, ParentSide);
     }
     
-    //RBNodeSetChild(Child, OuterChild, Side);
+    //RBT_NodeSetChild(Child, OuterChild, Side);
     //更新父子关系
-    RBNodeSetChild(Child, Parent, OtherSide);
+    RBT_NodeSetChild(Child, Parent, OtherSide);
     //父亲获得对位孙子为新孩子
-    RBNodeSetChild(Parent, InnerChild, Side);
+    RBT_NodeSetChild(Parent, InnerChild, Side);
     //更新堆栈俩个节点关系
     Stack[Size - 2] = Child;
     Stack[Size - 1] = Parent;
 }
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 搜索函数(大小元) */
-static RB_Node * RBT_Search_MinOrMax(RB_Node *Node, uint32_t Side)
+static RBT_Node * RBT_Search_MinOrMax(RBT_Node *Node, uint32_t Side)
 {
     ERROR_PRINT(Node == NULL, "RBT_Search_MinOrMax: Node");
     
-    while (Node != NULL && RBNodeGetChild(Node, Side) != NULL)
-        Node = RBNodeGetChild(Node, Side);
+    while (Node != NULL && RBT_NodeGetChild(Node, Side) != NULL)
+        Node = RBT_NodeGetChild(Node, Side);
     
     //该测试没有逻辑意义
-    ERROR_PRINT(RBNodeGetChild(Node, LEFT)  != NULL &&
-                RBNodeGetChild(Node, RIGHT) != NULL,
+    ERROR_PRINT(RBT_NodeGetChild(Node, LEFT)  != NULL &&
+                RBT_NodeGetChild(Node, RIGHT) != NULL,
                 "RBT_Search_MinOrMax: Child");
     
     return Node;
 }
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 插入和删除的准备函数(节点入栈) */
-static void RBT_Stack_Prepare(RB_Tree *Tree, RB_Node *Node, RB_Node **Stack,
+static void RBT_Stack_Prepare(RBT_Tree *Tree, RBT_Node *Node, RBT_Node **Stack,
                               int32_t *Size, int32_t Remove)
 {
     ERROR_PRINT(Tree == NULL, "RBT_Stack_Prepare: Tree");
     //根节点入栈
-    Stack[(*Size = 1) - 1] = RBTreeGetRoot(Tree);
+    Stack[(*Size = 1) - 1] = RBT_TreeGetRoot(Tree);
     //自此以后从该节点向下依次渐入
     do {
         //删除动作时额外需要去停留在此处,插入动作时无需
         //因为我们关心的是按顺序排序而不是冲突修改
-        if (Remove && 
-            RBTreeComfirm(Tree, 
-            RBNodeGetData(Node), 
-            RBNodeGetData(Stack[*Size - 1])) == 0)
+        if (Remove && RBT_TreeConfirm(Tree, Node, Stack[*Size - 1]) == 0)
             return;
         //红黑树具有二叉查找树的性质,可以以此规则获得迭代记录
         int32_t Side = ERROR;
         //如果目标小于该节点
-        if (RBTreeCompare(Tree, 
-            RBNodeGetData(Node),
-            RBNodeGetData(Stack[*Size - 1])) != 0)
+        if (RBT_TreeCompare(Tree, Node, Stack[*Size - 1]) != 0)
             Side = LEFT;
         //如果目标大于等于该节点(这里是对称书写,实际应该省略)
-        if (RBTreeCompare(Tree, 
-            RBNodeGetData(Node),
-            RBNodeGetData(Stack[*Size - 1])) == 0)
+        if (RBT_TreeCompare(Tree, Node, Stack[*Size - 1]) == 0)
             Side = RIGHT;
         //再检查一次(实际使用时被裁空)
         ERROR_PRINT(Side == ERROR, "RBT_Stack_Prepare: Side");
         //获取其孩子
-        RB_Node *Child = RBNodeGetChild(Stack[*Size - 1], Side);
+        RBT_Node *Child = RBT_NodeGetChild(Stack[*Size - 1], Side);
         //检查孩子存在性决定是否继续向下搜索
         if (Child == NULL)
             break;
@@ -347,56 +344,56 @@ static void RBT_Stack_Prepare(RB_Tree *Tree, RB_Node *Node, RB_Node **Stack,
         //它停留的位置其孩子刚好为空(适合插入)
     } while (1);
 }
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 插入调整函数 */
-static void RBT_InsertNode_Adjust(RB_Node **Stack, int32_t Size)
+static void RBT_InsertNode_Adjust(RBT_Node **Stack, int32_t Size)
 {
     ERROR_PRINT(Stack == NULL, "RBT_InsertNode_Adjust: Stack");
     
     while (Size > 1) {
-        RB_Node *Node   = Stack[Size - 1];
-        RB_Node *Parent = Stack[Size - 2];
+        RBT_Node *Node   = Stack[Size - 1];
+        RBT_Node *Parent = Stack[Size - 2];
     
         //节点的左右孩子不是红色的
-        ERROR_PRINT(RBNodeGetChild(Node, LEFT) != NULL &&
-                    RBNodeGetChild(Node, LEFT) == RED,
-                    "RBT_InsertNode_Adjust: LeftChild red");
-        ERROR_PRINT(RBNodeGetChild(Node, RIGHT) != NULL &&
-                    RBNodeGetChild(Node, RIGHT) == RED,
+        ERROR_PRINT(RBT_NodeGetChild(Node, LEFT) != NULL &&
+                    RBT_NodeGetChild(Node, LEFT) == RED,
+                    "RBT_InsertNode_Adjust: LeftChildAndColor red");
+        ERROR_PRINT(RBT_NodeGetChild(Node, RIGHT) != NULL &&
+                    RBT_NodeGetChild(Node, RIGHT) == RED,
                     "RBT_InsertNode_Adjust: RightChild red");
         
         //父节点是黑节点无需调整
-        RETURN_EMPTY(RBNodeGetColor(Parent) == BLACK);
+        RETURN_EMPTY(RBT_NodeGetColor(Parent) == BLACK);
         
         //红节点一定有父亲
         ERROR_PRINT(Size < 2, "RBT_InsertNode_Adjust: lost Parent");
         
         //获取祖父节点
-        RB_Node *GrandParent = Stack[Size - 3];
+        RBT_Node *GrandParent = Stack[Size - 3];
         //确认父亲与祖父的对位关系
-        uint8_t Side         = RBNodeGetSide(Parent, GrandParent);
-        uint8_t OtherSide    = RBNodeGetOtherSide(Side);
+        RBT_Side Side       = RBT_NodeGetSide(Parent, GrandParent);
+        RBT_Side OtherSide  = RBT_NodeGetOtherSide(Side);
         ERROR_PRINT(Side == ERROR, "RBT_InsertNode_Adjust: Side");
         
         //获得父亲的兄弟节点
-        RB_Node *Uncle = RBNodeGetChild(GrandParent, OtherSide);
+        RBT_Node *Uncle = RBT_NodeGetChild(GrandParent, OtherSide);
         
         //情况1:叔叔节点是红色(父亲也是红色节点,黑色节点下沉)
-        if (Uncle != NULL && RBNodeGetColor(Uncle) == RED) {
+        if (Uncle != NULL && RBT_NodeGetColor(Uncle) == RED) {
             //1.染红祖父节点
-            RBNodeSetRed(GrandParent);
+            RBT_NodeSetColor(GrandParent, RED);
             //2.染黑叔叔节点与父亲节点
-            RBNodeSetBlack(Parent);
-            RBNodeSetBlack(Uncle);
+            RBT_NodeSetColor(Parent, BLACK);
+            RBT_NodeSetColor(Uncle, BLACK);
             //3.红色节点冲突回退到祖父节点
             Size -= 2;
             continue; 
         }
         
         //情况2:叔叔节点不存在或为黑色(本地旋转修正该树)
-        uint8_t ParentSide = RBNodeGetSide(Node, Parent);
+        RBT_Side ParentSide = RBT_NodeGetSide(Node, Parent);
         ERROR_PRINT(ParentSide == ERROR, "RBT_InsertNode_Adjust: ParentSide");
         //情况2.1:本节点与祖父节点是对位关系,需要先旋转至顺位关系
         if (ParentSide != Side) {
@@ -407,9 +404,9 @@ static void RBT_InsertNode_Adjust(RB_Node **Stack, int32_t Size)
         //1.旋转父节点与祖父节点
         RBT_RotateNode(Stack, Size - 1);
         //2.原祖父节点染成红色
-        RBNodeSetBlack(Stack[Size - 3]);
+        RBT_NodeSetColor(Stack[Size - 3], BLACK);
         //3.原父节点染成黑色
-        RBNodeSetRed(Stack[Size - 2]);
+        RBT_NodeSetColor(Stack[Size - 2], RED);
         
         //如果是到这种情况,需要注意一下流程:
         //本节点(插入时的颜色为红色),父节点为红色,兄弟节点为黑色
@@ -419,30 +416,30 @@ static void RBT_InsertNode_Adjust(RB_Node **Stack, int32_t Size)
     }
     
     //我们退出循环是因为已经到了根节点,但根节点一定是黑色的
-    RBNodeSetBlack(Stack[0]);
+    RBT_NodeSetColor(Stack[0], BLACK);
 }
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 删除调整函数 */
-static void RBT_RemoveNode_Adjust(RB_Node **Stack, int32_t Size, RB_Node *Null)
+static void RBT_RemoveNode_Adjust(RBT_Node **Stack, int32_t Size, RBT_Node *Null)
 {
     //一直调整到根节点或调整完毕
     while (Size > 1) {
-        RB_Node *Node   = Stack[Size - 1];
-        RB_Node *Parent = Stack[Size - 2];
+        RBT_Node *Node   = Stack[Size - 1];
+        RBT_Node *Parent = Stack[Size - 2];
         //获得孩子与父亲的关系
-        uint8_t Side        = RBNodeGetSide(Node, Parent);
-        uint8_t OtherSide   = RBNodeGetOtherSide(Side);
+        RBT_Side Side       = RBT_NodeGetSide(Node, Parent);
+        RBT_Side OtherSide  = RBT_NodeGetOtherSide(Side);
         ERROR_PRINT(Side == ERROR, "RBT_RemoveNode_Adjust: Side");
         
         //获得兄弟节点
-        RB_Node *Sibling    = RBNodeGetChild(Parent, OtherSide);
+        RBT_Node *Sibling    = RBT_NodeGetChild(Parent, OtherSide);
         //删除一个黑色节点导致的不平衡,兄弟节点一定存在
         ERROR_PRINT(Sibling == NULL, "RBT_RemoveNode_Adjust: Sibling");
         
         //情况1:如果兄弟节点是红色的
-        if (RBNodeGetColor(Sibling) == RED) {
+        if (RBT_NodeGetColor(Sibling) == RED) {
             //要注意的一点:如果兄弟节点为红色
             //那么父节点和它的所有子节点必为黑色
             //1.兄弟节点覆盖当前节点
@@ -450,9 +447,9 @@ static void RBT_RemoveNode_Adjust(RB_Node **Stack, int32_t Size, RB_Node *Null)
             //2.兄弟节点与父节点旋转
             RBT_RotateNode(Stack, Size);
             //3.原父节点下沉为兄弟节点,染成红色
-            RBNodeSetRed(Parent);
+            RBT_NodeSetColor(Parent, RED);
             //4.原兄弟节点晋升为父节点,染成黑色
-            RBNodeSetBlack(Sibling);
+            RBT_NodeSetColor(Sibling, BLACK);
             //对兄弟节点旋转意味着自己下沉一级,将自己重新加入到集合中
             //现在它是原父节点(现在兄弟节点)的子节点
             //5.当前节点重新加入枝干
@@ -460,7 +457,7 @@ static void RBT_RemoveNode_Adjust(RB_Node **Stack, int32_t Size, RB_Node *Null)
             //6.重新定位父节点
             Parent = Stack[Size - 2];
             //7.重新定位兄弟节点
-            Sibling = RBNodeGetChild(Parent, OtherSide);
+            Sibling = RBT_NodeGetChild(Parent, OtherSide);
         }
         
         //注意,旋转到下一级的时候
@@ -468,44 +465,44 @@ static void RBT_RemoveNode_Adjust(RB_Node **Stack, int32_t Size, RB_Node *Null)
         //那么树在旋转之前本身就不是平衡的
         ERROR_PRINT(Sibling == NULL, "RBT_RemoveNode_Adjust: Sibling");
         //获得兄弟节点的孩子们
-        RB_Node *LeftChild  = RBNodeGetChild(Sibling, LEFT);
-        RB_Node *RightChild = RBNodeGetChild(Sibling, RIGHT);
+        RBT_Node *LeftChildAndColor  = RBT_NodeGetChild(Sibling, LEFT);
+        RBT_Node *RightChild = RBT_NodeGetChild(Sibling, RIGHT);
         
         //情况2:兄弟孩子都是黑色的
-        if ((LeftChild  == NULL || RBNodeGetColor(LeftChild) == BLACK) &&
-            (RightChild == NULL || RBNodeGetColor(RightChild) == BLACK)) {
+        if ((LeftChildAndColor  == NULL || RBT_NodeGetColor(LeftChildAndColor) == BLACK) &&
+            (RightChild == NULL || RBT_NodeGetColor(RightChild) == BLACK)) {
             
             //需要删除节点,断开关联
             if (Node == Null)
-                RBNodeSetChild(Parent, NULL, Side);
+                RBT_NodeSetChild(Parent, NULL, Side);
             
             //兄弟只有黑孩子的情况有简单的解决办法
             //1.将新兄弟节点染成红色
-            RBNodeSetRed(Sibling);
+            RBT_NodeSetColor(Sibling, RED);
             
-            if (RBNodeGetColor(Parent) == BLACK) {
+            if (RBT_NodeGetColor(Parent) == BLACK) {
                 //2.父结点缺少一个黑色,向上迭代
                 Size--;
                 continue;
             } else {
                 //重新上色使整个树OK
                 //(父节点是红色直接染成黑色即可完成)
-                RBNodeSetBlack(Parent);
+                RBT_NodeSetColor(Parent, BLACK);
                 return;
             }
         }
         
-        ERROR_PRINT((LeftChild  == NULL || RBNodeGetColor(LeftChild) == BLACK) &&
-                    (RightChild == NULL || RBNodeGetColor(RightChild) == BLACK), 
+        ERROR_PRINT((LeftChildAndColor  == NULL || RBT_NodeGetColor(LeftChildAndColor) == BLACK) &&
+                    (RightChild == NULL || RBT_NodeGetColor(RightChild) == BLACK), 
                      "RBT_RemoveNode_Adjust: Child");
         //我们知道兄弟姐妹至少有一个红色的孩子
         //固定它,使远/外的位置(即在N的对面)肯定是红色的
         //如果远处位置是红色的(即在N的对面)不管里面是红是黑都不重要
-        RB_Node *OuterChild = RBNodeGetChild(Sibling, OtherSide);
+        RBT_Node *OuterChild = RBT_NodeGetChild(Sibling, OtherSide);
         //情况3:兄弟远处位置不存在红色节点
-        if ((OuterChild == NULL || RBNodeGetColor(OuterChild) == BLACK)) {
+        if ((OuterChild == NULL || RBT_NodeGetColor(OuterChild) == BLACK)) {
             //1.获得内部节点
-            RB_Node *InnerChild = RBNodeGetChild(Sibling, Side);
+            RBT_Node *InnerChild = RBT_NodeGetChild(Sibling, Side);
             //2.兄弟节点写入到栈顶
             Stack[Size - 1] = Sibling;
             //3.内部的红节点入栈
@@ -513,13 +510,13 @@ static void RBT_RemoveNode_Adjust(RB_Node **Stack, int32_t Size, RB_Node *Null)
             //4.旋转内部节点与兄弟节点
             RBT_RotateNode(Stack, Size);
             //5.原兄弟节点下沉为远端节点,染成红色
-            RBNodeSetRed(Sibling);
+            RBT_NodeSetColor(Sibling, RED);
             //6.原内部节点晋升为兄弟节点,染成黑色
-            RBNodeSetBlack(InnerChild);
+            RBT_NodeSetColor(InnerChild, BLACK);
             //7.更新兄弟节点
             Sibling = Stack[Size - 2];
             //8.更新远端节点
-            OuterChild = RBNodeGetChild(Sibling, OtherSide);
+            OuterChild = RBT_NodeGetChild(Sibling, OtherSide);
             //9.栈顶恢复成当前节点
             Stack[Size - 2] = Node;
             //10.回退栈顶
@@ -528,14 +525,14 @@ static void RBT_RemoveNode_Adjust(RB_Node **Stack, int32_t Size, RB_Node *Null)
         
         //最后,兄弟结点必须在远/外插槽中有一个红色的子结点
         //我们可以旋转兄弟和我们的父元素并重新着色以生成一个有效的树
-        ERROR_PRINT((OuterChild == NULL || RBNodeGetColor(OuterChild) == BLACK),
+        ERROR_PRINT((OuterChild == NULL || RBT_NodeGetColor(OuterChild) == BLACK),
                      "RBT_RemoveNode_Adjust: OuterChild");
         //情况4:兄弟远处位置存在红色节点
         //1.交换父亲与兄弟的颜色
-        RBNodeSetColor(Sibling, RBNodeGetColor(Parent));
-        RBNodeSetBlack(Parent);
+        RBT_NodeSetColor(Sibling, RBT_NodeGetColor(Parent));
+        RBT_NodeSetColor(Parent, BLACK);
         //2.远端红孩子染成黑色补色
-        RBNodeSetBlack(OuterChild);
+        RBT_NodeSetColor(OuterChild, BLACK);
         //3.栈顶更新为兄弟节点
         Stack[Size - 1] = Sibling;
         //4.旋转兄弟节点与父节点
@@ -543,84 +540,78 @@ static void RBT_RemoveNode_Adjust(RB_Node **Stack, int32_t Size, RB_Node *Null)
         
         //需要删除节点,断开关联
         if (Node == Null)
-            RBNodeSetChild(Parent, NULL, Side);
+            RBT_NodeSetChild(Parent, NULL, Side);
         
         return;
     }
 }
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 插入函数 */
-static void RBT_InsertNode_All(RB_Tree *Tree, RB_Node *Node)
+static void RBT_InsertNode_All(RBT_Tree *Tree, RBT_Node *Node)
 {
     ERROR_PRINT(Tree == NULL,             "RBT_InsertNode_All: Tree");
     ERROR_PRINT(Node == NULL,             "RBT_InsertNode_All: Node");
     ERROR_PRINT(Tree->KeyCompare == NULL, "RBT_InsertNode_All: KeyCompare");
 
     //辅助初始化节点(可能需要)
-    RBNodeSetChild(Node, NULL, LEFT);
-    RBNodeSetChild(Node, NULL, RIGHT);
+    RBT_NodeSetChild(Node, NULL, LEFT);
+    RBT_NodeSetChild(Node, NULL, RIGHT);
 
     //第一次插入
-    if (RBTreeGetRoot(Tree) == NULL) {
-        RBTreeSetRoot(Tree, Node);
-        RBTreeSetMaxDepth(Tree, 1);
-        RBNodeSetBlack(Node);
+    if (RBT_TreeGetRoot(Tree) == NULL) {
+        RBT_TreeSetRoot(Tree, Node);
+        RBT_TreeSetMaxDepth(Tree, 1);
+        RBT_NodeSetColor(Node, BLACK);
         return;
     } 
 
     //1.获得其对应的栈
-    RB_Node **Stack = RBTreeGetStack(Tree);
+    RBT_Node **Stack = RBT_TreeGetStack(Tree);
     //2.获取插入的枝干
     int32_t Size = -1;
     RBT_Stack_Prepare(Tree, Node, Stack, &Size, 0);
     //3.获得父节点
-    RB_Node *Parent = Stack[Size - 1];
+    RBT_Node *Parent = Stack[Size - 1];
     //4.获得父子节点的关联
-    uint8_t Side = ERROR;
+    RBT_Side Side = ERROR;
     
-    if (RBTreeCompare(Tree, 
-        RBNodeGetData(Node), 
-        RBNodeGetData(Parent)) != 0)
+    if (RBT_TreeCompare(Tree, Node, Parent) != 0)
         Side = LEFT;
-    if (RBTreeCompare(Tree, 
-        RBNodeGetData(Node), 
-        RBNodeGetData(Parent)) == 0)
+    if (RBT_TreeCompare(Tree, Node, Parent) == 0)
         Side = RIGHT;
     //5.建立亲子关系
-    RBNodeSetChild(Parent, Node, Side);
+    RBT_NodeSetChild(Parent, Node, Side);
     //6.染红插入的节点
-    RBNodeSetRed(Node);
+    RBT_NodeSetColor(Node, RED);
     //7.当前节点入栈
     Stack[Size++] = Node;
     //8.修复该树
     RBT_InsertNode_Adjust(Stack, Size);
     //更新树深
-    if (Size > RBTreeGetMaxDepth(Tree))
-        RBTreeSetMaxDepth(Tree, Size);
+    if (Size > RBT_TreeGetMaxDepth(Tree))
+        RBT_TreeSetMaxDepth(Tree, Size);
     //可能调整到根节点
-    RBTreeSetRoot(Tree, Stack[0]);
+    RBT_TreeSetRoot(Tree, Stack[0]);
     //树的根是黑色的
-    ERROR_PRINT(RBNodeGetColor(Stack[0]) != BLACK, "RBT_InsertNode_All: Root");
+    ERROR_PRINT(RBT_NodeGetColor(Stack[0]) != BLACK, "RBT_InsertNode_All: Root");
 }
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 删除函数 */
-static void RBT_RemoveNode_All(RB_Tree *Tree, RB_Node *Node)
+static void RBT_RemoveNode_All(RBT_Tree *Tree, RBT_Node *Node)
 {
     ERROR_PRINT(Tree == NULL, "RBT_RemoveNode_All: Tree");
     
     //1.获得其对应的栈
-    RB_Node **Stack = RBTreeGetStack(Tree);
+    RBT_Node **Stack = RBT_TreeGetStack(Tree);
     //2.获取删除的枝干
     int32_t Size = -1;
     RBT_Stack_Prepare(Tree, Node, Stack, &Size, 1);
     //3.没找到要删除节点
-    if (RBTreeComfirm(Tree,
-        RBNodeGetData(Node),
-        RBNodeGetData(Stack[Size - 1])) != 0)
+    if (RBT_TreeConfirm(Tree, Node, Stack[Size - 1]) != 0)
         return;
     
     //实际上非侵入式的数据结构直接交换其子节点数据索引即可完成
@@ -630,22 +621,22 @@ static void RBT_RemoveNode_All(RB_Tree *Tree, RB_Node *Node)
     //如果我们有两个,那么选择边0的“最大”子节点(最小的1也可以)
     //并与它交换我们在树中的位置
     //4.获得目标节点
-    if (RBNodeGetChild(Node, LEFT)  != NULL &&
-        RBNodeGetChild(Node, RIGHT) != NULL) {
+    if (RBT_NodeGetChild(Node, LEFT)  != NULL &&
+        RBT_NodeGetChild(Node, RIGHT) != NULL) {
         int32_t Size0 = Size;
         //1.获得左孩子
-        RB_Node *Child = RBNodeGetChild(Node, LEFT);
+        RBT_Node *Child = RBT_NodeGetChild(Node, LEFT);
         //2.保存当前节点父亲
-        RB_Node *HighParent = Size > 1 ? Stack[Size - 2] : NULL;
+        RBT_Node *HighParent = Size > 1 ? Stack[Size - 2] : NULL;
         //3.左孩子入栈
         Stack[Size++] = Child;
         //4.迭代寻找其右孩子
-        while (RBNodeGetChild(Child, RIGHT) != NULL) {
-            Child = RBNodeGetChild(Child, RIGHT);
+        while (RBT_NodeGetChild(Child, RIGHT) != NULL) {
+            Child = RBT_NodeGetChild(Child, RIGHT);
             Stack[Size++] = Child;
         }
         //5.获得要交换的孩子的父亲
-        RB_Node *LowParent = Stack[Size - 2];
+        RBT_Node *LowParent = Stack[Size - 2];
 
         //这里有一些特殊情况需要检查
         //原则上,这是通过在节点之间交换子指针
@@ -656,97 +647,94 @@ static void RBT_RemoveNode_All(RB_Tree *Tree, RB_Node *Node)
         //且没有父指针,所以跟踪这个结构的堆栈也需要交换!
         
         if (HighParent == NULL)
-            RBTreeSetRoot(Tree, Child);
+            RBT_TreeSetRoot(Tree, Child);
         if (HighParent != NULL) {
-            uint8_t Side = RBNodeGetSide(Node, HighParent);
+            RBT_Side Side = RBT_NodeGetSide(Node, HighParent);
             ERROR_PRINT(Side == ERROR, "RBT_RemoveNode_All: Side");
             //为高父亲设置低孩子
-            RBNodeSetChild(HighParent, Child, Side);
+            RBT_NodeSetChild(HighParent, Child, Side);
         }
         
         //直属亲子关系
         if (LowParent == Node) {
             //交换亲子关系(交换它们的左孩子)
-            RBNodeSetChild(Node, RBNodeGetChild(Child, LEFT), LEFT);
-            RBNodeSetChild(Child, Node, LEFT);
+            RBT_NodeSetChild(Node, RBT_NodeGetChild(Child, LEFT), LEFT);
+            RBT_NodeSetChild(Child, Node, LEFT);
         }
         //跨度亲子关系
         if (LowParent != Node) {
-            uint8_t LowSide = RBNodeGetSide(Child, LowParent);
+            RBT_Side LowSide = RBT_NodeGetSide(Child, LowParent);
             ERROR_PRINT(LowSide == ERROR, "RBT_RemoveNode_All: LowSide");
             //更新低父亲指向高孩子
-            RBNodeSetChild(LowParent, Node, LowSide);
+            RBT_NodeSetChild(LowParent, Node, LowSide);
             //交换俩个节点的左孩子(可能存在)
-            RB_Node *Temp = RBNodeGetChild(Node, LEFT);
-            RBNodeSetChild(Node, RBNodeGetChild(Child, LEFT), LEFT);
-            RBNodeSetChild(Child, Temp, LEFT);
+            RBT_Node *Temp = RBT_NodeGetChild(Node, LEFT);
+            RBT_NodeSetChild(Node, RBT_NodeGetChild(Child, LEFT), LEFT);
+            RBT_NodeSetChild(Child, Temp, LEFT);
         }
     
         //交换俩个节点的右孩子
-        RBNodeSetChild(Child, RBNodeGetChild(Node, RIGHT), RIGHT);
+        RBT_NodeSetChild(Child, RBT_NodeGetChild(Node, RIGHT), RIGHT);
         //原child的右孩子一定不存在
-        RBNodeSetChild(Node, NULL, RIGHT);
+        RBT_NodeSetChild(Node, NULL, RIGHT);
         //更新堆栈关系
-        Stack[Size - 1]  = (RB_Node *)(((VOID_STAR_TYPE)(Stack[Size - 1])) ^
-                                       ((VOID_STAR_TYPE)(Stack[Size0 - 1])));
-        Stack[Size0 - 1] = (RB_Node *)(((VOID_STAR_TYPE)(Stack[Size - 1])) ^
-                                       ((VOID_STAR_TYPE)(Stack[Size0 - 1])));
-        Stack[Size - 1]  = (RB_Node *)(((VOID_STAR_TYPE)(Stack[Size - 1])) ^
-                                       ((VOID_STAR_TYPE)(Stack[Size0 - 1])));
-    
+        RBT_Node *Temp1 = Stack[Size - 1];
+        RBT_Node *Temp2 = Stack[Size0 - 1];
+        Stack[Size - 1] = Temp2;
+        Stack[Size0 - 1] = Temp1;
         //交换俩个节点颜色
-        uint8_t Color = RBNodeGetColor(Node);
-        RBNodeSetColor(Node, RBNodeGetColor(Child));
-        RBNodeSetColor(Child, Color);
+        RBT_Color Color = RBT_NodeGetColor(Node);
+        RBT_NodeSetColor(Node, RBT_NodeGetColor(Child));
+        RBT_NodeSetColor(Child, Color);
     }
     
-    ERROR_PRINT(RBNodeGetChild(Node, LEFT)  != NULL &&
-                RBNodeGetChild(Node, RIGHT) != NULL,
+    ERROR_PRINT(RBT_NodeGetChild(Node, LEFT)  != NULL &&
+                RBT_NodeGetChild(Node, RIGHT) != NULL,
                 "RBT_RemoveNode_All: Child");
 
     //5.获得唯一的孩子,或者没有
-    RB_Node *Child = (RBNodeGetChild(Node, LEFT) == NULL ?
-                      RBNodeGetChild(Node, RIGHT) :
-                      RBNodeGetChild(Node, LEFT));
+    RBT_Node *Child = (RBT_NodeGetChild(Node, LEFT) == NULL ?
+                      RBT_NodeGetChild(Node, RIGHT) :
+                      RBT_NodeGetChild(Node, LEFT));
 
     //6.如果是删除根节点
     if (Size < 2) {
-        RBTreeSetRoot(Tree, Child);
+        RBT_TreeSetRoot(Tree, Child);
         if (Child != NULL)
-            RBNodeSetBlack(Child);
+            RBT_NodeSetColor(Child, BLACK);
         if (Child == NULL)
-            RBTreeSetMaxDepth(Tree, 0);
+            RBT_TreeSetMaxDepth(Tree, 0);
         return;
     }
     
     //7.获得要删除节点的父亲
-    RB_Node *Parent = Stack[Size - 2];
+    RBT_Node *Parent = Stack[Size - 2];
 
     //8.调整修复树
     //删除的节点没有孩子
     if (Child == NULL) {
         //红色的无子节点可以直接删除
-        if (RBNodeGetColor(Node) == RED) {
-            uint8_t Side = RBNodeGetSide(Node, Parent);
+        if (RBT_NodeGetColor(Node) == RED) {
+            RBT_Side Side = RBT_NodeGetSide(Node, Parent);
             ERROR_PRINT(Side == ERROR, "RBT_RemoveNode_All: Side");
-            RBNodeSetChild(Parent, NULL, Side);
+            RBT_NodeSetChild(Parent, NULL, Side);
         }
         //特殊情况:如果要删除的节点是没有子节点的
         //那么我们在做缺少的黑色旋转时将它留在原地
         //当它们隔离它时将用适当的NULL替换它       
         //调整去除无子的黑色节点(此时节点未删除)
-        if (RBNodeGetColor(Node) == BLACK)
+        if (RBT_NodeGetColor(Node) == BLACK)
             RBT_RemoveNode_Adjust(Stack, Size, Node);
     }
     //删除的节点有一个孩子
     if (Child != NULL) {
-        uint8_t Side = RBNodeGetSide(Node, Parent);
+        RBT_Side Side = RBT_NodeGetSide(Node, Parent);
         ERROR_PRINT(Side == ERROR, "RBT_RemoveNode_All: Side");
-        RBNodeSetChild(Parent, Child, Side);//删除节点
+        RBT_NodeSetChild(Parent, Child, Side);//删除节点
         //如果该孩子可以直接染色修复
-        if (RBNodeGetColor(Node)  == RED ||
-            RBNodeGetColor(Child) == RED)
-            RBNodeSetBlack(Child);
+        if (RBT_NodeGetColor(Node)  == RED ||
+            RBT_NodeGetColor(Child) == RED)
+            RBT_NodeSetColor(Child, BLACK);
         else {
             //俩个节点都为黑色,但已经删除了node节点,让孩子节点顶替上去
             Stack[Size - 1] = Child;
@@ -756,137 +744,147 @@ static void RBT_RemoveNode_All(RB_Tree *Tree, RB_Node *Node)
     }
 
     //我们可能已经旋转到根了
-    RBTreeSetRoot(Tree, Stack[0]);
+    RBT_TreeSetRoot(Tree, Stack[0]);
 }
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 查找函数 */
-static RB_Node * RBT_SearchNode_Only(RB_Tree *Tree, void *TargetData)
+static RBT_Node * RBT_SearchNode_Only(RBT_Tree *Tree, RBT_Node *Target)
 {
     ERROR_PRINT(Tree == NULL,             "RBT_SearchNode_Only: Tree");
     ERROR_PRINT(Tree->KeyCompare == NULL, "RBT_SearchNode_Only: KeyCompare");
     ERROR_PRINT(Tree->KeyConfirm == NULL, "RBT_SearchNode_Only: KeyConfirm");
     
-    RB_Node *Node = RBTreeGetRoot(Tree);
+    RBT_Node *Node = RBT_TreeGetRoot(Tree);
     while (Node != NULL) {
         //关键字匹配成功,返回
-        if (RBTreeComfirm(Tree, TargetData, 
-            RBNodeGetData(Node)) == 0)
+        if (RBT_TreeConfirm(Tree, Target, Node) == 0)
             return Node;
         
         //该结点小于此本结点,到左子树去
-        if (RBTreeCompare(Tree, TargetData,
-            RBNodeGetData(Node)) != 0) {
-            Node = RBNodeGetChild(Node, LEFT);
+        if (RBT_TreeCompare(Tree, Target, Node) != 0) {
+            Node = RBT_NodeGetChild(Node, LEFT);
             continue;
         }
         
         //该结点大于此本结点,到右子树去
-        if (RBTreeCompare(Tree, TargetData,
-            RBNodeGetData(Node)) == 0) {
-            Node = RBNodeGetChild(Node, RIGHT);
+        if (RBT_TreeCompare(Tree, Target, Node) == 0) {
+            Node = RBT_NodeGetChild(Node, RIGHT);
             continue;
         }
     }
     
     return NULL;
 }
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 上层接口封装 */
-
-void RBT_InsertNode(void *Tree, void *Node)
-{
-    RBT_InsertNode_All((RB_Tree *)Tree, (RB_Node *)Node);
-}
-
-void RBT_RemoveNode(void *Tree, void *Data)
-{
-    RB_Node *Node = RBT_SearchNode_Only((RB_Tree *)Tree, Data);
-    if (Node == NULL)
-        return;
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void RBT_InsertNode(RBT_Tree *Tree, RBT_Node *Node)
+{    
+    RETURN_EMPTY(Tree == NULL);
+    RETURN_EMPTY(Node == NULL);
     
-    RBT_RemoveNode_All((RB_Tree *)Tree, Node);
+    RBT_InsertNode_All(Tree, Node);
 }
-
-void * RBT_SearchData(void *Tree, void *TargetData)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void RBT_RemoveNode(RBT_Tree *Tree, RBT_Node *Node)
 {
-    RB_Node *Temp = RBT_SearchNode_Only((RB_Tree *)Tree, TargetData);
-
-    return Temp == NULL ? NULL : RBNodeGetData(Temp);
+    RETURN_EMPTY(Tree == NULL);
+    RETURN_EMPTY(Node == NULL);
+    
+    RBT_RemoveNode_All(Tree, Node);
 }
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/* 辅助动作 */
-
-void RBT_SetTree(void *Tree, Compare k_compare, Comfirm k_confirm)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+RBT_Node * RBT_SearchNode(RBT_Tree *Tree, RBT_Node *Node)
 {
-    RBTreeSetRoot((RB_Tree *)Tree, NULL);
-    RBTreeSetCompare((RB_Tree *)Tree, k_compare);
-    RBTreeSetComfirm((RB_Tree *)Tree, k_confirm);
+    return RBT_SearchNode_Only(Tree, Node);
 }
-
-void RBT_SetRoot(void *Tree, void *Node)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 上层接口,辅助构建动作 */
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void RBT_ResetTree(RBT_Tree *Tree)
 {
-    RBTreeSetRoot((RB_Tree *)Tree, (RB_Node *)Node);
+    RETURN_EMPTY(Tree == NULL);
+    RBT_TreeSetRoot(Tree, NULL);
+    RBT_TreeSetCompare(Tree, NULL);
+    RBT_TreeSetConfirm(Tree, NULL);
 }
-
-void RBT_GetRoot(void *Tree, void **Node)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void RBT_ResetNode(RBT_Node *Node)
 {
-    *Node = (void *)RBTreeGetRoot((RB_Tree *)Tree);
+    RBT_NodeSetChild(Node, NULL, LEFT);
+    RBT_NodeSetChild(Node, NULL, RIGHT);
 }
-
-void RBT_SetNodeData(void *Node, void *Data)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void RBT_SetTree(RBT_Tree *Tree, RBT_KeyCompare Compare, RBT_KeyConfirm Confirm)
 {
-    RBNodeSetData((RB_Node *)Node, Data);
+    RBT_TreeSetRoot(Tree, NULL);
+    RBT_TreeSetCompare(Tree, Compare);
+    RBT_TreeSetConfirm(Tree, Confirm);
 }
-
-void RBT_GetNodeData(void *Node, void **Data)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void RBT_SetRoot(RBT_Tree *Tree, RBT_Node *Node)
 {
-    *Data = RBNodeGetData((RB_Node *)Node);
+    RBT_TreeSetRoot(Tree, Node);
 }
-
-void RBT_SetTreeStack(void *Tree, void *Stack, uint32_t Length)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void RBT_GetRoot(RBT_Tree *Tree, RBT_Node **Node)
 {
-    RBTreeSetStack((RB_Tree *)Tree, (RB_Node **)Stack);
-    RBTreeSetStackLength((RB_Tree *)Tree, Length);
+    RBT_TreeGetRoot(Tree);
 }
-
-void RBT_GetTreeStack(void *Tree, void **Stack, uint32_t *Length)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void RBT_SetTreeStack(RBT_Tree *Tree, RBT_Node **Stack, uint32_t Length)
 {
-    *(RB_Node **)Stack = RBTreeGetStack((RB_Tree *)Tree);
-    *Length            = RBTreeGetStackLength((RB_Tree *)Tree);
+    RBT_TreeSetStack(Tree, Stack);
+    RBT_TreeSetStackLength(Tree, Length);
 }
-
-uint32_t RBT_GetMaxDepth(void *Tree)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void RBT_GetTreeStack(RBT_Tree *Tree, RBT_Node ***Stack, uint32_t *Length)
 {
-    return RBTreeGetMaxDepth((RB_Tree *)Tree);
+    *Stack  = RBT_TreeGetStack(Tree);
+    *Length = RBT_TreeGetStackLength(Tree);
 }
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/* 额外的辅助函数,为外界提供数据的建立空间 */
-
-uint32_t RBT_GetBytes_Container(void)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+uint32_t RBT_GetMaxDepth(RBT_Tree *Tree)
 {
-    return sizeof(RB_Node);
+    return RBT_TreeGetMaxDepth(Tree);
 }
-
-uint32_t RBT_GetBytes_Set(void)
-{
-    return sizeof(RB_Tree);
-}
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+typedef void (*RBT_Print)(RBT_Node *Node, RBT_Color Color);
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 窥探:数据的层序遍历并打印 */
-void RBT_Sequence_Traversal(void *Tree, Print Printf, void *Queue, int32_t Length)
+void RBT_Sequence_Traversal(RBT_Tree *Tree, RBT_Print Printf, RBT_Node **Queue, int32_t Length)
 {
     ERROR_PRINT(Tree == NULL,   "RBT_Sequence_Traversal: Tree");
     ERROR_PRINT(Queue == NULL,  "RBT_Sequence_Traversal: Tree");
@@ -897,15 +895,15 @@ void RBT_Sequence_Traversal(void *Tree, Print Printf, void *Queue, int32_t Lengt
     int32_t QueueHead = 0;
     int32_t QueueTail = 0;
     int32_t ElementNumber = 0;
-    ((RB_Node **)Queue)[QueueTail++] = RBTreeGetRoot((RB_Tree *)Tree);
+    Queue[QueueTail++] = RBT_TreeGetRoot(Tree);
     ElementNumber++;
     do {
         //节点出队列
-        RB_Node *Node = ((RB_Node **)Queue)[QueueHead++];
+        RBT_Node *Node = Queue[QueueHead++];
         ElementNumber--;
         RETURN_EMPTY(Node == NULL);
         //节点打印
-        Printf(Node, RBNodeGetData(Node), RBNodeGetColor(Node));
+        Printf(Node, RBT_NodeGetColor(Node));
         //这是一个循环队列
         if (QueueHead >= Length)
             QueueHead = 0;
@@ -913,18 +911,18 @@ void RBT_Sequence_Traversal(void *Tree, Print Printf, void *Queue, int32_t Lengt
             QueueTail = 0; 
         
         //子节点入队列
-        RB_Node *LeftChild  = RBNodeGetChild(Node, LEFT);
-        RB_Node *RightChild = RBNodeGetChild(Node, RIGHT);
+        RBT_Node *LeftChildAndColor  = RBT_NodeGetChild(Node, LEFT);
+        RBT_Node *RightChild = RBT_NodeGetChild(Node, RIGHT);
  
         //左孩子入队列
-        if (LeftChild != NULL) {
-            ((RB_Node **)Queue)[QueueTail++] = LeftChild;
+        if (LeftChildAndColor != NULL) {
+            Queue[QueueTail++] = LeftChildAndColor;
             ElementNumber++;
         }
         
         //右孩子入队列
         if (RightChild != NULL) {
-            ((RB_Node **)Queue)[QueueTail++] = RightChild;
+            Queue[QueueTail++] = RightChild;
             ElementNumber++;
         }
         
@@ -932,7 +930,110 @@ void RBT_Sequence_Traversal(void *Tree, Print Printf, void *Queue, int32_t Lengt
         ERROR_PRINT(ElementNumber >= Length, "RBT_Sequence_Traversal: overflow");
     } while (ElementNumber > 0);
 }
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 验证一棵树是否为红黑树(内部检查) */
+uint8_t RBT_InternalCheck(RBT_Tree *Tree, RBT_Node **Stack, int32_t *Flags, int32_t Length)
+{
+    /* 验证:1根节点不是黑色 */
+    if (RBT_TreeGetRoot(Tree) == NULL)
+        return 1;
+    if (RBT_NodeGetColor(RBT_TreeGetRoot(Tree)) == RED)
+        return 0;
+    
+    /* 初始化flags的值 */
+    for (int32_t Index = 0; Index < Length; Flags[Index++] = LEFT);
+    /* 深度优先搜索,使用flags同步维护栈进动情况 */
+    RBT_Node *Node       = NULL;
+    RBT_Node *LeftChild  = NULL;
+    RBT_Node *RightChild = NULL;
+    /* 从根节点开始从左进动 */
+    /* 入栈节点只有当左右孩子都使用完毕后才退栈 */
+    int32_t MaxLength = 0;//一条从根到叶子的最大度
+    int32_t CurrentBlackLength = 0;
+    int32_t StackTop = 0;//栈顶位置
+    
+    /* 1.根节点入栈 */
+    Stack[StackTop++] = RBT_TreeGetRoot(Tree);
+    CurrentBlackLength++;
+    Flags[StackTop - 1] = LEFT;
+    
+    do {
+        /* 2.获得栈顶元素的左右孩子 */
+        Node       = Stack[StackTop - 1];
+        LeftChild  = RBT_NodeGetChild(Node, LEFT);
+        RightChild = RBT_NodeGetChild(Node, RIGHT);
+        
+        /* 验证:2红色节点不相连 */
+        if (LeftChild != NULL)
+            if (RBT_NodeGetColor(Node) == RED && RBT_NodeGetColor(LeftChild) == RED)
+                    return 0;
+                    
+        if (RightChild != NULL)
+            if (RBT_NodeGetColor(Node) == RED && RBT_NodeGetColor(RightChild) == RED)
+                    return 0;
+        
+        /* 3.左孩子未曾进过栈 */
+        if (Flags[StackTop - 1] == LEFT) {
+            /* 3.1.标记左孩子进过栈,下一次该右孩子进了 */
+            Flags[StackTop - 1] = RIGHT;
+            /* 左孩子存在,可以进栈 */
+            if(LeftChild != NULL) {
+                Stack[StackTop++] = LeftChild;
+                /* 如果左孩子是黑色的,计算其度 */
+                if (RBT_NodeGetColor(LeftChild) == BLACK)
+                    CurrentBlackLength++;
+                Flags[StackTop - 1] = LEFT;//左孩子的左孩子未曾进栈
+                continue;
+            } else {
+                /* 当前节点不存在左孩子 */
+                /* 说明一条从根到叶子的路径产生了 */
+                if (MaxLength == 0)
+                    MaxLength = CurrentBlackLength;
+                /* 验证:路径黑色节点不一致 */
+                if (MaxLength != CurrentBlackLength)
+                    return 0;
+            }
+        }
+        
+        /* 4.右孩子未曾进过栈 */
+        if (Flags[StackTop - 1] == RIGHT) {
+            /* 3.2标记右孩子进过栈,下一次该退栈了 */
+            Flags[StackTop - 1] = ERROR;
+            /* 右孩子存在,可以进栈 */
+            if(RightChild != NULL) {
+                Stack[StackTop++] = RightChild;
+                /* 如果右孩子是黑色的,计算其度 */
+                if (RBT_NodeGetColor(RightChild) == BLACK)
+                    CurrentBlackLength++;
+                Flags[StackTop - 1] = LEFT;//右孩子的左孩子未曾进栈
+                continue;
+            } else {
+                /* 当前节点不存在右孩子, 说明一条从根到叶子的路径产生了 */
+                if (MaxLength == 0)
+                    MaxLength = CurrentBlackLength;
+                /* 验证:路径黑色节点不一致 */
+                if (MaxLength != CurrentBlackLength)
+                    return 0;
+            }
+        }
+        
+        /* 5.都进栈了,当前节点该退栈了 */
+        if (Flags[StackTop - 1] == ERROR) {
+            if (RBT_NodeGetColor(Node) == BLACK)
+                    CurrentBlackLength--; 
+            StackTop--;
+        }
+        
+        /* 堆栈太小,警告 */
+        ERROR_PRINT(StackTop >= Length, "RBT_InternalCheck: Overflow");
+    } while (StackTop > 0);
+    
+    /* 6.退栈完毕了,验证完成 */
+    return 1;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
