@@ -31,7 +31,7 @@ typedef struct RedBlackTree_Node {
 typedef struct RedBlackTree_Tree {
     RBT_Node *Root;
     uint8_t (*KeyCompare)(RBT_Node *ThisNode, RBT_Node *ThatNode);
-    uint8_t (*KeyComfirm)(RBT_Node *ThisNode, RBT_Node *ThatNode);
+    uint8_t (*KeyConfirm)(RBT_Node *ThisNode, RBT_Node *ThatNode);
 } RBT_Tree;
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -39,7 +39,7 @@ typedef struct RedBlackTree_Tree {
 /* ThisNode严格小于ThatNode返回非零值 */
 typedef uint8_t (*RBT_KeyCompare)(RBT_Node *ThisNode, RBT_Node *ThatNode);
 /* ThisNode与ThatNode的关键字一致返回0 */
-typedef uint8_t (*RBT_KeyComfirm)(RBT_Node *ThisNode, RBT_Node *ThatNode);
+typedef uint8_t (*RBT_KeyConfirm)(RBT_Node *ThisNode, RBT_Node *ThatNode);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -72,9 +72,9 @@ static inline void RBT_TreeSetCompare(RBT_Tree *Tree, RBT_KeyCompare Compare)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline void RBT_TreeSetComfirm(RBT_Tree *Tree, RBT_KeyComfirm Comfirm)
+static inline void RBT_TreeSetComfirm(RBT_Tree *Tree, RBT_KeyConfirm Comfirm)
 {
-    Tree->KeyComfirm = Comfirm;
+    Tree->KeyConfirm = Comfirm;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -95,7 +95,7 @@ static inline uint8_t RBT_TreeCompare(RBT_Tree *Tree, RBT_Node *Node1, RBT_Node 
 /*************************************************************************************************/
 static inline uint8_t RBT_TreeComfirm(RBT_Tree *Tree, RBT_Node *Node1, RBT_Node *Node2)
 {
-    return Tree->KeyComfirm(Node1, Node2);
+    return Tree->KeyConfirm(Node1, Node2);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -286,7 +286,7 @@ static RBT_Node * RBT_SearchNode_Only(RBT_Tree *Tree, RBT_Node *Target)
 {
     ERROR_PRINT(Tree == NULL,             "RBT_SearchNode_Only: Tree");
     ERROR_PRINT(Tree->KeyCompare == NULL, "RBT_SearchNode_Only: KeyCompare");
-    ERROR_PRINT(Tree->KeyComfirm == NULL, "RBT_SearchNode_Only: KeyComfirm");
+    ERROR_PRINT(Tree->KeyConfirm == NULL, "RBT_SearchNode_Only: KeyConfirm");
     ERROR_PRINT(Target == NULL,           "RBT_SearchNode_Only: Target");
     
     RBT_Node *Node = RBT_TreeGetRoot(Tree);
@@ -741,7 +741,7 @@ void RBT_ResetNode(RBT_Node *Node)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-void RBT_SetTree(RBT_Tree *Tree, RBT_KeyCompare Compare, RBT_KeyComfirm Confirm)
+void RBT_SetTree(RBT_Tree *Tree, RBT_KeyCompare Compare, RBT_KeyConfirm Confirm)
 {
     RETURN_EMPTY(Tree == NULL);
     RBT_TreeSetRoot(Tree, NULL);

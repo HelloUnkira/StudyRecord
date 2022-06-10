@@ -61,7 +61,7 @@ typedef uint8_t (*RBT_KeyCompare)(RBT_Node *ThisNode, RBT_Node *ThatNode);
  * 用户数据集中需要有一个Key去确认俩个节点的关系
  * ThisNode与ThatNode的关键字一致返回0
  */
-typedef uint8_t (*RBT_KeyComfirm)(RBT_Node *ThisNode, RBT_Node *ThatNode);
+typedef uint8_t (*RBT_KeyConfirm)(RBT_Node *ThisNode, RBT_Node *ThatNode);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -81,7 +81,7 @@ RBT_Node * RBT_SearchMax(RBT_Tree *Tree);
 /*************************************************************************************************/
 void RBT_ResetTree(RBT_Tree *Tree);
 void RBT_ResetNode(RBT_Node *Node);
-void RBT_SetTree(RBT_Tree *Tree, RBT_KeyCompare Compare, RBT_KeyComfirm Confirm);
+void RBT_SetTree(RBT_Tree *Tree, RBT_KeyCompare Compare, RBT_KeyConfirm Confirm);
 void RBT_SetRoot(RBT_Tree *Tree, RBT_Node *Node);
 void RBT_GetRoot(RBT_Tree *Tree, RBT_Node **Node);
 /*************************************************************************************************/
