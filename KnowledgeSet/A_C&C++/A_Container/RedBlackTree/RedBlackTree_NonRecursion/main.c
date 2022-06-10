@@ -39,12 +39,6 @@ uint8_t TestComfirm(RBT_Node *ThisNode, RBT_Node *ThatNode)
 
 void TestPrint(RBT_Node *Node, RBT_Color Color)
 {
-    // printf("Node:%p %p %p %p\n",
-            // Node,
-            // Node->Parameter1,
-            // Node->Parameter2,
-            // Node->Parameter3);
-    
     printf("Key:%d val:%d Color:%s\n",
            ((DataTest *)GetDataTest(Node))->Key,
            ((DataTest *)GetDataTest(Node))->Rand,
