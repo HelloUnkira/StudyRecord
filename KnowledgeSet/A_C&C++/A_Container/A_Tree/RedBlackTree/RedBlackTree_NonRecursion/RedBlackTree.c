@@ -863,7 +863,7 @@ uint8_t RBT_InternalCheck(RBT_Tree *Tree, RBT_Node **Stack, int32_t *Flags, int3
             Flags[StackTop - 1] = RIGHT;
             /* 左孩子存在,可以进栈 */
             if(LeftChild != NULL) {
-                ((RBT_Node **)Stack)[StackTop++] = LeftChild;
+                Stack[StackTop++] = LeftChild;
                 /* 如果左孩子是黑色的,计算其度 */
                 if (RBT_NodeGetColor(LeftChild) == BLACK)
                     CurrentBlackLength++;
@@ -886,7 +886,7 @@ uint8_t RBT_InternalCheck(RBT_Tree *Tree, RBT_Node **Stack, int32_t *Flags, int3
             Flags[StackTop - 1] = ERROR;
             /* 右孩子存在,可以进栈 */
             if(RightChild != NULL) {
-                ((RBT_Node **)Stack)[StackTop++] = RightChild;
+                Stack[StackTop++] = RightChild;
                 /* 如果右孩子是黑色的,计算其度 */
                 if (RBT_NodeGetColor(RightChild) == BLACK)
                     CurrentBlackLength++;

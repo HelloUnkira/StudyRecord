@@ -46,8 +46,8 @@ void TestPrint(RBT_Node *Node, RBT_Color Color)
            Color == RED ?   "RED"   : "ERROR");
 }
 
-#define MAX_ELEMENT 1000000
-#define HALF_MAX_ELEMENT 500000
+#define MAX_ELEMENT         1000000
+#define HALF_MAX_ELEMENT    500000
 
 int main(int argc, char *argv[]) {
     
