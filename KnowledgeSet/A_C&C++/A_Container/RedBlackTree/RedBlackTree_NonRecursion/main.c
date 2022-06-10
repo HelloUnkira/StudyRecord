@@ -5,60 +5,66 @@
 #include <windows.h>
 #include "RedBlackTree.h"
 
-//这是我要镶嵌入容器的数据结构
+//这是我要获得红黑树语义的数据结构
 typedef struct DataStructForTest {
     int32_t Key;
+    /* 将红黑树侵入到这个容器中 */
+    RBT_Node Node;
+    /*  */
     int32_t Rand;
 } DataTest;
 
-uint8_t TestCompare(void *ThisData, void *ThatData)
+DataTest * GetDataTest(RBT_Node *NodeAddress)
 {
-    if (((DataTest *)ThisData)->Key <
-        ((DataTest *)ThatData)->Key)
+    return RBT_GetOwner(DataTest, Node, NodeAddress);
+}
+
+uint8_t TestCompare(RBT_Node *ThisNode, RBT_Node *ThatNode)
+{
+    if (((DataTest *)GetDataTest(ThisNode))->Key <
+        ((DataTest *)GetDataTest(ThatNode))->Key)
         return 1;
     else
         return 0;
 }
 
-uint8_t TestComfirm(void *ThatData, void *TargetData)
+uint8_t TestComfirm(RBT_Node *ThisNode, RBT_Node *ThatNode)
 {
-    if (((DataTest *)ThatData)->Key ==
-        ((DataTest *)TargetData)->Key)
+    if (((DataTest *)GetDataTest(ThisNode))->Key ==
+        ((DataTest *)GetDataTest(ThatNode))->Key)
         return 0;
     else
         return 1;
 }
 
-void TestPrint(void *Node, void *Data, int32_t Color)
+void TestPrint(RBT_Node *Node, RBT_Color Color)
 {
-    printf("Key:%d val:%d Color:%d\n",
-            ((DataTest *)Data)->Key,
-            ((DataTest *)Data)->Rand, Color);
+    // printf("Node:%p %p %p %p\n",
+            // Node,
+            // Node->Parameter1,
+            // Node->Parameter2,
+            // Node->Parameter3);
     
+    printf("Key:%d val:%d Color:%s\n",
+           ((DataTest *)GetDataTest(Node))->Key,
+           ((DataTest *)GetDataTest(Node))->Rand,
+           Color == BLACK ? "BLACK" :
+           Color == RED ?   "RED"   : "ERROR");
 }
 
-#define MAX_ELEMENT 400
-#define HALF_MAX_ELEMENT 200
+#define MAX_ELEMENT 1000000
+#define HALF_MAX_ELEMENT 500000
 
 int main(int argc, char *argv[]) {
     
-    //获得容器和容器集的空间大小(仅仅测试)
-    printf("sizeof: \n");
-    printf("container:%d set:%d UINT:%d ULONG:%d VOID* %d\n", 
-           RBT_GetBytes_Container(),
-           RBT_GetBytes_Set(),
-           sizeof(uint32_t),
-           sizeof(uint64_t),
-           sizeof(void *));
-    
     //1.创建一个容器集合(树)
-    void *Tree = malloc(RBT_GetBytes_Set());
+    RBT_Tree *Tree = malloc(sizeof(RBT_Tree));
     //2.初始化一个容器集合(树)
     RBT_SetTree(Tree, TestCompare, TestComfirm);
 
-    void *Queue = malloc(sizeof(void *) * MAX_ELEMENT);
-    void *Stack = malloc(sizeof(void *) * MAX_ELEMENT);
-    void *Flags = malloc(sizeof(int32_t) * MAX_ELEMENT);
+    RBT_Node **Queue = malloc(sizeof(RBT_Node *)  * MAX_ELEMENT);
+    RBT_Node **Stack = malloc(sizeof(RBT_Node *)  * MAX_ELEMENT);
+    int32_t   *Flags = malloc(sizeof(int32_t)     * MAX_ELEMENT);
     
     printf("1\n");
     
@@ -68,12 +74,11 @@ int main(int argc, char *argv[]) {
     //随机插入俩百个 0-4 的数
     for (Index = 0; Index < MAX_ELEMENT; Index++)
     {
-        void *Node = malloc(RBT_GetBytes_Container());
-        void *Data = malloc(sizeof(DataTest));
-        ((DataTest *)Data)->Key  = rand() % 5;
-        ((DataTest *)Data)->Rand = rand() % 5;
-        RBT_SetNodeData(Node, Data);
-        RBT_InsertNode(Tree, Node);//插入到树中
+        DataTest *Data = malloc(sizeof(DataTest));
+        Data->Key  = rand() % 5;
+        Data->Rand = rand() % 5;
+        RBT_ResetNode(&(Data->Node));
+        RBT_InsertNode(Tree, &(Data->Node));//插入到树中
     }
     
     printf("\n----------------------------------------------------------\n");
@@ -87,11 +92,14 @@ int main(int argc, char *argv[]) {
     //因为对于红黑树来说,项相同的节点是完全等价的,它们的数据并不是关心的点
     for (Index = 0; Index < HALF_MAX_ELEMENT; Index++)
     {
-        void *Data = malloc(sizeof(DataTest));
-        ((DataTest *)Data)->Key  = rand() % 5;
-        ((DataTest *)Data)->Rand = rand() % 5;
+        DataTest *Data = malloc(sizeof(DataTest));
+        Data->Key  = rand() % 5;
+        Data->Rand = rand() % 5;
+        RBT_ResetNode(&(Data->Node));
         //从树中删除,先查找再删除
-        RBT_RemoveNode(Tree, RBT_SearchNode(Tree, Data));
+        RBT_Node *Node = RBT_SearchNode(Tree, &(Data->Node));
+        //从树中删除,先查找再删除
+        RBT_RemoveNode(Tree, Node);
     }
     
     printf("\n----------------------------------------------------------\n");
@@ -106,39 +114,37 @@ int main(int argc, char *argv[]) {
     //如果出现一堆重复key,那么它们可以被视作为一个集合
     //反复的移除可以获得指定集合中全部的数据项
     
+    RBT_Node *Node = NULL;
+    
     //从剩下一百个数中,先找到最小的数
-    void *Node = RBT_Search_Min(Tree);
+    Node = RBT_SearchMin(Tree);
     //最小项没有前驱
     printf("\n----------------------------------------------------------\n");
-    printf("check:%d\n",RBT_Search_Prev(Node) != NULL);
+    printf("check:%d\n",RBT_SearchPrev(Node) != NULL);
     Sleep(2000);
     //从树的最左叶子节点遍历到最右叶子节点
     while (Node != NULL)
     {
-        void *TempData;
-        //打印该节点(node和color是无效值)
-        RBT_GetNodeData(Node, &TempData);
-        TestPrint(NULL, TempData, 9);
+        //打印该节点(color是无效值)
+        TestPrint(Node, 9);
         //迭代获得指定节点的后继
-        Node = RBT_Search_Next(Node);
+        Node = RBT_SearchNext(Node);
     }
     printf("\n----------------------------------------------------------\n");
     
     //从剩下数中,先找到最大的数
-    Node = RBT_Search_Max(Tree);
+    Node = RBT_SearchMax(Tree);
     //最大项没有后继
     printf("\n----------------------------------------------------------\n");
-    printf("check:%d\n",RBT_Search_Next(Node) != NULL);
+    printf("check:%d\n",RBT_SearchNext(Node) != NULL);
     Sleep(2000);
     //从树的最右叶子节点遍历到最左叶子节点
     while (Node != NULL)
     {
-        void *TempData;
-        //打印该节点(node和color是无效值)
-        RBT_GetNodeData(Node, &TempData);
-        TestPrint(NULL, TempData, 9);
+        //打印该节点(color是无效值)
+        TestPrint(Node, 9);
         //迭代获得指定节点的前驱
-        Node = RBT_Search_Prev(Node);
+        Node = RBT_SearchPrev(Node);
     }
     printf("\n----------------------------------------------------------\n");
     
