@@ -58,7 +58,7 @@ static inline void STimer_Configure(STimer  *Timer,
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline void STimerQueue_Configure(STimerQueue *Queue, void  (*Callback)(STimer *Timer))
+static inline void STimerQueue_Configure(STimerQueue *Queue, void (*Callback)(STimer *Timer))
 {
     Queue->EventThrowCallback = Callback;
     Queue->Timers = NULL;

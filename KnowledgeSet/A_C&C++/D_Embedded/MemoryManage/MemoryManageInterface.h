@@ -22,7 +22,6 @@ typedef void (*MemoryManageCheckPrint)(const char *Title, uint32_t Content);
 #define MemoryManageCheck       1
 //抽象打印接口,定参打印
 typedef void (*MemoryManageCheckPrint)(const char *Title, uint32_t Content);
-
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
