@@ -460,7 +460,7 @@ bool MemoryManageHeapGive(uint32_t Size, uint8_t *BlockOld)
         /* 检查分配器 */
         if (Heap->MemoryStart > Block && Heap->MemoryEnd <= Block)
             continue;
-        #ifdef MemoryManageCheck
+        #if MemoryManageCheck == 1
         Heap->BlockUsed -= Block->Size;
         #endif
         /* 预处理检查 */
