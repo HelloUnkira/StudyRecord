@@ -81,7 +81,7 @@ static void TestSort(void)
     //数据量越大log n 越小于 n,否则很接近,所以为兼容各个情况
     Helper3 = (uint32_t *)calloc(SIMPLE_SORT_DOUBLE, sizeof(uint32_t));
     //-------------------------------------------------------------------------
-    void *test_data = malloc(InternalSort_ContainerBytesGet());
+    void *test_data = malloc(sizeof(InternalSort_Data));
     InternalSort_ContainerBytesSet(test_data, TestCompare, (void *)Temp2,
                             sizeof(TestData), 0, SIMPLE_SORT_NUMBER - 1);
     //-------------------------------------------------------------------------
