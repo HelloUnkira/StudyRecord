@@ -179,7 +179,7 @@ MapVertex * Map_GetVertex(MapBody *Map, MapVertex *Vertex)
     //DL_List_Traverse_Forward(&(Map->List), Current)
     DL_List_Traverse_Backward(&(Map->List), Current) {
         MapVertex *Target = List_GetOwner(MapVertex, Friend, Current);
-        if (Map->Confirm(Target, Vertex))
+        if (Map->Confirm(Target, Vertex) == true)
             return Target;
     }
     return NULL;
