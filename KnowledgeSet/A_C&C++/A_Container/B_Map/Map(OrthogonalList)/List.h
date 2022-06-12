@@ -90,7 +90,7 @@ void SL_List_Remove(SL_List *ListHead, SL_List *ListTail, SL_Node *Target, SL_No
 /*************************************************************************************************/
 /* 遍历链表(这里不带成员量) */
 #define SL_List_Traserve(ListHead, ListTail, Node) \
-    for (Node = SL_List_GetHead(ListHead); Node != NULL; Node = SL_Node_GetNear(Node))
+    for (SL_Node *Node = SL_List_GetHead(ListHead); Node != NULL; Node = SL_Node_GetNear(Node))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
