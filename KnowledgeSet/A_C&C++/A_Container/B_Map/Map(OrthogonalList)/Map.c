@@ -42,14 +42,14 @@ void Map_MessageCheckAll(MapBody *Map, Map_MessageCheck Check)
     /* 对称语义,二选其一 */
     // DL_List_Traverse_Forward(&(Map->List), Current0)
     DL_List_Traverse_Backward(&(Map->List), Current0) {
-        MapVertex *Vertex = List_GetOwner(MapVertex, Friend, Current0);
+        MapVertex *Vertex = DL_GetOwner(MapVertex, Friend, Current0);
         Check("\nVertex: ", Vertex, NULL);
         /* 遍历检查节点出度 */
         Check("\n\tDegreeOut: ", NULL, NULL);
         /* 对称语义,二选其一 */
         // DL_List_Traverse_Forward(&(Vertex->DegreeOut), Current1)
         DL_List_Traverse_Backward(&(Vertex->DegreeOut), Current1) {
-            MapEdge *Edge = List_GetOwner(MapEdge, DegreeOut, Current1);
+            MapEdge *Edge = DL_GetOwner(MapEdge, DegreeOut, Current1);
             Check("\n\t\tEdge: ", NULL, Edge);
             Check("\n\t\t\tVertexIn:  ", Edge->VertexIn,  NULL);
             Check("\n\t\t\tVertexOut: ", Edge->VertexOut, NULL);
@@ -59,7 +59,7 @@ void Map_MessageCheckAll(MapBody *Map, Map_MessageCheck Check)
         /* 对称语义,二选其一 */
         // DL_List_Traverse_Forward(&(Vertex->DegreeIn), Current1)
         DL_List_Traverse_Backward(&(Vertex->DegreeIn), Current1) {
-            MapEdge *Edge = List_GetOwner(MapEdge, DegreeIn, Current1);
+            MapEdge *Edge = DL_GetOwner(MapEdge, DegreeIn, Current1);
             Check("\n\t\tEdge: ", NULL, Edge);
             Check("\n\t\t\tVertexIn:  ", Edge->VertexIn,  NULL);
             Check("\n\t\t\tVertexOut: ", Edge->VertexOut, NULL);
@@ -164,7 +164,7 @@ MapVertex * Map_GetVertexFromIndex(MapBody *Map, uint32_t Index)
             Count++;
             continue;
         }
-        return List_GetOwner(MapVertex, Friend, Current);
+        return DL_GetOwner(MapVertex, Friend, Current);
     }
     return NULL;
 }
@@ -177,7 +177,7 @@ MapVertex * Map_GetVertex(MapBody *Map, MapVertex *Vertex)
     /* 对称语义,二选其一 */
     //DL_List_Traverse_Forward(&(Map->List), Current)
     DL_List_Traverse_Backward(&(Map->List), Current) {
-        MapVertex *Target = List_GetOwner(MapVertex, Friend, Current);
+        MapVertex *Target = DL_GetOwner(MapVertex, Friend, Current);
         if (Map->Confirm(Target, Vertex) == true)
             return Target;
     }
@@ -193,14 +193,14 @@ MapEdge * Map_GetEdge(MapVertex *Start, MapVertex *End)
     DL_Node *Current = NULL;
     /* 这是从Start的出度寻找的方式 */
     DL_List_Traverse_Forward(&(Start->DegreeOut), Current) {
-        MapEdge *Target = List_GetOwner(MapEdge, DegreeOut, Current);
+        MapEdge *Target = DL_GetOwner(MapEdge, DegreeOut, Current);
         if (Target->VertexOut == End)
             return Target;
     }
     return NULL;
     /* 这是从End的入度寻找的方式 */
     DL_List_Traverse_Forward(&(End->DegreeIn), Current) {
-        MapEdge *Target = List_GetOwner(MapEdge, DegreeOut, Current);
+        MapEdge *Target = DL_GetOwner(MapEdge, DegreeOut, Current);
         if (Target->VertexIn == Start)
             return Target;
     }
@@ -252,56 +252,56 @@ void Map_VertexRemove(MapBody *Map, MapVertex *Vertex)
 /*************************************************************************************************/
 MapVertex * Map_GetVertexHead(MapBody *Map)
 {
-    return List_GetOwner(MapVertex, Friend, DL_List_GetHead(&(Map->List)));
+    return DL_GetOwner(MapVertex, Friend, DL_List_GetHead(&(Map->List)));
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 MapVertex * Map_GetVertexTail(MapBody *Map)
 {
-    return List_GetOwner(MapVertex, Friend, DL_List_GetTail(&(Map->List)));
+    return DL_GetOwner(MapVertex, Friend, DL_List_GetTail(&(Map->List)));
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 MapVertex * Map_GetVertexPrev(MapVertex *Vertex)
 {
-    return List_GetOwner(MapVertex, Friend, DL_Node_GetPrev(&(Vertex->Friend)));
+    return DL_GetOwner(MapVertex, Friend, DL_Node_GetPrev(&(Vertex->Friend)));
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 MapVertex * Map_GetVertexNext(MapVertex *Vertex)
 {
-    return List_GetOwner(MapVertex, Friend, DL_Node_GetNext(&(Vertex->Friend)));
+    return DL_GetOwner(MapVertex, Friend, DL_Node_GetNext(&(Vertex->Friend)));
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 MapEdge * Map_GetEdgeFirst(MapVertex *Vertex)
 {
-    return List_GetOwner(MapEdge, DegreeOut, DL_List_GetHead(&(Vertex->DegreeOut)));
+    return DL_GetOwner(MapEdge, DegreeOut, DL_List_GetHead(&(Vertex->DegreeOut)));
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 MapEdge * Map_GetEdgeLast(MapVertex *Vertex)
 {
-    return List_GetOwner(MapEdge, DegreeOut, DL_List_GetTail(&(Vertex->DegreeOut)));
+    return DL_GetOwner(MapEdge, DegreeOut, DL_List_GetTail(&(Vertex->DegreeOut)));
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 MapEdge * Map_GetEdgePrev(MapEdge *Edge)
 {
-    return List_GetOwner(MapEdge, DegreeOut, DL_Node_GetPrev(&(Edge->DegreeOut)));
+    return DL_GetOwner(MapEdge, DegreeOut, DL_Node_GetPrev(&(Edge->DegreeOut)));
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 MapEdge * Map_GetEdgeNext(MapEdge *Edge)
 {
-    return List_GetOwner(MapEdge, DegreeOut, DL_Node_GetNext(&(Edge->DegreeOut)));
+    return DL_GetOwner(MapEdge, DegreeOut, DL_Node_GetNext(&(Edge->DegreeOut)));
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -331,7 +331,7 @@ bool Map_SearchDepthFirst(MapBody *Map, MapVertex *Vertex, MapVertex **Stack, bo
         /* 对称语义,二选其一 */
         // DL_List_Traverse_Forward(&(Target->DegreeOut), Current)
         DL_List_Traverse_Backward(&(Target->DegreeOut), Current) {
-            MapEdge *Edge = List_GetOwner(MapEdge, DegreeOut, Current);
+            MapEdge *Edge = DL_GetOwner(MapEdge, DegreeOut, Current);
             MapVertex *Temp = Map_EdgeGetEnd(Edge);
             /* 如果该节点没有被访问,将其入栈 */
             if (Record[Map_GetVertexIndex(Map, Temp)] == false) {
@@ -370,7 +370,7 @@ bool Map_SearchBreadthFirst(MapBody *Map, MapVertex *Vertex, MapVertex **Queue, 
         /* 对称语义,二选其一 */
         // DL_List_Traverse_Forward(&(Target->DegreeOut), Current)
         DL_List_Traverse_Backward(&(Target->DegreeOut), Current) {
-            MapEdge *Edge = List_GetOwner(MapEdge, DegreeOut, Current);
+            MapEdge *Edge = DL_GetOwner(MapEdge, DegreeOut, Current);
             MapVertex *Temp = Map_EdgeGetEnd(Edge);
             /* 如果该节点没有被访问,将其入队列 */
             if (Record[Map_GetVertexIndex(Map, Temp)] == false) {
@@ -433,7 +433,7 @@ void Map_SearchDijkstra(MapBody *Map, MapVertex *Vertex, uint32_t *Weight,
         /* 对称语义,二选其一 */
         // DL_List_Traverse_Forward(&(Vertex->DegreeOut), Current)
         DL_List_Traverse_Backward(&(Vertex->DegreeOut), Current) {
-            MapEdge *Edge = List_GetOwner(MapEdge, DegreeOut, Current);
+            MapEdge *Edge = DL_GetOwner(MapEdge, DegreeOut, Current);
             MapVertex *Temp = Map_EdgeGetEnd(Edge);
             /* 获得该边的权值 */
             uint32_t CurrentWeight = EdgeWeight(Edge);
@@ -499,7 +499,7 @@ bool Map_SearchBellmanFord(MapBody *Map, MapVertex *Vertex, uint32_t *Weight,
             /* 对称语义,二选其一 */
             // DL_List_Traverse_Forward(&(Vertex->DegreeOut), Current)
             DL_List_Traverse_Backward(&(Vertex->DegreeOut), Current) {
-                MapEdge *Edge = List_GetOwner(MapEdge, DegreeOut, Current);
+                MapEdge *Edge = DL_GetOwner(MapEdge, DegreeOut, Current);
                 MapVertex *Temp = Map_EdgeGetEnd(Edge);
                 /* 获得该边的权值 */
                 uint32_t CurrentWeight = EdgeWeight(Edge);
@@ -539,7 +539,7 @@ bool Map_SearchBellmanFord(MapBody *Map, MapVertex *Vertex, uint32_t *Weight,
         /* 对称语义,二选其一 */
         // DL_List_Traverse_Forward(&(Vertex->DegreeOut), Current)
         DL_List_Traverse_Backward(&(Vertex->DegreeOut), Current) {
-            MapEdge *Edge = List_GetOwner(MapEdge, DegreeOut, Current);
+            MapEdge *Edge = DL_GetOwner(MapEdge, DegreeOut, Current);
             MapVertex *Temp = Map_EdgeGetEnd(Edge);
             /* 获得该边的权值 */
             uint32_t CurrentWeight = EdgeWeight(Edge);
