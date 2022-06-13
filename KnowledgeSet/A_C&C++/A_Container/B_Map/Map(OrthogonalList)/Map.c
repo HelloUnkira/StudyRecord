@@ -145,8 +145,7 @@ uint32_t Map_GetVertexIndex(MapBody *Map, MapVertex *Vertex)
     /* 对称语义,二选其一 */
     // DL_List_Traverse_Forward(&(Map->List), Current)
     DL_List_Traverse_Backward(&(Map->List), Current) {
-        MapVertex *Target = List_GetOwner(MapVertex, Friend, Current);
-        if (Vertex == Target)
+        if (&(Vertex->Friend) == Current)
             return Count;
         Count++;
     }
