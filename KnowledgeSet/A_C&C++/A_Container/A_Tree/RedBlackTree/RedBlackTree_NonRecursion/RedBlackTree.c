@@ -514,13 +514,13 @@ static void RBT_RemoveNode_Only(RBT_Tree *Tree, RBT_Node *Node, RBT_Side *Side)
     RBT_Node *TargetChild = (LeftChild == NULL ? RightChild : LeftChild);
     /* 3.解除目标target在原集合的关联 */
     RBT_Node *Parent = RBT_NodeGetParent(Node);
-    *Side = RBT_NodeGetSide(Node, Parent);
     /* 4.如果是要删除根节点 */
     if (Parent == NULL) {
         RBT_TreeSetRoot(Tree, TargetChild);
         return;
     }
     /* 5.父亲获得新孩子 */
+    *Side = RBT_NodeGetSide(Node, Parent);
     RBT_NodeSetChild(Parent, TargetChild, *Side);
     /* 6.为孩子设置新父亲 */
     if (TargetChild != NULL)
@@ -534,7 +534,6 @@ static void RBT_RemoveNode_Adjust(RBT_Tree *Tree, RBT_Node *Node, RBT_Side Side)
 {
     ERROR_PRINT(Tree == NULL,  "RBT_RemoveNode_Adjust: Tree");
     ERROR_PRINT(Node == NULL,  "RBT_RemoveNode_Adjust: Node");
-    ERROR_PRINT(Side == ERROR, "RBT_RemoveNode_Adjust: Side");
     
     /* 情况1:删除空节点,无需调整 */
     RETURN_EMPTY(Node == NULL);
