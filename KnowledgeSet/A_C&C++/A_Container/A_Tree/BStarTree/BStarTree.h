@@ -1,5 +1,5 @@
-#ifndef BSTARTREE_H
-#define BSTARTREE_H
+#ifndef B_STAR_TREE_H
+#define B_STAR_TREE_H
 //C std lib
 #include <stdint.h>
 #include <stdbool.h>
