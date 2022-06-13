@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
-#include "List.h"
+#include "DoubleList.h"
+#include "SingleList.h"
 
 typedef struct TestDataStruct {
     uint64_t Data8;
@@ -70,26 +71,26 @@ void TestDoubleList(void)
     printf("------------------------------------------------------------\r\n");
     /* 正向迭代检查 */
     DL_List_Traverse_Backward(DList, Node)
-        CheckTestData(List_GetOwner(TestData, DL_N, Node));
+        CheckTestData(DL_GetOwner(TestData, DL_N, Node));
     printf("------------------------------------------------------------\r\n");
     /* 逆向迭代检查 */
     DL_List_Traverse_Forward(DList, Node)
-        CheckTestData(List_GetOwner(TestData, DL_N, Node));
+        CheckTestData(DL_GetOwner(TestData, DL_N, Node));
     printf("------------------------------------------------------------\r\n");
     for (Index = 0; Index < 10; Index++) {
         /* 销毁所有节点并回收数据空间 */
         Node = DL_List_GetHead(DList);
         DL_List_Remove(DList, Node);
-        free(List_GetOwner(TestData, DL_N, Node));
+        free(DL_GetOwner(TestData, DL_N, Node));
     }
     printf("------------------------------------------------------------\r\n");
     /* 正向迭代检查 */
     DL_List_Traverse_Backward(DList, Node)
-        CheckTestData(List_GetOwner(TestData, DL_N, Node));
+        CheckTestData(DL_GetOwner(TestData, DL_N, Node));
     printf("------------------------------------------------------------\r\n");
     /* 逆向迭代检查 */
     DL_List_Traverse_Forward(DList, Node)
-        CheckTestData(List_GetOwner(TestData, DL_N, Node));
+        CheckTestData(DL_GetOwner(TestData, DL_N, Node));
     printf("------------------------------------------------------------\r\n");
     /* 批量生成并追加节点 */
     for (Index = 0, Target = NULL; Index < 10; Index++) {
@@ -104,26 +105,26 @@ void TestDoubleList(void)
     printf("------------------------------------------------------------\r\n");
     /* 正向迭代检查 */
     DL_List_Traverse_Backward(DList, Node)
-        CheckTestData(List_GetOwner(TestData, DL_N, Node));
+        CheckTestData(DL_GetOwner(TestData, DL_N, Node));
     printf("------------------------------------------------------------\r\n");
     /* 逆向迭代检查 */
     DL_List_Traverse_Forward(DList, Node)
-        CheckTestData(List_GetOwner(TestData, DL_N, Node));
+        CheckTestData(DL_GetOwner(TestData, DL_N, Node));
     printf("------------------------------------------------------------\r\n");
     for (Index = 0; Index < 10; Index++) {
         /* 销毁所有节点并回收数据空间 */
         Node = DL_List_GetHead(DList);
         DL_List_Remove(DList, Node);
-        free(List_GetOwner(TestData, DL_N, Node));
+        free(DL_GetOwner(TestData, DL_N, Node));
     }
     printf("------------------------------------------------------------\r\n");
     /* 正向迭代检查 */
     DL_List_Traverse_Backward(DList, Node)
-        CheckTestData(List_GetOwner(TestData, DL_N, Node));
+        CheckTestData(DL_GetOwner(TestData, DL_N, Node));
     printf("------------------------------------------------------------\r\n");
     /* 逆向迭代检查 */
     DL_List_Traverse_Forward(DList, Node)
-        CheckTestData(List_GetOwner(TestData, DL_N, Node));
+        CheckTestData(DL_GetOwner(TestData, DL_N, Node));
     printf("------------------------------------------------------------\r\n");
 }
 
@@ -149,18 +150,18 @@ void TestSingleList(void)
     printf("------------------------------------------------------------\r\n");
     /* 迭代检查 */
     SL_List_Traserve(SL_Head, SL_Tail, Node)
-        CheckTestData(List_GetOwner(TestData, SL_N, Node));
+        CheckTestData(SL_GetOwner(TestData, SL_N, Node));
     printf("------------------------------------------------------------\r\n");
     for (Index = 0; Index < 10; Index++) {
         /* 销毁所有节点并回收数据空间 */
         Node = SL_List_GetHead(SL_Head);
         SL_List_Remove(SL_Head, SL_Tail, NULL, Node);
-        free(List_GetOwner(TestData, SL_N, Node));
+        free(SL_GetOwner(TestData, SL_N, Node));
     }
     printf("------------------------------------------------------------\r\n");
     /* 迭代检查 */
     SL_List_Traserve(SL_Head, SL_Tail, Node)
-        CheckTestData(List_GetOwner(TestData, SL_N, Node));
+        CheckTestData(SL_GetOwner(TestData, SL_N, Node));
     printf("------------------------------------------------------------\r\n");
     /* 批量生成并追加节点 */
     for (Index = 0; Index < 10; Index++) {
@@ -174,18 +175,18 @@ void TestSingleList(void)
     printf("------------------------------------------------------------\r\n");
     /* 迭代检查 */
     SL_List_Traserve(SL_Head, SL_Tail, Node)
-        CheckTestData(List_GetOwner(TestData, SL_N, Node));
+        CheckTestData(SL_GetOwner(TestData, SL_N, Node));
     printf("------------------------------------------------------------\r\n");
     for (Index = 0; Index < 10; Index++) {
         /* 销毁所有节点并回收数据空间 */
         Node = SL_List_GetHead(SL_Head);
         SL_List_Remove(SL_Head, SL_Tail, NULL, Node);
-        free(List_GetOwner(TestData, SL_N, Node));
+        free(SL_GetOwner(TestData, SL_N, Node));
     }
     printf("------------------------------------------------------------\r\n");
     /* 迭代检查 */
     SL_List_Traserve(SL_Head, SL_Tail, Node)
-        CheckTestData(List_GetOwner(TestData, SL_N, Node));
+        CheckTestData(SL_GetOwner(TestData, SL_N, Node));
     printf("------------------------------------------------------------\r\n");
 }
 

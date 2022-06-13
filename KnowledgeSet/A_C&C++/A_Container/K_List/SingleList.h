@@ -1,5 +1,5 @@
-#ifndef DOUBLE_LIST_H
-#define DOUBLE_LIST_H
+#ifndef SINGLE_LIST_H
+#define SINGLE_LIST_H
 //C std lib
 #include <stdint.h>
 /*************************************************************************************************/
@@ -10,49 +10,46 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 从当前链表节点地址获得它的所有者地址(编译时解析) */
-#define List_GetOwner(Type, Member, MemberAddress)   \
+#define SL_GetOwner(Type, Member, MemberAddress)    \
     ((Type *)((uint8_t *)(MemberAddress) - ((uint64_t) &((Type *)0)->Member)))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 双向链表 */
-struct DoubleList {
+/* 单向链表 */
+struct SingleList {
     void *Parameter0;
-    void *Parameter1;
 };
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 核心转义 */
-typedef struct DoubleList DL_List;
-typedef struct DoubleList DL_Node;
+typedef struct SingleList SL_List;
+typedef struct SingleList SL_Node;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-void DL_List_Reset(DL_List *List);
-void DL_Node_Reset(DL_Node *Node);
-DL_Node * DL_List_GetHead(DL_List *List);
-DL_Node * DL_List_GetTail(DL_List *List);
-DL_Node * DL_Node_GetPrev(DL_Node *Node);
-DL_Node * DL_Node_GetNext(DL_Node *Node);
+void SL_List_Reset(SL_List *ListHead, SL_List *ListTail);
+void SL_Node_Reset(SL_Node *Node);
+SL_Node * SL_List_GetHead(SL_List *ListHead);
+SL_Node * SL_List_GetTail(SL_List *ListTail);
+SL_Node * SL_Node_GetNear(SL_Node *Node);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 节点前插入(节点Target为NULL时为头部插入) */
-void DL_List_InsertPrepend(DL_List *List, DL_Node *Target, DL_Node *Node);
-/* 节点后插入(节点Target为NULL时为尾部插入) */
-void DL_List_InsertAppend(DL_List *List,  DL_Node *Target, DL_Node *Node);
-/* 节点移除 */
-void DL_List_Remove(DL_List *List, DL_Node *Node);
+/* 节点头追加 */
+void SL_List_Prepend(SL_List *ListHead, SL_List *ListTail, SL_Node *Node);
+/* 节点尾追加 */
+void SL_List_Append(SL_List *ListHead, SL_List *ListTail, SL_Node *Node);
+/* 节点插入(单链表插入需要指定目标节点,Target不为NULL) */
+void SL_List_Insert(SL_List *ListHead, SL_List *ListTail, SL_Node *Target, SL_Node *Node);
+/* 节点删除(单链表删除需要指定前项节点) */
+void SL_List_Remove(SL_List *ListHead, SL_List *ListTail, SL_Node *Target, SL_Node *Node);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 向后遍历链表宏 */
-#define DL_List_Traverse_Backward(List, Node)   \
-    for (DL_Node *Node = DL_List_GetHead(List); Node != NULL; Node = DL_Node_GetNext(Node))
-/* 向前遍历链表宏 */
-#define DL_List_Traverse_Forward(List, Node)    \
-    for (DL_Node *Node = DL_List_GetTail(List); Node != NULL; Node = DL_Node_GetPrev(Node))
+/* 遍历链表(这里不带成员量) */
+#define SL_List_Traserve(ListHead, ListTail, Node) \
+    for (SL_Node *Node = SL_List_GetHead(ListHead); Node != NULL; Node = SL_Node_GetNear(Node))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
