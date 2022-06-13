@@ -505,6 +505,41 @@ ST_Node * ST_SearchMax(ST_Tree *Tree)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+void ST_JoinTree(ST_Tree *Tree, ST_Tree *Tree1, ST_Tree *Tree2)
+{
+    RETURN_NULL(Tree == NULL);
+    RETURN_NULL(Node == NULL);
+    RETURN_NULL(Tree1 == NULL);
+    RETURN_NULL(Tree2 == NULL);
+    
+    ST_Node *NewRoot = ST_SearchMax(Tree1);
+    ST_SplayNode(Tree1, NewRoot);
+    ST_NodeSetChild(NewRoot, ST_TreeGetRoot(Tree2), RIGHT);
+    ST_TreeSetRoot(Tree,  NewRoot);
+    ST_TreeSetRoot(Tree1, NULL);
+    ST_TreeSetRoot(Tree2, NULL);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void ST_SplitTree(ST_Tree *Tree, ST_Node *Node, ST_Tree *Tree1, ST_Tree *Tree2)
+{
+    RETURN_NULL(Tree == NULL);
+    RETURN_NULL(Node == NULL);
+    RETURN_NULL(Tree1 == NULL);
+    RETURN_NULL(Tree2 == NULL);
+    
+    ST_Node *NewRoot1 = ST_SearchNode_Only(Tree, Node);
+    ST_SplayNode(Tree, NewRoot1);
+    ST_Node *NewRoot2 = ST_NodeGetChild(NewRoot1, RIGHT);
+    ST_NodeSetChild(NewRoot1, NULL, RIGHT);
+    ST_TreeSetRoot(Tree, NULL);
+    ST_TreeSetRoot(Tree1, NewRoot1);
+    ST_TreeSetRoot(Tree2, NewRoot2);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 上层接口,辅助构建动作 */
 /*************************************************************************************************/
 /*************************************************************************************************/
