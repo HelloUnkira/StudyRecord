@@ -3,25 +3,24 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#include "List.h"
+#include "DoubleList.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 typedef struct HashTable_Node {
-    SL_Node Node;
+    DL_Node Node;
 } HT_Node;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 typedef struct HashTable_Nodes {
-    SL_List Head;
-    SL_List Tail;
-} HT_Nodes;
+    DL_List List;
+} HT_List;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 typedef struct HashTable_Table {
-    HT_Nodes  *Array;
+    HT_List  *Array;
     uint32_t (*HashFunction)(HT_Node *Node);
     bool     (*IsEqual)(HT_Node *Node1, HT_Node *Node2);
     uint32_t   Length;
@@ -34,7 +33,22 @@ typedef bool     (*HT_IsEqual)(HT_Node *Node1, HT_Node *Node2);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-void HT_Table_SetZone(HT_Table *Table, HT_Nodes *Array, uint32_t Length)
+void HT_Node_Reset(HT_Node *Node)
+{
+    DL_Node_Reset(&(Node->Node));
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void HT_List_Reset(HT_List *Array, uint32_t Length)
+{
+    for (uint32_t Index = 0; Index < Length; Index++)
+        DL_List_Reset(&(Array[Index].List));
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void HT_Table_SetZone(HT_Table *Table, HT_List *Array, uint32_t Length)
 {
     Table->Array  = Array;
     Table->Length = Length;
@@ -52,58 +66,59 @@ void HT_Table_Set(HT_Table *Table, HT_HashFunction HashFunction, HT_IsEqual IsEq
 /*************************************************************************************************/
 void HT_Node_Add(HT_Table *Table, HT_Node *Node)
 {
-    /* 散列 */
+    /* 散列,追加 */
     uint32_t Index = Table->HashFunction(Node) % Table->Length;
-    /* 得到节点链表 */
-    SL_List *Head = &((Table->Array[Index]).Head);
-    SL_List *Tail = &((Table->Array[Index]).Tail);
-    /* 追加 */
-    SL_List_Append(Head, Tail, &(Node->Node));
+    /* 对称语义,二选其一 */
+    //DL_List_InsertPrepend(&((Table->Array[Index]).List), NULL, &(Node->Node));
+    DL_List_InsertAppend(&((Table->Array[Index]).List), NULL, &(Node->Node));
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 void HT_Node_Remove(HT_Table *Table, HT_Node *Node)
 {
-    /* 散列 */
+    /* 散列,移除 */
     uint32_t Index = Table->HashFunction(Node) % Table->Length;
-    /* 得到节点链表 */
-    SL_List *Head = &((Table->Array[Index]).Head);
-    SL_List *Tail = &((Table->Array[Index]).Tail);
-    /* 迭代该节点找到前一项 */
-    if (SL_List_GetHead(Head) == &(Node->Node)) {
-        SL_List_Remove(Head, Tail, NULL, &(Node->Node));
-        return;
-    }
-    /* 迭代该节点找到前一项 */
-    SL_List_Traserve(Head, Tail, Current) {
-        SL_Node *Near = SL_Node_GetNear(Current);
-        if (Near == NULL)
-            return;
-        HT_Node *Target = List_GetOwner(HT_Node, Node, Near);
-        if (Target == Node) {
-            SL_List_Remove(Head, Tail, Current, &(Node->Node));
-            return;
-        }
-    }
+    DL_List_Remove(&((Table->Array[Index]).List), &(Node->Node));
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 HT_Node * HT_Node_Search(HT_Table *Table, HT_Node *Node)
 {
-    /* 散列 */
+    /* 散列,遍历 */
     uint32_t Index = Table->HashFunction(Node) % Table->Length;
-    /* 得到节点链表 */
-    SL_List *Head = &((Table->Array[Index]).Head);
-    SL_List *Tail = &((Table->Array[Index]).Tail);
-    /* 迭代该节点找到第一个匹配者 */
-    SL_List_Traserve(Head, Tail, Current) {
-        HT_Node *Target = List_GetOwner(HT_Node, Node, Current);
+    /* 对称语义,二选其一 */
+    //DL_List_Traverse_Forward(&((Table->Array[Index]).List), Current)
+    DL_List_Traverse_Backward(&((Table->Array[Index]).List), Current) {
+        HT_Node *Target = DL_GetOwner(HT_Node, Node, Current);
         if (Table->IsEqual(Target, Node) == true)
             return Target;
     }
     return NULL;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+typedef void (*HT_NodeCheck)(char *String, HT_Node *Node);
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void HT_TableNodeCheck(HT_Table *Table, HT_NodeCheck Check)
+{
+    for (uint32_t Index = 0; Index < Table->Length; Index++) {
+        Check("Table List:\n", NULL);
+        /* 对称语义,二选其一 */
+        uint32_t Count = 0;
+        //DL_List_Traverse_Forward(&((Table->Array[Index]).List), Current)
+        DL_List_Traverse_Backward(&((Table->Array[Index]).List), Current) {
+            HT_Node *Target = DL_GetOwner(HT_Node, Node, Current);
+            Check("    ", Target);
+            if (++Count % 5 == 0)
+                Check("\n", NULL);
+        }
+        Check("\n", NULL);
+    }
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
