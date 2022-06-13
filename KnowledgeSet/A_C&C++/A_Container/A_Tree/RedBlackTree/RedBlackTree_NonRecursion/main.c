@@ -37,7 +37,7 @@ uint8_t TestComfirm(RBT_Node *ThisNode, RBT_Node *ThatNode)
         return 1;
 }
 
-void TestPrint(RBT_Node *Node, RBT_Color Color)
+void TestVisit(RBT_Node *Node, RBT_Color Color)
 {
     printf("Key:%d val:%d Color:%s\n",
            ((DataTest *)GetDataTest(Node))->Key,
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
     }
     
     printf("\n----------------------------------------------------------\n");
-    RBT_Sequence_Traversal(Tree,TestPrint,Queue,MAX_ELEMENT);//插入检查
+    RBT_Sequence_Traversal(Tree,TestVisit,Queue,MAX_ELEMENT);//插入检查
     printf("\ncheck:%d", RBT_InternalCheck(Tree, Stack, Flags, MAX_ELEMENT));
     printf("\n----------------------------------------------------------\n");
     Sleep(2000);
@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
     }
     
     printf("\n----------------------------------------------------------\n");
-    RBT_Sequence_Traversal(Tree,TestPrint,Queue,MAX_ELEMENT);//删除检查
+    RBT_Sequence_Traversal(Tree,TestVisit,Queue,MAX_ELEMENT);//删除检查
     printf("\ncheck:%d", RBT_InternalCheck(Tree, Stack, Flags, MAX_ELEMENT));
     printf("\n----------------------------------------------------------\n");
     Sleep(2000);
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
     while (Node != NULL)
     {
         //打印该节点(color是无效值)
-        TestPrint(Node, 9);
+        TestVisit(Node, 9);
         //迭代获得指定节点的后继
         Node = RBT_SearchNext(Node);
     }
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
     while (Node != NULL)
     {
         //打印该节点(color是无效值)
-        TestPrint(Node, 9);
+        TestVisit(Node, 9);
         //迭代获得指定节点的前驱
         Node = RBT_SearchPrev(Node);
     }

@@ -879,16 +879,13 @@ uint32_t RBT_GetMaxDepth(RBT_Tree *Tree)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-typedef void (*RBT_Print)(RBT_Node *Node, RBT_Color Color);
+typedef void (*RBT_Visit)(RBT_Node *Node, RBT_Color Color);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 窥探:数据的层序遍历并打印 */
-void RBT_Sequence_Traversal(RBT_Tree *Tree, RBT_Print Printf, RBT_Node **Queue, int32_t Length)
+/* 窥探:数据的层序遍历并访问 */
+void RBT_Sequence_Traversal(RBT_Tree *Tree, RBT_Visit Visit, RBT_Node **Queue, int32_t Length)
 {
-    ERROR_PRINT(Tree == NULL,   "RBT_Sequence_Traversal: Tree");
-    ERROR_PRINT(Queue == NULL,  "RBT_Sequence_Traversal: Tree");
-    ERROR_PRINT(Printf == NULL, "RBT_Sequence_Traversal: print");
     /* 层序遍历(这里使用循环队列): */
     
     /* 获取插入的起始位置 */
@@ -902,8 +899,8 @@ void RBT_Sequence_Traversal(RBT_Tree *Tree, RBT_Print Printf, RBT_Node **Queue, 
         RBT_Node *Node = Queue[QueueHead++];
         ElementNumber--;
         RETURN_EMPTY(Node == NULL);
-        /* 节点打印 */
-        Printf(Node, RBT_NodeGetColor(Node));
+        /* 节点访问 */
+        Visit(Node, RBT_NodeGetColor(Node));
         /* 这是一个循环队列 */
         if (QueueHead >= Length)
             QueueHead = 0;
