@@ -1,5 +1,5 @@
-#ifndef	REDBLACKTREE_H
-#define	REDBLACKTREE_H
+#ifndef	RED_BLACK_TREE_H
+#define	RED_BLACK_TREE_H
 //C std lib
 #include <stdint.h>
 #include <stdbool.h>
