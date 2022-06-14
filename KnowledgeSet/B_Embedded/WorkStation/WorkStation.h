@@ -1,6 +1,7 @@
 #ifndef WORKSTATION_H
 #define WORKSTATION_H
 //C std lib
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 /*****************************************************************************/

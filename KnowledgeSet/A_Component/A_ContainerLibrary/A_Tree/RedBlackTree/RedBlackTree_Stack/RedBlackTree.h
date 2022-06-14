@@ -1,6 +1,7 @@
 #ifndef	RED_BLACK_TREE_H
 #define	RED_BLACK_TREE_H
 //C std lib
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 /*************************************************************************************************/

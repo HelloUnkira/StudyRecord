@@ -1,6 +1,7 @@
 #ifndef SOFTWARE_TIMER_H
 #define SOFTWARE_TIMER_H
 //C std lib
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 /*************************************************************************************************/

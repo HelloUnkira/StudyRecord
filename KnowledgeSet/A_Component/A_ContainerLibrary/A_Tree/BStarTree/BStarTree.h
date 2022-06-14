@@ -1,6 +1,7 @@
 #ifndef B_STAR_TREE_H
 #define B_STAR_TREE_H
 //C std lib
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 

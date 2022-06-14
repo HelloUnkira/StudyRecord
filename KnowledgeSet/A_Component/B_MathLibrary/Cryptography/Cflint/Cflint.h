@@ -2,6 +2,7 @@
 #define CFLINT_H
 //C std lib
 //遵守C99标准
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>

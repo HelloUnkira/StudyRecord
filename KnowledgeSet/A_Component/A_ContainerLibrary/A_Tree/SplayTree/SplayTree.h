@@ -1,6 +1,7 @@
 #ifndef	SPLAY_TREE_H
 #define	SPLAY_TREE_H
 //C std lib
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 /*************************************************************************************************/

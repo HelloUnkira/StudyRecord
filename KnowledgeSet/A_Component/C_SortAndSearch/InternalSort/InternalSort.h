@@ -1,6 +1,7 @@
 #ifndef INTERNALSORT_H
 #define INTERNALSORT_H
 //C std lib
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 /*****************************************************************************/

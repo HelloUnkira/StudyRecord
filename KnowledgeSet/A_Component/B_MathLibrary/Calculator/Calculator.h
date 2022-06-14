@@ -1,6 +1,7 @@
 #ifndef CALCULATOR_H
 #define CALCULATOR_H
 //C std lib
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 

@@ -1,6 +1,7 @@
 #ifndef TIMEROUT_QUEUE_H
 #define TIMEROUT_QUEUE_H
 //C std lib
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 /*************************************************************************************************/
