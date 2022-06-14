@@ -1,6 +1,6 @@
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdarg.h>
 
 void LogMessagePrint1(char *format, ...);
 void LogMessagePrint2(char *format, va_list list);

@@ -1,59 +1,45 @@
-#ifndef MINI_OS_QUEUE_H
-#define MINI_OS_QUEUE_H
-//C std lib
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stddef.h>
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 实现目标: 优先队列(侵入式队列, 带头尾节点单向队列) */
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-/* 从当前链表节点地址获得它的所有者地址(编译时解析) */
-#define MiniOS_PQ_GetOwner(Type, Member, MemberAddress)     \
-    ((Type *)((uint8_t *)(MemberAddress) - ((uint64_t) &((Type *)0)->Member)))
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-struct MiniOS_PriorityQueue {
+struct PriorityQueue {
     union {
-        struct MiniOS_PriorityQueue *Queue;
-        struct MiniOS_PriorityQueue *Near;
+        struct PriorityQueue *Queue;
+        struct PriorityQueue *Near;
     };
 };
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-typedef struct MiniOS_PriorityQueue MiniOS_PQN;
-typedef struct MiniOS_PriorityQueue MiniOS_PQB;
+typedef struct PriorityQueue PQ_Node;
+typedef struct PriorityQueue PQ_Body;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline void MiniOS_PQ_ResetQueue(MiniOS_PQB *Queue)
+void PQ_ResetQueue(PQ_Body *Queue)
 {
     Queue->Queue = NULL;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline void MiniOS_PQ_ResetNode(MiniOS_PQN *Node)
+void PQ_ResetNode(PQ_Node *Node)
 {
     Node->Near = NULL;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline MiniOS_PQN * MiniOS_PQ_CheckHead(MiniOS_PQB *Queue)
+PQ_Node * PQ_GetHead(PQ_Body *Queue)
 {
     return Queue->Queue;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static void MiniOS_PQ_EnQueue(MiniOS_PQB *Queue, MiniOS_PQN *Node,
-                              bool (*Compare)(MiniOS_PQN *Node1, MiniOS_PQN *Node2))
+void PQ_EnQueue(PQ_Body *Queue, PQ_Node *Node, bool (*Compare)(PQ_Node *Node1, PQ_Node *Node2))
 {
     if (Queue->Queue == NULL) {
         Queue->Queue = Node;
@@ -65,7 +51,7 @@ static void MiniOS_PQ_EnQueue(MiniOS_PQB *Queue, MiniOS_PQN *Node,
         Queue->Queue = Node;
         return;
     }
-    MiniOS_PQN *Current = NULL;
+    PQ_Node *Current = NULL;
     for (Current = Queue->Queue; Current->Near != NULL; Current = Current->Near) {
         if (Compare(Current->Near, Node) == true)
             continue;
@@ -80,7 +66,7 @@ static void MiniOS_PQ_EnQueue(MiniOS_PQB *Queue, MiniOS_PQN *Node,
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static void MiniOS_PQ_DeQueue(MiniOS_PQB *Queue, MiniOS_PQN *Node)
+void PQ_DeQueue(PQ_Body *Queue, PQ_Node *Node)
 {
     if (Node == NULL) {
         if (Queue->Queue == NULL)
@@ -99,7 +85,7 @@ static void MiniOS_PQ_DeQueue(MiniOS_PQB *Queue, MiniOS_PQN *Node)
             return;
         }
     }
-    MiniOS_PQN *Current = NULL;
+    PQ_Node *Current = NULL;
     for (Current = Queue->Queue; Current->Near != NULL; Current = Current->Near) {
         if (Current->Near != Node)
             continue;
@@ -111,4 +97,3 @@ static void MiniOS_PQ_DeQueue(MiniOS_PQB *Queue, MiniOS_PQN *Node)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#endif

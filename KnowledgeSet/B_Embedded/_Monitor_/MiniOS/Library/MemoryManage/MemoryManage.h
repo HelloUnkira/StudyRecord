@@ -1,9 +1,9 @@
 #ifndef MEMORYMANAGE_H
 #define MEMORYMANAGE_H
 //C std lib
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stddef.h>
 //接口层提供部分明细
 #include "MemoryManageInterface.h"
 /*****************************************************************************/

@@ -1,148 +1,47 @@
 //C std lib
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stddef.h>
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-#if 1 /* 这里简要的将硬件定时器导入,但是这里还是用的软件定时器 */
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-#define MINIOS_TIMER_USE_LINUX
-#define MINIOS_TIMER_USE_UNKONWN
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-#ifdef MINIOS_TIMER_USE_LINUX
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-//全局化唯一1ms定时器实例
-static void (*MiniOS_TimerMSHandler)(void) = NULL;
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-#include <unistd.h>
-#include <signal.h>
-#include <sys/time.h>
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-// note:
-// struct itimerval 
-// {
-//      struct timeval it_interval; //计时间隔
-//      struct timeval it_value;    //延时时间(信号延时触发)
-// };
-// struct timeval 
-// {
-//      time_t      tv_sec;         //秒
-//      suseconds_t tv_usec;        //微妙, 1/1'000'000秒
-// };
-// 函数原型：
-// int setitimer(int which, const struct itimerval *new_value, struct itimerval *old_value);
-// which:
-//       ITIMER_REAL(它送出SIGALRM信号):         以系统真实的时间来计算
-//       ITIMER_VIRTUAL(它送出SIGVTALRM信号):    以该进程在用户态下花费的时间来计算
-//       ITIMER_PROF(它送出SIGPROF信号):         以该进程在用户态下和内核态下所费的时间来计算
-// old_value：通常用不上,设置为NULL,存储上一次触发记录
-// new_value: it_interval为计时间隔,it_value为延时时长
-// it_value为0是不会触发信号的,所以要能触发信号,it_value得大于0
-// it_interval为零,只会延时,不会定时
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-static void MiniOS_TimerConfigure(void (*Handler)(void))
-{
-    MiniOS_TimerMSHandler = Handler;
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-static void MiniOS_TimerSignalHandler(int signal)
-{
-    switch (signal) {
-    //以系统真实的时间来计算
-    case SIGALRM:
-        if (MiniOS_TimerMSHandler != NULL)
-            MiniOS_TimerMSHandler();
-        break;
-    //以该进程在用户态下花费的时间来计算
-    case SIGVTALRM:
-        break;
-    //以该进程在用户态下和内核态下所费的时间来计算
-    case SIGPROF:
-        break;
-    }
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-static void MiniOS_TimerInit(void)
-{
-    struct itimerval old_value = {0};
-    struct itimerval new_value = {0};
-    //将信号关联指定的回调
-    signal(SIGALRM, MiniOS_TimerSignalHandler);
-    //设置间隔触发时间
-    new_value.it_interval.tv_sec = 0;
-    new_value.it_interval.tv_usec = 1000;//1ms
-    new_value.it_value.tv_sec = 0;
-    new_value.it_value.tv_usec = 1;//不能为0
-    //启用定时器
-    setitimer(ITIMER_REAL, &new_value, &old_value);
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-#endif
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-/* 继续添加其余平台 */
-//#ifdef MINIOS_TIMER_USE_UNKONWN
-//#endif
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-#endif
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 #define   LOG_PART_STATUS     0   /* 1:ENABLE,0:DISABLE */
 #define   LOG_PART_LEVEL      0   /* 0:DEBUG,1:INFO,2:WARN,3:ERROR,4:NONE */
 #include "LogMessage.h"
+#include "PriorityQueue.h"
 #include "SoftwareTimer.h"
+#include "SpinLock.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#include "MiniOSQueue.h"
-#include "MiniOSCritical.h"
 #include "MiniOSTask.h"
 #include "MiniOSTimer.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+static SpinLock    TimerLock = 0;
 static STimerQueue TimerQueue = {0};
-static MiniOS_PQB  TimerExecuteQueue = {0};
-static uint32_t    TimerExecutePriority = 0;
+static PQ_Body     TimerExecuteQueue = {0};
+static uint64_t    TimerExecutePriority = 0;    /* 假设每秒一百万次事件计算,一万年也不会溢出 */
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 static MiniOS_TaskHandle TimerHandle = NULL;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 typedef struct MiniOSTaskTimer {
-    STimer     *Timer;
-    uint32_t    Priority;
-    MiniOS_PQN  TimerNode;
+    STimer  *Timer;
+    uint32_t Priority;
+    PQ_Node  TimerNode;
 } MiniOS_TT;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static bool MiniOS_TT_Compare(MiniOS_PQN *Node1, MiniOS_PQN *Node2)
+static bool MiniOS_TT_Compare(PQ_Node *Node1, PQ_Node *Node2)
 {
-    uint8_t Priority1 = (MiniOS_PQ_GetOwner(MiniOS_TT, TimerNode, Node1))->Priority;
-    uint8_t Priority2 = (MiniOS_PQ_GetOwner(MiniOS_TT, TimerNode, Node2))->Priority;
+    uint8_t Priority1 = (PQ_GetOwner(MiniOS_TT, TimerNode, Node1))->Priority;
+    uint8_t Priority2 = (PQ_GetOwner(MiniOS_TT, TimerNode, Node2))->Priority;
     
     return (Priority1 < Priority2) ? true : false;
 }
@@ -151,51 +50,47 @@ static bool MiniOS_TT_Compare(MiniOS_PQN *Node1, MiniOS_PQN *Node2)
 /*************************************************************************************************/
 static void MiniOS_TimerEventCallback(STimer *Timer)
 {
-    LOG_WARN(true, "MiniOS_TimerEventCallback");
-    
+    /* 它应被注册到硬件定时器中断回调,所以无需加锁 */
     MiniOS_TT *TT = NULL;
-    
-    if (MemoryManageHeapTake(sizeof(MiniOS_TT), &TT) == false) {
+    LOG_WARN(true, "MiniOS_TimerEventCallback");
+    if (MemoryManageHeapTake(sizeof(MiniOS_TT), &TT) == false)
         LOG_ERROR(true, "Heap Configure Is Too Small");
-        return;
+    else {
+        TT->Timer    = Timer;
+        TT->Priority = TimerExecutePriority++;
+        PQ_ResetNode(&(TT->TimerNode));
+        PQ_EnQueue(&TimerExecuteQueue, &(TT->TimerNode), MiniOS_TT_Compare);
     }
-    
-    TT->Timer    = Timer;
-    TT->Priority = TimerExecutePriority;
-    
-    MiniOS_PQ_ResetNode(&(TT->TimerNode));
-    MiniOS_PQ_EnQueue(&TimerExecuteQueue, &(TT->TimerNode), MiniOS_TT_Compare);
-    
-    MiniOS_TaskToggle(TimerHandle, 1);
-    
-    TimerExecutePriority++;
+    MiniOS_TaskToggleInterrupt(TimerHandle, 1);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static void MiniOS_MSCallback(void)
+void MiniOS_TimerMSCallback(void)
 {
+    /* 它应被注册到硬件定时器中断回调,所以无需加锁 */
+    LOG_WARN(true, "MiniOS_TimerMSCallback");
     STimer_Reduce(&TimerQueue);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 void MiniOS_TimerTask(uint32_t Event)
-{    
-    MiniOS_PQN *Node = NULL;
-    MiniOS_TT  *TT   = NULL;
+{
+    PQ_Node *Node = NULL;
+    MiniOS_TT *TT = NULL;
     
-    Node = MiniOS_PQ_CheckHead(&TimerExecuteQueue);
+    while(Spin_Lock(&TimerLock) == false);
+    Node = PQ_GetHead(&TimerExecuteQueue);
     if (Node != NULL) {
         LOG_WARN(true, "MiniOS_TimerTask");
-        TT = MiniOS_PQ_GetOwner(MiniOS_TT, TimerNode, Node);
-        MiniOS_PQ_DeQueue(&TimerExecuteQueue, &(TT->TimerNode));
+        TT = PQ_GetOwner(MiniOS_TT, TimerNode, Node);
+        PQ_DeQueue(&TimerExecuteQueue, &(TT->TimerNode));
         STimer_Execute(TT->Timer);
-        
-        if (MemoryManageHeapGive(sizeof(MiniOS_TT), TT) == false) {
+        if (MemoryManageHeapGive(sizeof(MiniOS_TT), TT) == false)
             LOG_ERROR(1, "Error Task Handle");
-        }
     }
+    Spin_Unlock(&TimerLock);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -203,50 +98,45 @@ void MiniOS_TimerTask(uint32_t Event)
 void MiniOS_TimerReady(void)
 {
     LOG_WARN(true, "MiniOS_TimerReady");
-    
-    STimerQueue_Configure(&TimerQueue, MiniOS_TimerEventCallback);
-    
+    PQ_ResetQueue(&TimerExecuteQueue);
     TimerHandle = MiniOS_TaskCreate(MiniOS_TimerTask, 0);
-    
-    MiniOS_TimerConfigure(MiniOS_MSCallback);
-    MiniOS_TimerInit();
+    STimerQueue_Configure(&TimerQueue, MiniOS_TimerEventCallback);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 void MiniOS_TimerStop(MiniOS_TimerHandle Handle)
 {
-    LOG_WARN(true, "MiniOS_TimerStop");
-    
     STimer *Timer = Handle;
-    
+    LOG_WARN(true, "MiniOS_TimerStop");
+    while(Spin_Lock(&TimerLock) == false);
     STimer_Stop(&TimerQueue, Timer);
+    Spin_Unlock(&TimerLock);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 bool MiniOS_TimerStart(MiniOS_TimerHandle Handle)
 {
-    LOG_WARN(true, "MiniOS_TimerStart");
-    
     STimer *Timer = Handle;
-    
-    return STimer_Start(&TimerQueue, Timer);
+    LOG_WARN(true, "MiniOS_TimerStart");
+    while(Spin_Lock(&TimerLock) == false);
+    bool Result = STimer_Start(&TimerQueue, Timer);
+    Spin_Unlock(&TimerLock);
+    return Result;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 void MiniOS_TimerDestroy(MiniOS_TimerHandle Handle)
 {
-    LOG_WARN(true, "MiniOS_TimerDestroy");
-    
     STimer *Timer = Handle;
-    
+    LOG_WARN(true, "MiniOS_TimerDestroy");
+    while(Spin_Lock(&TimerLock) == false);
     STimer_Stop(&TimerQueue, Timer);
-    
-    if (MemoryManageHeapGive(sizeof(TimerQueue), &Timer) == false) {
+    if (MemoryManageHeapGive(sizeof(TimerQueue), &Timer) == false)
         LOG_ERROR(true, "Error Task Handle");
-    }
+    Spin_Unlock(&TimerLock);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -256,17 +146,14 @@ MiniOS_TimerHandle MiniOS_TimerCreate(void   (*Callback)(void *Parameter),
                                       uint32_t Peroid,
                                       bool     Reload)
 {
-    LOG_WARN(true, "MiniOS_TimerCreate");
-    
     STimer *Timer = NULL;
-    
-    if (MemoryManageHeapTake(sizeof(STimer), &Timer) == false) {
+    LOG_WARN(true, "MiniOS_TimerCreate");
+    while(Spin_Lock(&TimerLock) == false);
+    if (MemoryManageHeapTake(sizeof(STimer), &Timer) == false)
         LOG_ERROR(1, "Heap Configure Is Too Small");
-        return NULL;
-    }
-    
-    STimer_Configure(Timer, Callback, Parameter, Peroid, Reload);
-    
+    else
+        STimer_Configure(Timer, Callback, Parameter, Peroid, Reload);
+    Spin_Unlock(&TimerLock);
     return Timer;
 }
 /*************************************************************************************************/

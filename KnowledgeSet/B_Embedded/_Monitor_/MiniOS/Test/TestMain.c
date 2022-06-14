@@ -36,15 +36,13 @@ void TestTask2Handler(uint32_t Event)
 int main(int argc, char *argv[])
 {
     MiniOS_ScheduleReady();
-    
+
+    TaskHandle1  = MiniOS_TaskCreate(TestTask1Handler, 2);
+    TaskHandle2  = MiniOS_TaskCreate(TestTask2Handler, 1);
     TimerHandle1 = MiniOS_TimerCreate(TestTimer1Callback, NULL, 1000, true);
     TimerHandle2 = MiniOS_TimerCreate(TestTimer2Callback, NULL, 2000, true);
-    
     MiniOS_TimerStart(TimerHandle1);
     MiniOS_TimerStart(TimerHandle2);
-    
-    TaskHandle1 = MiniOS_TaskCreate(TestTask1Handler, 2);
-    TaskHandle2 = MiniOS_TaskCreate(TestTask2Handler, 1);
     
     MiniOS_ScheduleExecute();
 }
