@@ -103,7 +103,7 @@ void ST_Queue_Reduce(ST_Queue *Queue)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 运行软件定时器 */
-void ST_Node_Reduce(ST_Node *Timer)
+void ST_Node_Execute(ST_Node *Timer)
 {
     if (Timer->ReduceCallback != NULL)
         Timer->ReduceCallback(Timer->Parameter);

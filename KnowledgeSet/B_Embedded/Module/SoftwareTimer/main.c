@@ -25,7 +25,7 @@ void Timer3Callback(void *Parameter)
 
 void STimerEventThrowCallback(ST_Node *Timer)
 {
-     ST_Node_Reduce(Timer);
+    ST_Node_Execute(Timer);
 }
 
 int main(int argc, char *argv[]) {

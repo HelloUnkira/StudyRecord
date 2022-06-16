@@ -19,10 +19,10 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static SpinLock    TimerLock = 0;
-static STimerQueue TimerQueue = {0};
-static PQ_Body     TimerExecuteQueue = {0};
-static uint64_t    TimerExecutePriority = 0;    /* 假设每秒一百万次事件计算,一万年也不会溢出 */
+static SpinLock TimerLock = 0;
+static ST_Queue TimerQueue = {0};
+static PQ_Body  TimerExecuteQueue = {0};
+static uint64_t TimerExecutePriority = 0;    /* 假设每秒一百万次事件计算,一万年也不会溢出 */
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -31,7 +31,7 @@ static MiniOS_TaskHandle TimerHandle = NULL;
 /*************************************************************************************************/
 /*************************************************************************************************/
 typedef struct MiniOSTaskTimer {
-    STimer  *Timer;
+    ST_Node *Timer;
     uint32_t Priority;
     PQ_Node  TimerNode;
 } MiniOS_TT;
@@ -48,7 +48,7 @@ static bool MiniOS_TT_Compare(PQ_Node *Node1, PQ_Node *Node2)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static void MiniOS_TimerEventCallback(STimer *Timer)
+static void MiniOS_TimerEventCallback(ST_Node *Timer)
 {
     /* 它应被注册到硬件定时器中断回调,所以无需加锁 */
     MiniOS_TT *TT = NULL;
@@ -70,7 +70,7 @@ void MiniOS_TimerMSCallback(void)
 {
     /* 它应被注册到硬件定时器中断回调,所以无需加锁 */
     LOG_WARN(true, "MiniOS_TimerMSCallback");
-    STimer_Reduce(&TimerQueue);
+    ST_Queue_Reduce(&TimerQueue);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -86,7 +86,7 @@ void MiniOS_TimerTask(uint32_t Event)
         LOG_WARN(true, "MiniOS_TimerTask");
         TT = PQ_GetOwner(MiniOS_TT, TimerNode, Node);
         PQ_DeQueue(&TimerExecuteQueue, &(TT->TimerNode));
-        STimer_Execute(TT->Timer);
+        ST_Node_Execute(TT->Timer);
         if (MemoryManageHeapGive(sizeof(MiniOS_TT), TT) == false)
             LOG_ERROR(1, "Error Task Handle");
     }
@@ -100,17 +100,17 @@ void MiniOS_TimerReady(void)
     LOG_WARN(true, "MiniOS_TimerReady");
     PQ_ResetQueue(&TimerExecuteQueue);
     TimerHandle = MiniOS_TaskCreate(MiniOS_TimerTask, 0);
-    STimerQueue_Configure(&TimerQueue, MiniOS_TimerEventCallback);
+    ST_Queue_Configure(&TimerQueue, MiniOS_TimerEventCallback);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 void MiniOS_TimerStop(MiniOS_TimerHandle Handle)
 {
-    STimer *Timer = Handle;
+    ST_Node *Timer = Handle;
     LOG_WARN(true, "MiniOS_TimerStop");
     while(Spin_Lock(&TimerLock) == false);
-    STimer_Stop(&TimerQueue, Timer);
+    ST_Node_Stop(&TimerQueue, Timer);
     Spin_Unlock(&TimerLock);
 }
 /*************************************************************************************************/
@@ -118,10 +118,10 @@ void MiniOS_TimerStop(MiniOS_TimerHandle Handle)
 /*************************************************************************************************/
 bool MiniOS_TimerStart(MiniOS_TimerHandle Handle)
 {
-    STimer *Timer = Handle;
+    ST_Node *Timer = Handle;
     LOG_WARN(true, "MiniOS_TimerStart");
     while(Spin_Lock(&TimerLock) == false);
-    bool Result = STimer_Start(&TimerQueue, Timer);
+    bool Result = ST_Node_Start(&TimerQueue, Timer);
     Spin_Unlock(&TimerLock);
     return Result;
 }
@@ -130,10 +130,10 @@ bool MiniOS_TimerStart(MiniOS_TimerHandle Handle)
 /*************************************************************************************************/
 void MiniOS_TimerDestroy(MiniOS_TimerHandle Handle)
 {
-    STimer *Timer = Handle;
+    ST_Node *Timer = Handle;
     LOG_WARN(true, "MiniOS_TimerDestroy");
     while(Spin_Lock(&TimerLock) == false);
-    STimer_Stop(&TimerQueue, Timer);
+    ST_Node_Stop(&TimerQueue, Timer);
     if (MemoryManageHeapGive(sizeof(TimerQueue), &Timer) == false)
         LOG_ERROR(true, "Error Task Handle");
     Spin_Unlock(&TimerLock);
@@ -146,13 +146,13 @@ MiniOS_TimerHandle MiniOS_TimerCreate(void   (*Callback)(void *Parameter),
                                       uint32_t Peroid,
                                       bool     Reload)
 {
-    STimer *Timer = NULL;
+    ST_Node *Timer = NULL;
     LOG_WARN(true, "MiniOS_TimerCreate");
     while(Spin_Lock(&TimerLock) == false);
-    if (MemoryManageHeapTake(sizeof(STimer), &Timer) == false)
+    if (MemoryManageHeapTake(sizeof(ST_Node), &Timer) == false)
         LOG_ERROR(1, "Heap Configure Is Too Small");
     else
-        STimer_Configure(Timer, Callback, Parameter, Peroid, Reload);
+        ST_Node_Configure(Timer, Callback, Parameter, Peroid, Reload);
     Spin_Unlock(&TimerLock);
     return Timer;
 }
