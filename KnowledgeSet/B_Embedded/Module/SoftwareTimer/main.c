@@ -23,35 +23,35 @@ void Timer3Callback(void *Parameter)
         printf("Timer3Callback: %d\t%d\n", Count3, *((uint32_t *)Parameter));
 }
 
-void STimerEventThrowCallback(STimer *Timer)
+void STimerEventThrowCallback(ST_Node *Timer)
 {
-     STimer_Execute(Timer);
+     ST_Node_Reduce(Timer);
 }
 
 int main(int argc, char *argv[]) {
     
-    STimerQueue Queue;
+    ST_Queue Queue;
     
-    STimerQueue_Configure(&Queue, STimerEventThrowCallback);
+    ST_Queue_Configure(&Queue, STimerEventThrowCallback);
     
     uint32_t Data1 = 0;
     uint32_t Data2 = 0;
     uint32_t Data3 = 0;
     
-    STimer Timer1 = STimer_CONFIGURE(Timer1Callback, &Data1, 1, true);
-    STimer Timer2 = STimer_CONFIGURE(Timer2Callback, &Data2, 2, true);
-    STimer Timer3 = STimer_CONFIGURE(Timer3Callback, &Data3, 3, true);
+    ST_Node Timer1 = ST_Node_CONFIGURE(Timer1Callback, &Data1, 1, true);
+    ST_Node Timer2 = ST_Node_CONFIGURE(Timer2Callback, &Data2, 2, true);
+    ST_Node Timer3 = ST_Node_CONFIGURE(Timer3Callback, &Data3, 3, true);
     
-    STimer_Start(&Queue, &Timer1);
-    STimer_Start(&Queue, &Timer2);
-    STimer_Start(&Queue, &Timer3);
+    ST_Node_Start(&Queue, &Timer1);
+    ST_Node_Start(&Queue, &Timer2);
+    ST_Node_Start(&Queue, &Timer3);
     
     while (1) {
         Sleep(10);
         
-        STimer *Timer = NULL;
+        ST_Node *Timer = NULL;
         
-        STimer_Reduce(&Queue);
+        ST_Queue_Reduce(&Queue);
         
         Data1++;
         Data2++;

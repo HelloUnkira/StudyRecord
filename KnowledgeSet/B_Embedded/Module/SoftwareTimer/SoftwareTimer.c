@@ -3,7 +3,7 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 停止,中止,终止软件定时器 */
-void STimer_Stop(STimerQueue *Queue, STimer *Timer)
+void ST_Node_Stop(ST_Queue *Queue, ST_Node *Timer)
 {
     /* 检查等待者队列 */
     if (Queue->Timers == NULL)
@@ -17,7 +17,7 @@ void STimer_Stop(STimerQueue *Queue, STimer *Timer)
         return;
     }
     /* 遍历等待者队列 */
-    for (STimer *Current = Queue->Timers; Current->Near != NULL; Current = Current->Near)
+    for (ST_Node *Current = Queue->Timers; Current->Near != NULL; Current = Current->Near)
         /* 如果下一等待着是目标 */
         if (Current->Near == Timer) {
             Current->Near  = Current->Near->Near;
@@ -31,10 +31,10 @@ void STimer_Stop(STimerQueue *Queue, STimer *Timer)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 启动软件定时器 */
-bool STimer_Start(STimerQueue *Queue, STimer *Timer)
+bool ST_Node_Start(ST_Queue *Queue, ST_Node *Timer)
 {
     /* 首项检查,不要加入俩个相同的定时器到队列中去 */
-    for (STimer *Current = Queue->Timers; Current != NULL; Current = Current->Near)
+    for (ST_Node *Current = Queue->Timers; Current != NULL; Current = Current->Near)
         if (Current == Timer)
             return false;
     /* 开始前重加载定时器,我们默认0周期为错误操作 */
@@ -56,7 +56,7 @@ bool STimer_Start(STimerQueue *Queue, STimer *Timer)
     }
     Timer->ReduceCount -= Queue->Timers->ReduceCount;
     /*  */
-    STimer *Current = NULL;
+    ST_Node *Current = NULL;
     /* 遍历等待者队列 */
     for (Current = Queue->Timers; Current->Near != NULL; Current = Current->Near) {
         /* 如果下一等待着不是目标 */
@@ -78,7 +78,7 @@ bool STimer_Start(STimerQueue *Queue, STimer *Timer)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 约减软件定时器 */
-void STimer_Reduce(STimerQueue *Queue)
+void ST_Queue_Reduce(ST_Queue *Queue)
 {
     /* 检查等待者队列 */
     if (Queue->Timers == NULL)
@@ -89,11 +89,11 @@ void STimer_Reduce(STimerQueue *Queue)
     /* 检查首项是否约减完毕 */
     while (Queue->Timers != NULL && Queue->Timers->ReduceCount == 0) {
         /* 将首项剥离出队列头 */
-        STimer *Timer = Queue->Timers;
+        ST_Node *Timer = Queue->Timers;
         Queue->Timers = Queue->Timers->Near;
         /* 检查是否需要重加载 */
         if (Timer->Reload == true)
-            STimer_Start(Queue, Timer);
+            ST_Node_Start(Queue, Timer);
         /* 将该事件通过回调投掷出去 */
         if (Queue->EventThrowCallback != NULL)
             Queue->EventThrowCallback(Timer);
@@ -103,7 +103,7 @@ void STimer_Reduce(STimerQueue *Queue)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 运行软件定时器 */
-void STimer_Execute(STimer *Timer)
+void ST_Node_Reduce(ST_Node *Timer)
 {
     if (Timer->ReduceCallback != NULL)
         Timer->ReduceCallback(Timer->Parameter);
