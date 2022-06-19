@@ -4,26 +4,27 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 单向链表迭代器 */
-struct SingleList {
-    union {
-        struct SingleList *Head;//单向链表头
-        struct SingleList *Tail;//单向链表尾
-        struct SingleList *Near;//单向链表就近项
-    };
+struct SingleList_Node {
+    struct SingleList_Node *Near; //单向链表就近项
+};
+
+struct SingleList_List {
+    struct SingleList_Node *Head; //单向链表头
+    struct SingleList_Node *Tail; //单向链表尾
 };
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 核心转义 */
-typedef struct SingleList SL_List;
-typedef struct SingleList SL_Node;
+typedef struct SingleList_List SL_List;
+typedef struct SingleList_Node SL_Node;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-void SL_List_Reset(SL_List *ListHead, SL_List *ListTail)
+void SL_List_Reset(SL_List *List)
 {
-    ListHead->Head = NULL;
-    ListTail->Tail = NULL;
+    List->Head = NULL;
+    List->Tail = NULL;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -35,16 +36,16 @@ void SL_Node_Reset(SL_Node *Node)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-SL_Node * SL_List_GetHead(SL_List *ListHead)
+SL_Node * SL_List_GetHead(SL_List *List)
 {
-    return ListHead->Head;
+    return List->Head;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-SL_Node * SL_List_GetTail(SL_List *ListTail)
+SL_Node * SL_List_GetTail(SL_List *List)
 {
-    return ListTail->Tail;
+    return List->Head;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -57,49 +58,49 @@ SL_Node * SL_Node_GetNear(SL_Node *Node)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 节点头追加 */
-void SL_List_Prepend(SL_List *ListHead, SL_List *ListTail, SL_Node *Node)
+void SL_List_Prepend(SL_List *List, SL_Node *Node)
 {
-    Node->Near = ListHead->Head;
-    if (ListHead->Head == NULL)
-        ListTail->Tail = Node;
-    ListHead->Head = Node;
+    Node->Near = List->Head;
+    if (List->Head == NULL)
+        List->Tail = Node;
+    List->Head = Node;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 节点尾追加 */
-void SL_List_Append(SL_List *ListHead, SL_List *ListTail, SL_Node *Node)
+void SL_List_Append(SL_List *List, SL_Node *Node)
 {
     Node->Near = NULL;
-    if (ListTail->Tail != NULL)
-        ListTail->Tail->Near = Node;
-    if (ListTail->Tail == NULL)
-        ListHead->Head = Node;
-    ListTail->Tail = Node;
+    if (List->Tail != NULL)
+        List->Tail->Near = Node;
+    if (List->Tail == NULL)
+        List->Head = Node;
+    List->Tail = Node;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 节点插入(单链表插入需要指定目标节点,Target不为NULL) */
-void SL_List_Insert(SL_List *ListHead, SL_List *ListTail, SL_Node *Target, SL_Node *Node)
+void SL_List_Insert(SL_List *List, SL_Node *Target, SL_Node *Node)
 {
     Node->Near = Target->Near;
     Target->Near = Node;
-    if (ListTail->Tail == Target)
-        ListTail->Tail = Node;
+    if (List->Tail == Target)
+        List->Tail = Node;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 节点删除(单链表删除需要指定前项节点) */
-void SL_List_Remove(SL_List *ListHead, SL_List *ListTail, SL_Node *Target, SL_Node *Node)
+void SL_List_Remove(SL_List *List, SL_Node *Target, SL_Node *Node)
 {
     if (Target != NULL)
         Target->Near = Node->Near;
-    if (ListHead->Head == Node)
-        ListHead->Head = Node->Near;
-    if (ListTail->Tail == Node)
-        ListTail->Tail = Target;
+    if (List->Head == Node)
+        List->Head = Node->Near;
+    if (List->Tail == Node)
+        List->Tail = Target;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

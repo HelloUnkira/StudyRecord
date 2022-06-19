@@ -16,41 +16,44 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 单向链表 */
-struct SingleList {
-    void *Parameter0;
+struct SingleList_Node {
+    void *Parameter;
+};
+
+struct SingleList_List {
+    void *Parameter[2];
 };
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 核心转义 */
-typedef struct SingleList SL_List;
-typedef struct SingleList SL_Node;
+typedef struct SingleList_List SL_List;
+typedef struct SingleList_Node SL_Node;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-void SL_List_Reset(SL_List *ListHead, SL_List *ListTail);
+void SL_List_Reset(SL_List *List);
 void SL_Node_Reset(SL_Node *Node);
-SL_Node * SL_List_GetHead(SL_List *ListHead);
-SL_Node * SL_List_GetTail(SL_List *ListTail);
+SL_Node * SL_List_GetHead(SL_List *List);
+SL_Node * SL_List_GetTail(SL_List *List);
 SL_Node * SL_Node_GetNear(SL_Node *Node);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 节点头追加 */
-void SL_List_Prepend(SL_List *ListHead, SL_List *ListTail, SL_Node *Node);
+void SL_List_Prepend(SL_List *List, SL_Node *Node);
 /* 节点尾追加 */
-void SL_List_Append(SL_List *ListHead, SL_List *ListTail, SL_Node *Node);
+void SL_List_Append(SL_List *List, SL_Node *Node);
 /* 节点插入(单链表插入需要指定目标节点,Target不为NULL) */
-void SL_List_Insert(SL_List *ListHead, SL_List *ListTail, SL_Node *Target, SL_Node *Node);
+void SL_List_Insert(SL_List *List, SL_Node *Target, SL_Node *Node);
 /* 节点删除(单链表删除需要指定前项节点) */
-void SL_List_Remove(SL_List *ListHead, SL_List *ListTail, SL_Node *Target, SL_Node *Node);
+void SL_List_Remove(SL_List *List, SL_Node *Target, SL_Node *Node);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 遍历链表(这里不带成员量) */
-#define SL_List_Traserve(ListHead, ListTail, Node) \
-    for (SL_Node *Node = SL_List_GetHead(ListHead); Node != NULL; Node = SL_Node_GetNear(Node))
+#define SL_List_Traserve(List, Node) \
+    for (SL_Node *Node = SL_List_GetHead(List); Node != NULL; Node = SL_Node_GetNear(Node))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/

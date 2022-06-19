@@ -133,10 +133,9 @@ void TestSingleList(void)
     uint32_t Index = 0;
     
     SL_Node *Node = NULL;
-    SL_List *SL_Head = malloc(sizeof(SL_List));
-    SL_List *SL_Tail = malloc(sizeof(SL_List));
+    SL_List *SList = malloc(sizeof(SL_List));
     /* 初始化单向链表体 */
-    SL_List_Reset(SL_Head, SL_Tail);
+    SL_List_Reset(SList);
     printf("------------------------------------------------------------\r\n");
     /* 批量生成并追加节点 */
     for (Index = 0; Index < 10; Index++) {
@@ -145,22 +144,22 @@ void TestSingleList(void)
         SetTestData(Data, Index);
         Node = &(Data->SL_N);
         SL_Node_Reset(Node);
-        SL_List_Prepend(SL_Head, SL_Tail, Node);
+        SL_List_Prepend(SList, Node);
     }
     printf("------------------------------------------------------------\r\n");
     /* 迭代检查 */
-    SL_List_Traserve(SL_Head, SL_Tail, Node)
+    SL_List_Traserve(SList, Node)
         CheckTestData(SL_GetOwner(TestData, SL_N, Node));
     printf("------------------------------------------------------------\r\n");
     for (Index = 0; Index < 10; Index++) {
         /* 销毁所有节点并回收数据空间 */
-        Node = SL_List_GetHead(SL_Head);
-        SL_List_Remove(SL_Head, SL_Tail, NULL, Node);
+        Node = SL_List_GetHead(SList);
+        SL_List_Remove(SList, NULL, Node);
         free(SL_GetOwner(TestData, SL_N, Node));
     }
     printf("------------------------------------------------------------\r\n");
     /* 迭代检查 */
-    SL_List_Traserve(SL_Head, SL_Tail, Node)
+    SL_List_Traserve(SList, Node)
         CheckTestData(SL_GetOwner(TestData, SL_N, Node));
     printf("------------------------------------------------------------\r\n");
     /* 批量生成并追加节点 */
@@ -170,22 +169,22 @@ void TestSingleList(void)
         SetTestData(Data, Index);
         Node = &(Data->SL_N);
         SL_Node_Reset(Node);
-        SL_List_Append(SL_Head, SL_Tail, Node);
+        SL_List_Append(SList, Node);
     }
     printf("------------------------------------------------------------\r\n");
     /* 迭代检查 */
-    SL_List_Traserve(SL_Head, SL_Tail, Node)
+    SL_List_Traserve(SList, Node)
         CheckTestData(SL_GetOwner(TestData, SL_N, Node));
     printf("------------------------------------------------------------\r\n");
     for (Index = 0; Index < 10; Index++) {
         /* 销毁所有节点并回收数据空间 */
-        Node = SL_List_GetHead(SL_Head);
-        SL_List_Remove(SL_Head, SL_Tail, NULL, Node);
+        Node = SL_List_GetHead(SList);
+        SL_List_Remove(SList, NULL, Node);
         free(SL_GetOwner(TestData, SL_N, Node));
     }
     printf("------------------------------------------------------------\r\n");
     /* 迭代检查 */
-    SL_List_Traserve(SL_Head, SL_Tail, Node)
+    SL_List_Traserve(SList, Node)
         CheckTestData(SL_GetOwner(TestData, SL_N, Node));
     printf("------------------------------------------------------------\r\n");
 }
