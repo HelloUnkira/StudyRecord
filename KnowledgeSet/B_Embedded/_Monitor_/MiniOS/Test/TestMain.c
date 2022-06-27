@@ -1,6 +1,9 @@
 #include <stdio.h>
-#include "MiniOSTask.h"
-#include "MiniOSTimer.h"
+
+#include "MiniOS_Memory.h"
+#include "MiniOS_Task.h"
+#include "MiniOS_Timer.h"
+#include "MiniOSTimerPort.h"
 
 MiniOS_TimerHandle TimerHandle1 = NULL;
 MiniOS_TimerHandle TimerHandle2 = NULL;
@@ -35,7 +38,9 @@ void TestTask2Handler(uint32_t Event)
 
 int main(int argc, char *argv[])
 {
-    MiniOS_ScheduleReady();
+    MiniOS_MemoryReady();
+    MiniOS_TaskReady();
+    MiniOS_TimerReady();
 
     TaskHandle1  = MiniOS_TaskCreate(TestTask1Handler, 2);
     TaskHandle2  = MiniOS_TaskCreate(TestTask2Handler, 1);
@@ -44,7 +49,10 @@ int main(int argc, char *argv[])
     MiniOS_TimerStart(TimerHandle1);
     MiniOS_TimerStart(TimerHandle2);
     
-    MiniOS_ScheduleExecute();
+    /* 硬件定时器的启动放在线程执行的开始,其他任务创建结束 */
+    MiniOS_TimerPortConfigure(MiniOS_TimerMSCallback);
+    MiniOS_TimerPortInit();
+    MiniOS_TaskExecute();
 }
 
 

@@ -1,3 +1,6 @@
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 //C std lib
 #include <stddef.h>
 #include <stdint.h>
@@ -5,8 +8,11 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define   LOG_PART_STATUS     0   /* 1:ENABLE,0:DISABLE */
-#define   LOG_PART_LEVEL      0   /* 0:DEBUG,1:INFO,2:WARN,3:ERROR,4:NONE */
+#define LOG_PART_STATUS     0   /* 1:ENABLE,0:DISABLE */
+#define LOG_PART_LEVEL      0   /* 0:DEBUG,1:INFO,2:WARN,3:ERROR,4:NONE */
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 #include "LogMessage.h"
 #include "PriorityQueue.h"
 #include "SoftwareTimer.h"
@@ -14,8 +20,9 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#include "MiniOSTask.h"
-#include "MiniOSTimer.h"
+#include "MiniOS_Memory.h"
+#include "MiniOS_Task.h"
+#include "MiniOS_Timer.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -26,11 +33,11 @@ static uint64_t TimerExecutePriority = 0;    /* 假设每秒一百万次事件�
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static MiniOS_TaskHandle TimerHandle = NULL;
+static MiniOS_TaskHandle TimerTask = NULL;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-typedef struct MiniOSTaskTimer {
+typedef struct MiniOS_TaskTimer {
     ST_Node *Timer;
     uint32_t Priority;
     PQ_Node  TimerNode;
@@ -50,18 +57,16 @@ static bool MiniOS_TT_Compare(PQ_Node *Node1, PQ_Node *Node2)
 /*************************************************************************************************/
 static void MiniOS_TimerEventCallback(ST_Node *Timer)
 {
-    /* 它应被注册到硬件定时器中断回调,所以无需加锁 */
-    MiniOS_TT *TT = NULL;
     LOG_WARN(true, "MiniOS_TimerEventCallback");
-    if (MemoryManageHeapTake(sizeof(MiniOS_TT), &TT) == false)
-        LOG_ERROR(true, "Heap Configure Is Too Small");
-    else {
+    MiniOS_TT *TT = MiniOS_Alloc(sizeof(MiniOS_TT));
+    
+    if (TT != NULL) {
         TT->Timer    = Timer;
         TT->Priority = TimerExecutePriority++;
         PQ_ResetNode(&(TT->TimerNode));
         PQ_EnQueue(&TimerExecuteQueue, &(TT->TimerNode), MiniOS_TT_Compare);
     }
-    MiniOS_TaskToggleInterrupt(TimerHandle, 1);
+    MiniOS_TaskToggleInterrupt(TimerTask, 0);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -87,8 +92,7 @@ void MiniOS_TimerTask(uint32_t Event)
         TT = PQ_GetOwner(MiniOS_TT, TimerNode, Node);
         PQ_DeQueue(&TimerExecuteQueue, &(TT->TimerNode));
         ST_Node_Execute(TT->Timer);
-        if (MemoryManageHeapGive(sizeof(MiniOS_TT), TT) == false)
-            LOG_ERROR(1, "Error Task Handle");
+        MiniOS_Free(TT);
     }
     Spin_Unlock(&TimerLock);
 }
@@ -99,7 +103,7 @@ void MiniOS_TimerReady(void)
 {
     LOG_WARN(true, "MiniOS_TimerReady");
     PQ_ResetQueue(&TimerExecuteQueue);
-    TimerHandle = MiniOS_TaskCreate(MiniOS_TimerTask, 0);
+    TimerTask = MiniOS_TaskCreate(MiniOS_TimerTask, 0);
     ST_Queue_Configure(&TimerQueue, MiniOS_TimerEventCallback);
 }
 /*************************************************************************************************/
@@ -121,6 +125,7 @@ bool MiniOS_TimerStart(MiniOS_TimerHandle Handle)
     ST_Node *Timer = Handle;
     LOG_WARN(true, "MiniOS_TimerStart");
     while(Spin_Lock(&TimerLock) == false);
+    ST_Node_Stop(&TimerQueue, Timer);
     bool Result = ST_Node_Start(&TimerQueue, Timer);
     Spin_Unlock(&TimerLock);
     return Result;
@@ -130,13 +135,12 @@ bool MiniOS_TimerStart(MiniOS_TimerHandle Handle)
 /*************************************************************************************************/
 void MiniOS_TimerDestroy(MiniOS_TimerHandle Handle)
 {
-    ST_Node *Timer = Handle;
     LOG_WARN(true, "MiniOS_TimerDestroy");
+    ST_Node *Timer = Handle;
     while(Spin_Lock(&TimerLock) == false);
     ST_Node_Stop(&TimerQueue, Timer);
-    if (MemoryManageHeapGive(sizeof(TimerQueue), &Timer) == false)
-        LOG_ERROR(true, "Error Task Handle");
     Spin_Unlock(&TimerLock);
+    MiniOS_Free(Timer);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -146,14 +150,10 @@ MiniOS_TimerHandle MiniOS_TimerCreate(void   (*Callback)(void *Parameter),
                                       uint32_t Peroid,
                                       bool     Reload)
 {
-    ST_Node *Timer = NULL;
     LOG_WARN(true, "MiniOS_TimerCreate");
-    while(Spin_Lock(&TimerLock) == false);
-    if (MemoryManageHeapTake(sizeof(ST_Node), &Timer) == false)
-        LOG_ERROR(1, "Heap Configure Is Too Small");
-    else
+    ST_Node *Timer = MiniOS_Alloc(sizeof(ST_Node));
+    if (Timer != NULL)
         ST_Node_Configure(Timer, Callback, Parameter, Peroid, Reload);
-    Spin_Unlock(&TimerLock);
     return Timer;
 }
 /*************************************************************************************************/
