@@ -15,11 +15,7 @@
 /*************************************************************************************************/
 #include "LogMessage.h"
 #include "MemoryManageInterface.h"
-#include "SpinLock.h"
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-static SpinLock MemoryLock = 0;
+#include "CriticalZone.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -33,12 +29,12 @@ void MiniOS_MemoryReady(void)
 void * MiniOS_Alloc(uint32_t Size)
 {
     uint8_t *Pointer = NULL;
-    while (Spin_Lock(&MemoryLock) == false);
+    CriticalZoneEnter(MemoryLock);
     if (MemoryManageHeapTake(Size, &Pointer) == false) {
         LOG_ERROR(true, "Heap Configure Is Too Small");
         while(1);
     }
-    Spin_Unlock(&MemoryLock);
+    CriticalZoneExit(MemoryLock);
     return Pointer;
 }
 /*************************************************************************************************/
@@ -46,12 +42,12 @@ void * MiniOS_Alloc(uint32_t Size)
 /*************************************************************************************************/
 void MiniOS_Free(void *Pointer)
 {
-    while (Spin_Lock(&MemoryLock) == false);
+    CriticalZoneEnter(MemoryLock);
     if (MemoryManageHeapGive(0, Pointer) == false) {
         LOG_ERROR(true, "Error Heap Memory Pointer");
         while(1);
     }
-    Spin_Unlock(&MemoryLock);
+    CriticalZoneExit(MemoryLock);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
