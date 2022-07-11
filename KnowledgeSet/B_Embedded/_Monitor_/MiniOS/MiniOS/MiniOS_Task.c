@@ -15,7 +15,7 @@
 /*************************************************************************************************/
 #include "LogMessage.h"
 #include "PriorityQueue.h"
-#include "SpinLock.h"
+#include "CriticalZone.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -34,8 +34,7 @@ typedef struct MiniOS_TaskControlBlock {
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static SpinLock TaskLock = 0;
-static PQ_Body  TaskExecuteQueue = {0};
+static PQ_Body TaskExecuteQueue = {0};
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -63,14 +62,14 @@ void MiniOS_TaskExecute(void)
         PQ_Node *Node = NULL;
         MiniOS_TCB *TCB = NULL;
         
-        while (Spin_Lock(&TaskLock) == false);
+        CriticalZoneEnter(TaskLock);
         Node = PQ_GetHead(&TaskExecuteQueue);
         if (Node != NULL) {
             LOG_WARN(true, "MiniOS_TaskExecute");
             TCB = PQ_GetOwner(MiniOS_TCB, TaskNode, Node);
             PQ_DeQueue(&TaskExecuteQueue, &(TCB->TaskNode));
         }
-        Spin_Unlock(&TaskLock);
+        CriticalZoneExit(TaskLock);
         
         if (TCB != NULL && TCB->Handler != NULL)
             TCB->Handler(TCB->Event);
@@ -110,9 +109,9 @@ void MiniOS_TaskDestroy(MiniOS_TaskHandle Handle)
 {
     MiniOS_TCB *TCB = Handle;
     LOG_WARN(true, "MiniOS_TaskDestroy");
-    while (Spin_Lock(&TaskLock) == false);
+    CriticalZoneEnter(TaskLock);
     PQ_DeQueue(&TaskExecuteQueue, &(TCB->TaskNode));
-    Spin_Unlock(&TaskLock);
+    CriticalZoneExit(TaskLock);
     MiniOS_Free(TCB);
 }
 /*************************************************************************************************/
@@ -123,37 +122,10 @@ void MiniOS_TaskToggle(MiniOS_TaskHandle Handle, uint32_t Event)
     MiniOS_TCB *TCB = Handle;
     TCB->Event = Event;
     LOG_WARN(true, "MiniOS_TaskToggle");
-    while (Spin_Lock(&TaskLock) == false);
+    CriticalZoneEnter(TaskLock);
     PQ_DeQueue(&TaskExecuteQueue, &(TCB->TaskNode));
     PQ_EnQueue(&TaskExecuteQueue, &(TCB->TaskNode), MiniOS_TCB_Compare);
-    Spin_Unlock(&TaskLock);
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-void MiniOS_TaskToggleInterrupt(MiniOS_TaskHandle Handle, uint32_t Event)
-{
-    MiniOS_TCB *TCB = Handle;
-    TCB->Event = Event;
-    LOG_WARN(true, "MiniOS_TaskToggleInterrupt");
-    PQ_DeQueue(&TaskExecuteQueue, &(TCB->TaskNode));
-    PQ_EnQueue(&TaskExecuteQueue, &(TCB->TaskNode), MiniOS_TCB_Compare);
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-void MiniOS_TaskPrioritySet(MiniOS_TaskHandle Handle, uint8_t Priority)
-{
-    MiniOS_TCB *TCB = Handle;
-    TCB->Priority = Priority;
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-uint8_t MiniOS_TaskPriorityGet(MiniOS_TaskHandle Handle)
-{
-    MiniOS_TCB *TCB = Handle;
-    return TCB->Priority;
+    CriticalZoneExit(TaskLock);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

@@ -16,7 +16,7 @@
 #include "LogMessage.h"
 #include "PriorityQueue.h"
 #include "SoftwareTimer.h"
-#include "SpinLock.h"
+#include "CriticalZone.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -26,7 +26,6 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static SpinLock TimerLock = 0;
 static ST_Queue TimerQueue = {0};
 static PQ_Body  TimerExecuteQueue = {0};
 static uint64_t TimerExecutePriority = 0;    /* 假设每秒一百万次事件计算,一万年也不会溢出 */
@@ -66,7 +65,7 @@ static void MiniOS_TimerEventCallback(ST_Node *Timer)
         PQ_ResetNode(&(TT->TimerNode));
         PQ_EnQueue(&TimerExecuteQueue, &(TT->TimerNode), MiniOS_TT_Compare);
     }
-    MiniOS_TaskToggleInterrupt(TimerTask, 0);
+    MiniOS_TaskToggle(TimerTask, 0);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -85,7 +84,7 @@ void MiniOS_TimerTask(uint32_t Event)
     PQ_Node *Node = NULL;
     MiniOS_TT *TT = NULL;
     
-    while(Spin_Lock(&TimerLock) == false);
+    CriticalZoneEnter(TimerLock);
     Node = PQ_GetHead(&TimerExecuteQueue);
     if (Node != NULL) {
         LOG_WARN(true, "MiniOS_TimerTask");
@@ -94,7 +93,7 @@ void MiniOS_TimerTask(uint32_t Event)
         ST_Node_Execute(TT->Timer);
         MiniOS_Free(TT);
     }
-    Spin_Unlock(&TimerLock);
+    CriticalZoneExit(TimerLock);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -113,9 +112,9 @@ void MiniOS_TimerStop(MiniOS_TimerHandle Handle)
 {
     ST_Node *Timer = Handle;
     LOG_WARN(true, "MiniOS_TimerStop");
-    while(Spin_Lock(&TimerLock) == false);
+    CriticalZoneEnter(TimerLock);
     ST_Node_Stop(&TimerQueue, Timer);
-    Spin_Unlock(&TimerLock);
+    CriticalZoneExit(TimerLock);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -124,10 +123,10 @@ bool MiniOS_TimerStart(MiniOS_TimerHandle Handle)
 {
     ST_Node *Timer = Handle;
     LOG_WARN(true, "MiniOS_TimerStart");
-    while(Spin_Lock(&TimerLock) == false);
+    CriticalZoneEnter(TimerLock);
     ST_Node_Stop(&TimerQueue, Timer);
     bool Result = ST_Node_Start(&TimerQueue, Timer);
-    Spin_Unlock(&TimerLock);
+    CriticalZoneExit(TimerLock);
     return Result;
 }
 /*************************************************************************************************/
@@ -137,9 +136,9 @@ void MiniOS_TimerDestroy(MiniOS_TimerHandle Handle)
 {
     LOG_WARN(true, "MiniOS_TimerDestroy");
     ST_Node *Timer = Handle;
-    while(Spin_Lock(&TimerLock) == false);
+    CriticalZoneEnter(TimerLock);
     ST_Node_Stop(&TimerQueue, Timer);
-    Spin_Unlock(&TimerLock);
+    CriticalZoneExit(TimerLock);
     MiniOS_Free(Timer);
 }
 /*************************************************************************************************/
