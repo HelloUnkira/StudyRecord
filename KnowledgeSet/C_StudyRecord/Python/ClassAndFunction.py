@@ -1,5 +1,21 @@
 
 '''
+# 摘要模块
+import hashlib
+import hmac
+
+print(hashlib.md5(''.encode('utf8')).hexdigest())
+print(hashlib.sha1(''.encode()).hexdigest())
+print(hashlib.sha224(''.encode()).hexdigest())
+print(hashlib.sha256(''.encode()).hexdigest())
+print(hashlib.sha384(''.encode()).hexdigest())
+# hmac
+encode_key = 'encode key'
+text = 'need encode text'
+encode_text = hmac.new(encode_key, text).hexdigest()
+'''
+
+'''
 #turtle类
 import turtle
 help(turtle)
@@ -158,4 +174,95 @@ dictionary.popitem()    #随机获得一个条目,并移除条目
 number = random.randint(a,b)   #生成[a,b]范围内整数
 number = random.randrange(a,b) #生成[a,b)范围内整数
 number = random.random()       #生成[0,1]范围内小数
+'''
+
+'''
+#文件传输:
+
+#文件路径:
+filename = 'C:\Users\xxx\Desktop\xxx.txt'
+
+#文件存在性检查
+import os.path
+if os.path.isfile(filename):
+    print('file exists');
+
+#打开模式:'r','w','a','rb','wb'
+mode = 'r'
+
+file = open(filename, mode)
+
+file.read(number)  #读取number个字符,默认全部字符
+file.readline()    #读取下一行
+file.readlines()   #读取全部行,列表组织
+
+file.write(string) #写一个字符串
+
+close(file)
+
+'''
+
+'''
+#从网络获取数据:
+import urllib.request
+#网址:
+url = 'http://www.baidu.com'
+#打开一个文件
+file = urllib.reques.urlopen(url)
+#读取数据
+#...
+#Byte数据转字符串
+string.decode()
+'''
+
+'''
+#math库
+#返回x最接近的数(整数/指定位数小数)
+number = round(x)
+number = round(x,x1)
+#向上(向下)取整
+number = ceil(x)
+number = floor(x)
+
+number = abs(x)
+number = fabs(x)
+number = max(x1,x2,...)
+number = min(x1,x2,...)
+number = pow(a,b)
+number = exp(x)
+number = log(x)         #log(e,x)
+number = log(x,a)       #log(a,x)
+number = sqrt(x)
+number = sin(x)
+number = cos(x)
+number = asin(x)
+number = acos(x)
+number = tan(x)
+number = degress(x)     #弧度转角度
+number = radians(x)     #角度转弧度
+'''
+
+'''
+#string库
+number = ord(char)      #ASCII码值
+string = chr(number)    #转字符串(一个字符的)
+#格式化字符串或数字,根据格式说明符
+string = format(item,format)
+string = format(number, '5d')     #10进制
+string = format(number, '5x')     #16进制
+string = format(number, '5o')     #8进制
+string = format(number, '5b')     #2进制
+string = format(number, '.1f')
+string = format(number, '10.1f')
+string = format(number, '10.1e')  #科学记数法
+string = format(number, '10.1f%') #10进制
+string = format(number, '<10.1f') #左对齐
+string = format(string, '20s')
+string = format(string, '<20s')   #左对齐
+string = format(string, '>20s')   #右对齐
+
+number = len(string)
+string = max(string)
+string = min(string)
+
 '''

@@ -1,76 +1,28 @@
+# 我甚至不知道我为什么还需要做这些,也许就只是无聊,仅仅
+# 获取国内资源 : pip install 包名 -i http://pypi.douban.com/simple/ --trusted-host pypi.douban.com
+# 语法明细网站 : https://www.runoob.com/python3/python3-func-enumerate.html
+# 常用模块:os,sys,math,random,datetime,time,calendar
+
 
 '''
-#基本语法备注:
-#if表达式,可省else
-if  boolean-expression:
-    ...
-else:
-    ...
-
-#嵌套if表达式,可省else
-if   boolean-expression:
-    ...
-elif boolean-expression:
-    ...
-else:
-    ...
-
-#逻辑与或非
-#与: (expression1) and (expression2)
-#或: (expression1) or (expression2)
-#非: not (expression)
-
-#条件表达式
-result = result1 if condition else result2
-
-#while表达式
-while loop-condition:
-    ...
-
-#for表达式(可选:字符串,列表,数组等序列)
-for i in sequence:
-    ...
-
+#条件表达式: expression if condition else expression
+#循环推导式: expression for element in sequence
+#混合推导式: expression for element in sequence if condition
 '''
 
-'''
-#文件传输:
-
-#文件路径:
-filename = 'C:\Users\xxx\Desktop\xxx.txt'
-
-#文件存在性检查
-import os.path
-if os.path.isfile(filename):
-    print('file exists');
-
-#打开模式:'r','w','a','rb','wb'
-mode = 'r'
-
-file = open(filename, mode)
-
-file.read(number)  #读取number个字符,默认全部字符
-file.readline()    #读取下一行
-file.readlines()   #读取全部行,列表组织
-
-file.write(string) #写一个字符串
-
-close(file)
 
 '''
+# 可变位置参数(*args, 一个元组),可变关键字参数(**kwargs, 一个字典)
+def function(parameter1, parameter2, *args, **kwargs) :
+    print('parameter1:', parameter1)
+    print('parameter2:', parameter2)
+    print('args = {}'.format(args))
+    print('kwargs = {}'.format(kwargs))
 
+
+function(1, 2, 'args1', 'args2', kwargs1 = 'kwargs1', kwargs2 = 'kwargs')
 '''
-#从网络获取数据:
-import urllib.request
-#网址:
-url = 'http://www.baidu.com'
-#打开一个文件
-file = urllib.reques.urlopen(url)
-#读取数据
-#...
-#Byte数据转字符串
-string.decode()
-'''
+
 
 '''
 #抛出异常:
@@ -98,19 +50,14 @@ finally:
 
 '''
 
+
 '''
 #自定义对象,描述为UML类图
 #类数据元不存在绝对的私有属性
 
-class father(object):
-    def __init__(self):
-        return
-
-class ClassName:
+class Class(ClassFather):
     #构造函数(类数据元定义在此处):
-    def __init__(self,member = 0):
-        #继承时:
-        father.__init__(self)
+    def __init__(self, member = 0):
         #私有属性的定义:
         self.__member = member
         #公有属性的定义:
@@ -158,11 +105,14 @@ class ClassName:
     def __function(self):
         return
     #公有方法(成员函数):
-    def function2(self,member = 0):
+    def function2(self, member = 0):
         return
     #覆盖方法:
     #重定义对应名称的方法即可
+
+#强行访问私有变量: Object._Class__MemberName
 '''
+
 
 '''
 # Python带参多继承((*args, **kwargs)解决传参数量问题)
@@ -205,4 +155,5 @@ class Child(Parent1, Parent2, Parent3):
 instance = Child('Child', 'Parent1', 'Parent2', 'Parent3', 'Ancestor')
 print(instance.child, instance.parent1, instance.parent2, instance.parent3, instance.ancestor)
 '''
+
 
