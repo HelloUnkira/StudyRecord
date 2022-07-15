@@ -164,3 +164,45 @@ class ClassName:
     #重定义对应名称的方法即可
 '''
 
+'''
+# Python带参多继承((*args, **kwargs)解决传参数量问题)
+
+class Ancestor(object):
+    def __init__(self, ancestor, *args, **kwargs):
+        self.ancestor = ancestor
+        print('Ancestor', ancestor)
+
+
+class Parent1(Ancestor):
+    def __init__(self, parent1, ancestor, *args, **kwargs):
+        super(Parent1, self).__init__(ancestor, *args, **kwargs)
+        self.parent1 = parent1
+        print('ParentType1', parent1)
+
+
+class Parent2(Ancestor):
+    def __init__(self, parent2, ancestor, *args, **kwargs):
+        super(Parent2, self).__init__(ancestor, *args, **kwargs)
+        self.parent2 = parent2
+        print('ParentType2', parent2)
+
+
+class Parent3(Ancestor):
+    def __init__(self, parent3, ancestor, *args, **kwargs):
+        super(Parent3, self).__init__(ancestor, *args, **kwargs)
+        self.parent3 = parent3
+        print('ParentType3', parent3)
+
+
+class Child(Parent1, Parent2, Parent3):
+    def __init__(self, child, parent1, parent2, parent3, ancestor, *args, **kwargs):
+        print Child.__mro__
+        super(Child, self).__init__(parent1, parent2, parent3, ancestor, *args, **kwargs)
+        self.child = child
+        print('Child', child)
+
+
+instance = Child('Child', 'Parent1', 'Parent2', 'Parent3', 'Ancestor')
+print(instance.child, instance.parent1, instance.parent2, instance.parent3, instance.ancestor)
+'''
+
