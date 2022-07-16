@@ -47,11 +47,6 @@ def datetime_to_week(year, month, day):
     return week
 
 
-
-
-
-
-
 # 一朵简单的小心心
 def draw_simple_heart():
     import numpy as np

@@ -1,5 +1,6 @@
 # 我甚至不知道我为什么还需要做这些,也许就只是无聊,仅仅
 # 获取国内资源 : pip install 包名 -i http://pypi.douban.com/simple/ --trusted-host pypi.douban.com
+# 设置国内资源 : pip config set global.index-url http://pypi.douban.com/simple/
 # 语法明细网站 : https://www.runoob.com/python3/python3-func-enumerate.html
 # 常用模块:os,sys,math,random,datetime,time,calendar
 
