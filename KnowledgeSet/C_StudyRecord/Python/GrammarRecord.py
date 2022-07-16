@@ -5,9 +5,9 @@
 
 
 '''
-#条件表达式: expression if condition else expression
-#循环推导式: expression for element in sequence
-#混合推导式: expression for element in sequence if condition
+# 条件表达式: expression if condition else expression
+# 循环推导式: expression for element in sequence
+# 混合推导式: expression for element in sequence if condition
 '''
 
 
@@ -25,92 +25,160 @@ function(1, 2, 'args1', 'args2', kwargs1 = 'kwargs1', kwargs2 = 'kwargs')
 
 
 '''
-#抛出异常:
+# 上下文管理器
+class Context(object):
+    def __enter__(self):
+        print('__enter__')
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print('__exit__')
+
+    def execute(self):
+        print('execute:', self)
+
+
+with Context() as context:
+    context.execute()
+    print(context)
+'''
+
+
+'''
+# 装饰器
+def outer(callback):
+    def inner(parameter, *args, **kwargs):
+        if type(parameter) is not str:
+            print('need to decorate')
+        else:
+            callback(parameter)
+    return inner
+
+
+@outer
+def target_function(parameter):
+    print('do not need to decorate')
+
+
+target_function(1.0)
+target_function(str('string'))
+'''
+
+
+'''
+# 生成器
+def maker(edge)
+    for index in range(0, edge)
+        yield index
+'''
+
+
+'''
+# 抛出异常:
 raise ExceptionClass('...')
 raise RuntimeError('...')
-#...
+# ...
 
-#异常处理:
-#在类似文件传输等情况,很适用
+# 异常处理:
+# 在类似文件传输等情况,很适用
 try:
-    #...
+    # ...
 except ExceptType1 as except:
-    #...
+    # ...
 except ExceptType2 as except:
-    #...
+    # ...
 else:
-    #...
-#任何情况都执行,收尾动作
+    # ...
+# 任何情况都执行,收尾动作
 finally:
-    #...
+    # ...
 
-#在可能不稳定的逻辑体中
-#添加抛出异常的判断条件
-#在异常捕获时接收对应的异常并处理
-
+# 在可能不稳定的逻辑体中
+# 添加抛出异常的判断条件
+# 在异常捕获时接收对应的异常并处理
 '''
 
 
 '''
-#自定义对象,描述为UML类图
-#类数据元不存在绝对的私有属性
+# 自定义异常
+class CustomException(Exception):
+    def __init__(self, string):
+        self.string = string
+
+    def __str__(self):
+        return self.string
+
+
+try:
+    x = 1000 % 0
+    print x
+except Exception:
+    raise CustomException(str(Exception.message))
+finally:
+    pass
+'''
+
+
+'''
+# 自定义对象,描述为UML类图
+# 类数据元不存在绝对的私有属性
 
 class Class(ClassFather):
-    #构造函数(类数据元定义在此处):
+    # 构造函数(类数据元定义在此处):
     def __init__(self, member = 0):
-        #私有属性的定义:
+        # 私有属性的定义:
         self.__member = member
-        #公有属性的定义:
+        # 公有属性的定义:
         self.member = member
     """
-    #常用运算符重载:
-    #逻辑运算符:
-    def __lt__(self, other): #: <
-    def __gt__(self, other): #: >
-    def __le__(self, other): #: <=
-    def __ge__(self, other): #: >=
-    def __eq__(self, other): #: ==
-    def __ne__(self, other): #: !=
-    def __neg__(self): #: -self
-    def __pos__(self): #: +self
-    #算术运算符:
-    #反向运算时,__rxxx__
-    #赋值复合时,__ixxx__
-    def __add__(self, other):      #: +
-    def __sub__(self, other):      #: -
-    def __mul__(self, other):      #: *
-    def __mod__(self, other):      #: %
-    def __pow__(self, other):      #: **
-    def __truediv__(self, other):  #: /
-    def __floordiv__(self, other): #: //
-    #位运算符:
-    #赋值复合时,__ixxx__
-    def __invert__(self):        #: ~
-    def __or__(self, other):     #: |
-    def __and__(self, other):    #: &
-    def __xor__(self, other):    #: ^
-    def __lshift__(self, other): #: <<
-    def __rshift__(self, other): #: >>
-    #其余运算符:
-    def __getitem__(self, index):  #: []
-    def __contains__(self, value): #: in
-    def __cmp__(self, other):      #: cmp
-    def __len__(self):   #: len
-    def __str__(self):   #: str
-    def __int__(self):   #: int
-    def __float__(self): #: float
+    # 常用运算符重载:
+    # 逻辑运算符:
+    def __lt__(self, other): # : <
+    def __gt__(self, other): # : >
+    def __le__(self, other): # : <=
+    def __ge__(self, other): # : >=
+    def __eq__(self, other): # : ==
+    def __ne__(self, other): # : !=
+    def __neg__(self): # : -self
+    def __pos__(self): # : +self
+    # 算术运算符:
+    # 反向运算时,__rxxx__
+    # 赋值复合时,__ixxx__
+    def __add__(self, other):      # : +
+    def __sub__(self, other):      # : -
+    def __mul__(self, other):      # : *
+    def __mod__(self, other):      # : %
+    def __pow__(self, other):      # : **
+    def __truediv__(self, other):  # : /
+    def __floordiv__(self, other): # : //
+    # 位运算符:
+    # 赋值复合时,__ixxx__
+    def __invert__(self):        # : ~
+    def __or__(self, other):     # : |
+    def __and__(self, other):    # : &
+    def __xor__(self, other):    # : ^
+    def __lshift__(self, other): # : <<
+    def __rshift__(self, other): # : >>
+    # 其余运算符:
+    def __getitem__(self, index):  # : []
+    def __contains__(self, value): # : in
+    def __cmp__(self, other):      # : cmp
+    def __len__(self):   # : len
+    def __str__(self):   # : str
+    def __int__(self):   # : int
+    def __float__(self): # : float
     
     """
-    #私有方法(成员函数):
+    # 私有方法(成员函数):
     def __function(self):
         return
-    #公有方法(成员函数):
+    # 公有方法(成员函数):
     def function2(self, member = 0):
         return
-    #覆盖方法:
-    #重定义对应名称的方法即可
+    # 覆盖方法:
+    # 重定义对应名称的方法即可
 
-#强行访问私有变量: Object._Class__MemberName
+# 强行访问私有变量: Object._Class__MemberName
 '''
 
 
