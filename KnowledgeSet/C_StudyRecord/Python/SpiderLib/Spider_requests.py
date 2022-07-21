@@ -64,3 +64,42 @@ while True:
 '''
 
 
+'''
+# 图片下载(美女桌面壁纸)
+# index, index_1, ...
+website = 'http://www.netbian.com'
+base_url = 'http://www.netbian.com/meinv/index%s.htm'
+user_agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36 Core/1.94.169.400 QQBrowser/11.0.5130.400'
+for page in range(0, 64):
+    page += 1
+    if page == 1:
+        url = base_url % ''
+    else:
+        url = base_url % '_%s' % page
+    response = requests.get(url, headers={'User-Agent': user_agent})
+    assert response.status_code == 200
+    response.encoding = 'utf-8'
+    ul = etree.HTML(response.text).xpath('//div[@id="main"]//div[@class="list"]/ul')
+    for li in ul:
+        for index in range(1, 20):
+            if not li.xpath('./li[%s]/a/img/@src' % index):
+                continue
+            url1 = website + li.xpath('./li[%s]/a/@href' % index)[0]
+            print('url1:\t', url1)
+            response1 = requests.get(url1, headers={'User-Agent': user_agent})
+            assert response1.status_code == 200
+            response1.encoding = 'utf-8'
+            url2 = etree.HTML(response1.text).xpath('//div[@id="main"]//div[@class="pic"]/p/a/img/@src')[0]
+            response1.close()
+            print('url2:\t', url2)
+            response2 = requests.get(url2, headers={'User-Agent': user_agent})
+            assert response2.status_code == 200
+            response2.encoding = 'utf-8'
+            with open('img/meinv_%d_%d.jpg' % (page, index), 'wb') as file:
+                file.write(response2.content)
+            response2.close()
+            time.sleep(0.5)
+    print('download page %d success' % page)
+    time.sleep(1)
+response.close()
+'''
