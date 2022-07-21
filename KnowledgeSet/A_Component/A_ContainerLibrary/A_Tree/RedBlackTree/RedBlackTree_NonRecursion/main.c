@@ -42,8 +42,8 @@ void TestVisit(RBT_Node *Node, RBT_Color Color)
     printf("Key:%d val:%d Color:%s\n",
            ((DataTest *)GetDataTest(Node))->Key,
            ((DataTest *)GetDataTest(Node))->Rand,
-           Color == BLACK ? "BLACK" :
-           Color == RED ?   "RED"   : "ERROR");
+           Color == RBT_BLACK ? "BLACK" :
+           Color == RBT_RED ?   "RED"   : "ERROR");
 }
 
 #define MAX_ELEMENT         1000000
