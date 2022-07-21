@@ -32,8 +32,8 @@ uint32_t GetKey(void *Data)
 	return (uint32_t)(((DataTest *)Data)->Key);
 }
 
-#define MAX_ELEMENT 5000
-#define HALF_MAX_ELEMENT 2000
+#define MAX_ELEMENT 500000
+#define HALF_MAX_ELEMENT 250000
 
 int main(int argc, uint8_t *argv[]) {
 
@@ -57,7 +57,7 @@ int main(int argc, uint8_t *argv[]) {
 	}
 
 	printf("-------------------------------------------------\n");
-	printf("%u", RST_Sequence_Traversal(Tree, TestPrint, 0));
+	printf("%u", BST_Sequence_Traversal(Tree, TestPrint, 0));
 	printf("\n----------------------------------------------------\n");
  
 	Sleep(2000);
@@ -76,13 +76,13 @@ int main(int argc, uint8_t *argv[]) {
         // if (1) {
         // if (Index > 0 && Index < 150) {
 		    printf("-------------------------------------------------\n");
-        	printf("%u", RST_Sequence_Traversal(Tree, TestPrint, 0));
+        	printf("%u", BST_Sequence_Traversal(Tree, TestPrint, 0));
         	printf("\n----------------------------------------------------\n");
 		}
     }
 
     printf("-------------------------------------------------\n");
-    printf("%u", RST_Sequence_Traversal(Tree, TestDelete, 1));
+    printf("%u", BST_Sequence_Traversal(Tree, TestDelete, 1));
     printf("\n----------------------------------------------------\n");
     
 	return 0;
