@@ -27,6 +27,20 @@ with open('index.html', 'wb') as file:
 
 
 '''
+# 构建会话session,并使所有请求及其回应都发生在一个会话中
+url = 'http://www.baidu.com'
+user_agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36'
+with requests.session() as session:
+    # 会话支持POST和GET请求
+    # with session.post(url, headers={'User-Agent': user_agent}) as response:
+    with session.get(url, headers={'User-Agent': user_agent}) as response:
+        assert response.status_code == 200
+        with open('index.html', 'wb') as file:
+            file.write(response.content)
+'''
+
+
+'''
 # 古诗文下载
 page = 0
 txt_name = 'classical_chinese_poetry.txt'
