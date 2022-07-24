@@ -1,4 +1,68 @@
 
+
+'''
+# 多线程与多进程
+import threading
+import multiprocessing
+import time
+
+
+class MyThread(threading.Thread):
+    def __init__(self, name):
+        super(MyThread, self).__init__()
+        self.name = name
+        self.count = 0
+
+    def run(self):
+        while True:
+            self.count += 1
+            print("Thread name:%s count:%d" % (self.name, self.count))
+            if self.count > 5:
+                break
+            time.sleep(1)
+
+
+class MyProcess(multiprocessing.Process):
+    def __init__(self, name):
+        super(MyProcess, self).__init__()
+        self.thread1 = None  # 意外错误捕获:不可以在初始化时调用线程构造
+        self.thread2 = None  # 意外错误捕获:不可以在初始化时调用线程构造
+        self.name = name
+        self.count = 0
+
+    def run(self):
+        # 该进程创建俩个线程并运行
+        self.thread1 = MyThread(self.name + '_Thread1')
+        self.thread2 = MyThread(self.name + '_Thread2')
+        self.thread1.start()
+        self.thread2.start()
+        while True:
+            self.count += 1
+            print("Process name:%s count:%d" % (self.name, self.count))
+            if self.count > 10:
+                break
+            time.sleep(1)
+        self.thread1.join()
+        self.thread2.join()
+
+
+if __name__ == '__main__':
+    # 该进程创建俩个线程,俩个进程
+    process1 = MyProcess('main' + '_Process1')
+    process2 = MyProcess('main' + '_Process2')
+    thread1 = MyThread('main' + '_Thread1')
+    thread2 = MyThread('main' + '_Thread2')
+    process1.start()
+    process2.start()
+    thread1.start()
+    thread2.start()
+    process1.join()
+    process2.join()
+    thread1.join()
+    thread2.join()
+    print('--over--')
+'''
+
 '''
 # 摘要模块
 import hashlib
@@ -174,45 +238,6 @@ dictionary.popitem()    #随机获得一个条目,并移除条目
 number = random.randint(a,b)   #生成[a,b]范围内整数
 number = random.randrange(a,b) #生成[a,b)范围内整数
 number = random.random()       #生成[0,1]范围内小数
-'''
-
-'''
-#文件传输:
-
-#文件路径:
-filename = 'C:\Users\xxx\Desktop\xxx.txt'
-
-#文件存在性检查
-import os.path
-if os.path.isfile(filename):
-    print('file exists');
-
-#打开模式:'r','w','a','rb','wb'
-mode = 'r'
-
-file = open(filename, mode)
-
-file.read(number)  #读取number个字符,默认全部字符
-file.readline()    #读取下一行
-file.readlines()   #读取全部行,列表组织
-
-file.write(string) #写一个字符串
-
-close(file)
-
-'''
-
-'''
-#从网络获取数据:
-import urllib.request
-#网址:
-url = 'http://www.baidu.com'
-#打开一个文件
-file = urllib.reques.urlopen(url)
-#读取数据
-#...
-#Byte数据转字符串
-string.decode()
 '''
 
 '''
