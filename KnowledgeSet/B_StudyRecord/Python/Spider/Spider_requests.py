@@ -127,7 +127,7 @@ response.close()
 '''
 # 异步协程获取西游记(因为速度过快,服务器会掐断连接,待定中)
 
-async def aio_download(index, cid, title, b_id, result):
+async def aio_download(index, cid, title, b_id):
     url = 'https://dushu.baidu.com/api/pc/getChapterContent?data='
     chapter_url = url + json.dumps({"book_id": b_id, "cid": f'{b_id}|{cid}', "need_bookinfo": 0})
     print(chapter_url)
