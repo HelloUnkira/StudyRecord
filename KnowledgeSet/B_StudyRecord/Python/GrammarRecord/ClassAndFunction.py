@@ -1,6 +1,33 @@
 
 
 '''
+# 协程
+import asyncio
+
+
+async def cooperate1():
+    print('--cooperate1 enter--')
+    await asyncio.sleep(1)
+    print('--cooperate1 exit--')
+
+
+async def cooperate2():
+    print('--cooperate2 enter--')
+    await asyncio.sleep(2)
+    print('--cooperate1 exit--')
+
+
+async def main():
+    task = [asyncio.create_task(cooperate1()),
+            asyncio.create_task(cooperate2())]
+    await asyncio.wait(task)
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
+'''
+
+'''
 # 多线程与多进程
 import threading
 import multiprocessing
