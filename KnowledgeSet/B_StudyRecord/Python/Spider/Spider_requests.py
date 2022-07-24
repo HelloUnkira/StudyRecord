@@ -1,5 +1,10 @@
 # 爬虫库requests
 import requests
+import asyncio
+import aiohttp
+import aiofiles
+import json
+
 from lxml import etree
 from urllib.parse import quote
 import os
@@ -117,3 +122,35 @@ for page in range(0, 64):
     time.sleep(1)
 response.close()
 '''
+
+
+'''
+# 异步协程获取西游记(因为速度过快,服务器会掐断连接,待定中)
+
+async def aio_download(index, cid, title, b_id, result):
+    url = 'https://dushu.baidu.com/api/pc/getChapterContent?data='
+    chapter_url = url + json.dumps({"book_id": b_id, "cid": f'{b_id}|{cid}', "need_bookinfo": 0})
+    print(chapter_url)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(chapter_url) as response:
+            async with aiofiles.open('西游记/%4d%s' % (index, title), 'wb') as file:
+                await file.write(json.loads(await response.text())['data']['novel']['content'])
+
+
+async def main():
+    book_id = '4306063500'
+    bool_url = 'https://dushu.baidu.com/api/pc/getCatalog?data={"book_id":"' + book_id + '"}'
+    with requests.get(bool_url) as response:
+        assert response.status_code == 200
+        response.encoding = 'utf-8'
+        await asyncio.wait([asyncio.create_task(aio_download(index, item['cid'], item['title'], book_id))
+                            for index, item in enumerate(response.json()['data']['novel']['items'])])
+
+if __name__ == '__main__':
+    asyncio.run(main())
+'''
+
+
+
+
+
