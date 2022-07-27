@@ -72,11 +72,6 @@ typedef enum {BST_ERROR = 2}                  BST_Error;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 地址等价整型,满足: sizeof(BST_VoidSTarType) >= sizeof(void *) */
-#define BST_VoidSTarType    uint64_t
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 /* B*树集合抽象方法 */
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -192,11 +187,11 @@ static inline void BST_NodeSetSetNumber(BST_Node *Node, uint32_t Number)
 /*************************************************************************************************/
 static inline void BST_NodeSetChildOrDataSet(BST_Node *Node, void **Set)
 {
-    BST_VoidSTarType Result = 0;
+    uintptr_t Result = 0;
     
-    Result |= (BST_VoidSTarType)(Node->ChildOrDataSetAndState);
-    Result &= (BST_VoidSTarType)(1);
-    Result |= (BST_VoidSTarType)(Set);
+    Result |= (uintptr_t)(Node->ChildOrDataSetAndState);
+    Result &= (uintptr_t)(1);
+    Result |= (uintptr_t)(Set);
 
     Node->ChildOrDataSetAndState = (void *)Result;
 }
@@ -205,15 +200,15 @@ static inline void BST_NodeSetChildOrDataSet(BST_Node *Node, void **Set)
 /*************************************************************************************************/
 static inline void BST_NodeSetState(BST_Node *Node, uint32_t State)
 {
-    BST_VoidSTarType Result = 0;
+    uintptr_t Result = 0;
     
-    Result |= (BST_VoidSTarType)(Node->ChildOrDataSetAndState);
-    Result &= (BST_VoidSTarType)(~1);
+    Result |= (uintptr_t)(Node->ChildOrDataSetAndState);
+    Result &= (uintptr_t)(~1);
     
     if (State  == BST_LEAVES)
-        Result |= (BST_VoidSTarType)BST_LEAVES;
+        Result |= (uintptr_t)BST_LEAVES;
     if (State  == BST_COMMON)
-        Result |= (BST_VoidSTarType)BST_COMMON;
+        Result |= (uintptr_t)BST_COMMON;
 
     Node->ChildOrDataSetAndState = (void *)Result;
 }
@@ -261,10 +256,10 @@ static inline uint32_t BST_NodeGetSetNumber(BST_Node *Node)
 /*************************************************************************************************/
 static inline void ** BST_NodeGetChildOrDataSet(BST_Node *Node)
 {
-    BST_VoidSTarType Result = 0;
+    uintptr_t Result = 0;
     
-    Result |= (BST_VoidSTarType)(Node->ChildOrDataSetAndState);
-    Result &= (BST_VoidSTarType)(~1);
+    Result |= (uintptr_t)(Node->ChildOrDataSetAndState);
+    Result &= (uintptr_t)(~1);
     
     return (void **)Result;
 }
@@ -273,10 +268,10 @@ static inline void ** BST_NodeGetChildOrDataSet(BST_Node *Node)
 /*************************************************************************************************/
 static inline uint32_t BST_NodeGetState(BST_Node *Node)
 {
-    BST_VoidSTarType Result = 0;
+    uintptr_t Result = 0;
     
-    Result |= (BST_VoidSTarType)(Node->ChildOrDataSetAndState);
-    Result &= (BST_VoidSTarType)(1);
+    Result |= (uintptr_t)(Node->ChildOrDataSetAndState);
+    Result &= (uintptr_t)(1);
     
     if (Result == BST_LEAVES)
         return BST_LEAVES;

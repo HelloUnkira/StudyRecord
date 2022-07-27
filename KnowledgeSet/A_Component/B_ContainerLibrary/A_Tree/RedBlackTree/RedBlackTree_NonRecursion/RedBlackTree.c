@@ -50,11 +50,6 @@ typedef enum {RBT_ERROR = 2}                RBT_Error;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 地址等价整型,满足: sizeof(RBT_VoidSTarType) >= sizeof(void *) */
-#define RBT_VoidSTarType    uint64_t
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 /* 红黑树集合抽象方法 */
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -107,11 +102,11 @@ static inline uint8_t RBT_TreeComfirm(RBT_Tree *Tree, RBT_Node *Node1, RBT_Node 
 /*************************************************************************************************/
 static inline void RBT_NodeSetColor(RBT_Node *Node, RBT_Color Color)
 {
-    RBT_VoidSTarType Result = 0;
+    uintptr_t Result = 0;
     
-    Result |= (RBT_VoidSTarType)(Node->ParentAndColor);
-    Result &= (RBT_VoidSTarType)(~1);
-    Result |= (RBT_VoidSTarType)(Color & 1);
+    Result |= (uintptr_t)(Node->ParentAndColor);
+    Result &= (uintptr_t)(~1);
+    Result |= (uintptr_t)(Color & 1);
     
     Node->ParentAndColor = (RBT_Node *)(Result);
 }
@@ -120,11 +115,11 @@ static inline void RBT_NodeSetColor(RBT_Node *Node, RBT_Color Color)
 /*************************************************************************************************/
 static inline void RBT_NodeSetParent(RBT_Node *Node, RBT_Node *Parent)
 {
-    RBT_VoidSTarType Result = 0;
+    uintptr_t Result = 0;
     
-    Result |= (RBT_VoidSTarType)(Node->ParentAndColor);
-    Result &= (RBT_VoidSTarType)(1);
-    Result |= (RBT_VoidSTarType)(Parent);
+    Result |= (uintptr_t)(Node->ParentAndColor);
+    Result &= (uintptr_t)(1);
+    Result |= (uintptr_t)(Parent);
     
     Node->ParentAndColor = (RBT_Node *)(Result);
 }
@@ -147,10 +142,10 @@ static inline void RBT_NodeSetChild(RBT_Node *Node, RBT_Node *Child, RBT_Side Si
 /*************************************************************************************************/
 static inline RBT_Color RBT_NodeGetColor(RBT_Node *Node)
 {
-    RBT_VoidSTarType Result = 0;
+    uintptr_t Result = 0;
     
-    Result |= (RBT_VoidSTarType)(Node->ParentAndColor);
-    Result &= (RBT_VoidSTarType)(1);
+    Result |= (uintptr_t)(Node->ParentAndColor);
+    Result &= (uintptr_t)(1);
     
     return (RBT_Color)Result;
 }
@@ -159,10 +154,10 @@ static inline RBT_Color RBT_NodeGetColor(RBT_Node *Node)
 /*************************************************************************************************/
 static inline RBT_Node * RBT_NodeGetParent(RBT_Node *Node)
 {
-    RBT_VoidSTarType Result = 0;
+    uintptr_t Result = 0;
     
-    Result |= (RBT_VoidSTarType)(Node->ParentAndColor);
-    Result &= (RBT_VoidSTarType)(~1);
+    Result |= (uintptr_t)(Node->ParentAndColor);
+    Result &= (uintptr_t)(~1);
     
     return (RBT_Node *)Result;
 }
