@@ -8,7 +8,7 @@ typedef struct task {
     void  *next;
     void (*exec)(void *args);
     void  *args;
-} ptask;
+} ptask_t;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -18,16 +18,16 @@ typedef struct thread_pool {
     pthread_t      *tids;
     pthread_cond_t  cond;
     pthread_mutex_t lock;
-    ptask          *head;
-    ptask          *tail;
+    ptask_t        *head;
+    ptask_t        *tail;
     unsigned int    curr;
-} pthread_pool;
+} pthread_pool_t;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 static void * ptask_exec(void *args)
 {
-    pthread_pool *pool = args;
+    pthread_pool_t *pool = args;
     while (1) {
         if (1) {
             pthread_mutex_lock(&pool->lock);
@@ -38,7 +38,7 @@ static void * ptask_exec(void *args)
         }
         /* scene 2: if task queue is not empty, take task from task queue and execute */
         if (pool->curr != 0) {
-            ptask *task = pool->head;
+            ptask_t *task = pool->head;
             pool->head = task->next;
             if (pool->head == NULL)
                 pool->tail = NULL;
@@ -59,7 +59,7 @@ static void * ptask_exec(void *args)
 /*************************************************************************************************/
 void * pthread_pool_create(unsigned int nums)
 {
-    pthread_pool *pool = malloc(sizeof(pthread_pool));
+    pthread_pool_t *pool = malloc(sizeof(pthread_pool_t));
     if (pool == NULL)
         return NULL;
     pool->shutdown = 0;
@@ -83,7 +83,7 @@ void * pthread_pool_create(unsigned int nums)
 /*************************************************************************************************/
 void pthread_pool_destroy(void *instance)
 {
-    pthread_pool *pool = instance;
+    pthread_pool_t *pool = instance;
     pthread_mutex_lock(&pool->lock);
     pool->shutdown = 1;
     pthread_mutex_unlock(&pool->lock);
@@ -99,8 +99,8 @@ void pthread_pool_destroy(void *instance)
 /*************************************************************************************************/
 void pthread_pool_commit(void *instance, void (*exec)(void *args), void *args)
 {
-    pthread_pool *pool = instance;
-    ptask *task = malloc(sizeof(ptask));
+    pthread_pool_t *pool = instance;
+    ptask_t *task = malloc(sizeof(ptask_t));
     task->exec = exec;
     task->args = args;
     task->next = NULL;
