@@ -7,6 +7,15 @@ from selenium.webdriver.firefox.options import Options
 import time
 
 '''
+# 无头浏览器配置:
+options = Options()
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')
+# options.binary_location=r'浏览器驱动的文件路径及其地址'
+browser = (options=options)
+'''
+
+'''
 # 使用火狐并开启一个浏览器
 browser = Firefox()
 browser.get('https://www.zhaopin.com/citymap')
