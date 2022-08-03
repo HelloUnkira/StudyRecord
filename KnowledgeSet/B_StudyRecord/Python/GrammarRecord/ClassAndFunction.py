@@ -1,93 +1,41 @@
 
 
 '''
-# 协程
-import asyncio
+# 日志模组的使用
+import logging
+from logging import Formatter
+from logging import FileHandler
+from logging import StreamHandler
 
+# 流式日志模组
+formatter = Formatter(fmt='[ %(asctime)s of %(name)s - %(levelname)s ] %(message)s',
+                      datefmt='%Y-%m-%d %H:%M:%S')
+stream_handler = StreamHandler()
+stream_handler.setFormatter(formatter)
+stream_handler.setLevel(logging.INFO)
+logger_name = 'log'
+logger = logging.getLogger(logger_name)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(stream_handler)
+#
+logger.debug('---')
+logger.info('---')
+logger.error('---')
 
-async def cooperate1():
-    print('--cooperate1 enter--')
-    await asyncio.sleep(1)
-    print('--cooperate1 exit--')
-
-
-async def cooperate2():
-    print('--cooperate2 enter--')
-    await asyncio.sleep(2)
-    print('--cooperate1 exit--')
-
-
-async def main():
-    task = [asyncio.create_task(cooperate1()),
-            asyncio.create_task(cooperate2())]
-    await asyncio.wait(task)
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
-'''
-
-'''
-# 多线程与多进程
-import threading
-import multiprocessing
-import time
-
-
-class MyThread(threading.Thread):
-    def __init__(self, name):
-        super(MyThread, self).__init__()
-        self.name = name
-        self.count = 0
-
-    def run(self):
-        while True:
-            self.count += 1
-            print("Thread name:%s count:%d" % (self.name, self.count))
-            if self.count > 5:
-                break
-            time.sleep(1)
-
-
-class MyProcess(multiprocessing.Process):
-    def __init__(self, name):
-        super(MyProcess, self).__init__()
-        self.thread1 = None  # 意外错误捕获:不可以在初始化时调用线程构造
-        self.thread2 = None  # 意外错误捕获:不可以在初始化时调用线程构造
-        self.name = name
-        self.count = 0
-
-    def run(self):
-        # 该进程创建俩个线程并运行
-        self.thread1 = MyThread(self.name + '_Thread1')
-        self.thread2 = MyThread(self.name + '_Thread2')
-        self.thread1.start()
-        self.thread2.start()
-        while True:
-            self.count += 1
-            print("Process name:%s count:%d" % (self.name, self.count))
-            if self.count > 10:
-                break
-            time.sleep(1)
-        self.thread1.join()
-        self.thread2.join()
-
-
-if __name__ == '__main__':
-    # 该进程创建俩个线程,俩个进程
-    process1 = MyProcess('main' + '_Process1')
-    process2 = MyProcess('main' + '_Process2')
-    thread1 = MyThread('main' + '_Thread1')
-    thread2 = MyThread('main' + '_Thread2')
-    process1.start()
-    process2.start()
-    thread1.start()
-    thread2.start()
-    process1.join()
-    process2.join()
-    thread1.join()
-    thread2.join()
-    print('--over--')
+# 文件日志模组
+formatter = Formatter(fmt='[ %(asctime)s of %(name)s - %(levelname)s ] %(message)s',
+                      datefmt='%Y-%m-%d %H:%M:%S')
+file_handler = FileHandler('message.log', encoding='utf-8')
+file_handler.setFormatter(formatter)
+file_handler.setLevel(logging.INFO)
+logger_name = 'log'
+logger = logging.getLogger(logger_name)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(file_handler)
+#
+logger.debug('---')
+logger.info('---')
+logger.error('---')
 '''
 
 '''

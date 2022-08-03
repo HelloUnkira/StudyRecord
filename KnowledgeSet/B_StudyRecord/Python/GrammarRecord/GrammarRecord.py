@@ -226,3 +226,94 @@ print(instance.child, instance.parent1, instance.parent2, instance.parent3, inst
 '''
 
 
+'''
+# 协程
+import asyncio
+
+
+async def cooperate1():
+    print('--cooperate1 enter--')
+    await asyncio.sleep(1)
+    print('--cooperate1 exit--')
+
+
+async def cooperate2():
+    print('--cooperate2 enter--')
+    await asyncio.sleep(2)
+    print('--cooperate1 exit--')
+
+
+async def main():
+    task = [asyncio.create_task(cooperate1()),
+            asyncio.create_task(cooperate2())]
+    await asyncio.wait(task)
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
+'''
+
+
+'''
+# 多线程与多进程
+import threading
+import multiprocessing
+import time
+
+
+class MyThread(threading.Thread):
+    def __init__(self, name):
+        super(MyThread, self).__init__()
+        self.name = name
+        self.count = 0
+
+    def run(self):
+        while True:
+            self.count += 1
+            print("Thread name:%s count:%d" % (self.name, self.count))
+            if self.count > 5:
+                break
+            time.sleep(1)
+
+
+class MyProcess(multiprocessing.Process):
+    def __init__(self, name):
+        super(MyProcess, self).__init__()
+        self.thread1 = None  # 意外错误捕获:不可以在初始化时调用线程构造
+        self.thread2 = None  # 意外错误捕获:不可以在初始化时调用线程构造
+        self.name = name
+        self.count = 0
+
+    def run(self):
+        # 该进程创建俩个线程并运行
+        self.thread1 = MyThread(self.name + '_Thread1')
+        self.thread2 = MyThread(self.name + '_Thread2')
+        self.thread1.start()
+        self.thread2.start()
+        while True:
+            self.count += 1
+            print("Process name:%s count:%d" % (self.name, self.count))
+            if self.count > 10:
+                break
+            time.sleep(1)
+        self.thread1.join()
+        self.thread2.join()
+
+
+if __name__ == '__main__':
+    # 该进程创建俩个线程,俩个进程
+    process1 = MyProcess('main' + '_Process1')
+    process2 = MyProcess('main' + '_Process2')
+    thread1 = MyThread('main' + '_Thread1')
+    thread2 = MyThread('main' + '_Thread2')
+    process1.start()
+    process2.start()
+    thread1.start()
+    thread2.start()
+    process1.join()
+    process2.join()
+    thread1.join()
+    thread2.join()
+    print('--over--')
+'''
+
