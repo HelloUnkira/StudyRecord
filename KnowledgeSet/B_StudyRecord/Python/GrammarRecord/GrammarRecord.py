@@ -240,7 +240,7 @@ async def cooperate1():
 async def cooperate2():
     print('--cooperate2 enter--')
     await asyncio.sleep(2)
-    print('--cooperate1 exit--')
+    print('--cooperate2 exit--')
 
 
 async def main():

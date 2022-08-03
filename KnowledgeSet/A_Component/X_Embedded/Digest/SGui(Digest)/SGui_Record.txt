@@ -5,7 +5,7 @@
     SGui/Core/SGui_Handle       ==> (控件资源管理)
     SGui/Core/SGui_Clip(Clips)  ==> (剪切域及剪切域集合运算)
     SGui/Core/SGui_Event        ==> (传递到控件的事件)
-	SGui/Core/SGui_Animation    ==> (传递到主控件的动画事件)
+    SGui/Core/SGui_Animation    ==> (传递到主控件的动画事件)
     SGui/Core/SGui_Domain       ==> (描述坐标与坐标域)
     SGui/Core/SGui_Pixel        ==> (描述像素点及其颜色)
     SGui/Core/SGui_Canvas       ==> (画布,对接到Port的Buffer中,并在控件绘制前计算子画布)
