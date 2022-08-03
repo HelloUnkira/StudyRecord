@@ -1,42 +1,24 @@
-# StudyRecord
-
-# ---Verse--- #  
-我,  
-在人间淋雨,  
-在人间踌躇不前,  
-在人间徘徊不止,  
-在人间举步维艰,  
-在人间悲怨满垠.  
-我,  
-已知此生之来处,  
-亦知此生之归处,  
-却生之种种,  
-缘何镜花水月,  
-至此后,  
-余下爱情在居无定所,  
-余下身躯在四处漂泊,  
-余下灵魂在随意流放.  
-我,  
-总是无法安然进入梦乡,  
-总是无法宁静面对过去,  
-总是无法乐观幻想未来,  
-我,  
-总是,  
-无法心安理得的笑.  
-我,  
-还在人间活着.  
-我,  
-终在人间消弭.  
-我,  
-终将了无痕迹.  
-
-# ---Chorus--- #  
-世间如果有神明,  
-可不可以代我相问,  
-成为万物生灵中的一员,  
-机缘如此宝贵,  
-我还以为你......  
-从来都不会选我  
-
-# ---Record--- #  
-邮箱:15197794498@139.com
+# Study Record
+Dear Stranger:  
+​    That Would Be My Pleasure.  
+​    If You Read This Document.  
+​    I Am An Ordinary Embedded Software Engineer.  
+​    This Repository Recorded Some Content  
+    Of The Study And Work Encountered.  
+​    And I think It Is Necessary For Me To Record.  
+​    It Focus On Some Data Structure Knowledge  
+​    And Some Practical Organizational Structures.  
+​    I Love And Enjoy Programming Optimizations.  
+​    It May Not Be 'Practical' Though.  
+​    Even Added Some Of My Deviant Thoughts.  
+    It Might Make It Look Awful, And Maybe It Is.  
+    Well, You Might Hate It, But I Am Sorry.  
+​    But Whether You Want To Accept Or Reject It.  
+    Still Thank You And Your Time.  
+​    That Would Be The Biggest Validation For Me.  
+    You May Be Skeptical Of This Statement.  
+    But It Did Not Matter.  
+    Because I Had Nothing Left But Humility.  
+​    If You Would Like To Give Some Guidance,  
+​    Then I need To Thank You In Advance,  
+​    Then, My E-Mail:15197794498@139.com.  
