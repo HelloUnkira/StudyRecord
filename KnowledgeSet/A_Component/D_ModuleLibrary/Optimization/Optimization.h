@@ -2,36 +2,58 @@
 #define OPTIMIZATION_H
 // C std lib
 #include <stdint.h>
+#include <stdbool.h>
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define Unused(Expression)  do { (volatile void *)(Expression) } while (0)
+#define Unused(Expr)  do {(volatile void *)(Expr);} while (0)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define MemR_F32(Address)   (*(volatile    float *)(Address))
-#define MemR_F64(Address)   (*(volatile   double *)(Address))
-#define MemR_I8( Address)   (*(volatile   int8_t *)(Address))
-#define MemR_I16(Address)   (*(volatile  int16_t *)(Address))
-#define MemR_I32(Address)   (*(volatile  int32_t *)(Address))
-#define MemR_I64(Address)   (*(volatile  int64_t *)(Address))
-#define MemR_U8( Address)   (*(volatile  uint8_t *)(Address))
-#define MemR_U16(Address)   (*(volatile uint16_t *)(Address))
-#define MemR_U32(Address)   (*(volatile uint32_t *)(Address))
-#define MemR_U64(Address)   (*(volatile uint64_t *)(Address))
+#define MemR_F32(Addr)   (*(volatile    float *)(Addr))
+#define MemR_F64(Addr)   (*(volatile   double *)(Addr))
+#define MemR_I8( Addr)   (*(volatile   int8_t *)(Addr))
+#define MemR_I16(Addr)   (*(volatile  int16_t *)(Addr))
+#define MemR_I32(Addr)   (*(volatile  int32_t *)(Addr))
+#define MemR_I64(Addr)   (*(volatile  int64_t *)(Addr))
+#define MemR_U8( Addr)   (*(volatile  uint8_t *)(Addr))
+#define MemR_U16(Addr)   (*(volatile uint16_t *)(Addr))
+#define MemR_U32(Addr)   (*(volatile uint32_t *)(Addr))
+#define MemR_U64(Addr)   (*(volatile uint64_t *)(Addr))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define MemW_F32(Address, Data) ((*(volatile    float *)(Address)) = (Data))
-#define MemW_F64(Address, Data) ((*(volatile   double *)(Address)) = (Data))
-#define MemW_I8( Address, Data) ((*(volatile   int8_t *)(Address)) = (Data))
-#define MemW_I16(Address, Data) ((*(volatile  int16_t *)(Address)) = (Data))
-#define MemW_I32(Address, Data) ((*(volatile  int32_t *)(Address)) = (Data))
-#define MemW_I64(Address, Data) ((*(volatile  int64_t *)(Address)) = (Data))
-#define MemW_U8( Address, Data) ((*(volatile  uint8_t *)(Address)) = (Data))
-#define MemW_U16(Address, Data) ((*(volatile uint16_t *)(Address)) = (Data))
-#define MemW_U32(Address, Data) ((*(volatile uint32_t *)(Address)) = (Data))
-#define MemW_U64(Address, Data) ((*(volatile uint64_t *)(Address)) = (Data))
+#define MemW_F32(Addr, Data) ((*(volatile    float *)(Addr)) = (Data))
+#define MemW_F64(Addr, Data) ((*(volatile   double *)(Addr)) = (Data))
+#define MemW_I8( Addr, Data) ((*(volatile   int8_t *)(Addr)) = (Data))
+#define MemW_I16(Addr, Data) ((*(volatile  int16_t *)(Addr)) = (Data))
+#define MemW_I32(Addr, Data) ((*(volatile  int32_t *)(Addr)) = (Data))
+#define MemW_I64(Addr, Data) ((*(volatile  int64_t *)(Addr)) = (Data))
+#define MemW_U8( Addr, Data) ((*(volatile  uint8_t *)(Addr)) = (Data))
+#define MemW_U16(Addr, Data) ((*(volatile uint16_t *)(Addr)) = (Data))
+#define MemW_U32(Addr, Data) ((*(volatile uint32_t *)(Addr)) = (Data))
+#define MemW_U64(Addr, Data) ((*(volatile uint64_t *)(Addr)) = (Data))
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#define BitG_U8( Addr, Pos) ((MemR_U8(Addr)  & (1 << (Pos % 8)))  == 0 ? false : true)
+#define BitG_U16(Addr, Pos) ((MemR_U16(Addr) & (1 << (Pos % 16))) == 0 ? false : true)
+#define BitG_U32(Addr, Pos) ((MemR_U32(Addr) & (1 << (Pos % 32))) == 0 ? false : true)
+#define BitG_U64(Addr, Pos) ((MemR_U64(Addr) & (1 << (Pos % 64))) == 0 ? false : true)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#define BitS_U8( Addr, Pos) (MemW_U8(Addr,  (MemR_U8(Addr)  | (1 << (Pos % 8)))))
+#define BitS_U16(Addr, Pos) (MemW_U16(Addr, (MemR_U16(Addr) | (1 << (Pos % 16)))))
+#define BitS_U32(Addr, Pos) (MemW_U32(Addr, (MemR_U32(Addr) | (1 << (Pos % 32)))))
+#define BitS_U64(Addr, Pos) (MemW_U64(Addr, (MemR_U64(Addr) | (1 << (Pos % 64)))))
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#define BitR_U8( Addr, Pos) (MemW_U8(Addr,  (MemR_U8(Addr)  & (~(1 << (Pos % 8))))))
+#define BitR_U16(Addr, Pos) (MemW_U16(Addr, (MemR_U16(Addr) & (~(1 << (Pos % 16))))))
+#define BitR_U32(Addr, Pos) (MemW_U32(Addr, (MemR_U32(Addr) & (~(1 << (Pos % 32))))))
+#define BitR_U64(Addr, Pos) (MemW_U64(Addr, (MemR_U64(Addr) & (~(1 << (Pos % 64))))))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -63,6 +85,30 @@ static inline  uint8_t Max_U8(  uint8_t X,  uint8_t Y) {return Max(X, Y);}
 static inline uint16_t Max_U16(uint16_t X, uint16_t Y) {return Max(X, Y);}
 static inline uint32_t Max_U32(uint32_t X, uint32_t Y) {return Max(X, Y);}
 static inline uint64_t Max_U64(uint64_t X, uint64_t Y) {return Max(X, Y);}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#define Abs(X)  ((X) < 0 ? -(X) : (X))
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline    float Abs_F32(  float X) {return Abs(X);}
+static inline   double Abs_F64( double X) {return Abs(X);}
+static inline   int8_t Abs_I8(  int8_t X) {return Abs(X);}
+static inline  int16_t Abs_I16(int16_t X) {return Abs(X);}
+static inline  int32_t Abs_I32(int32_t X) {return Abs(X);}
+static inline  int64_t Abs_I64(int64_t X) {return Abs(X);}
+static inline  uint8_t Abs_U8(  int8_t X) {return Abs(X);}
+static inline uint16_t Abs_U16(int16_t X) {return Abs(X);}
+static inline uint32_t Abs_U32(int32_t X) {return Abs(X);}
+static inline uint64_t Abs_U64(int64_t X) {return Abs(X);}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+
+
+
+
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
