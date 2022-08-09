@@ -1,6 +1,18 @@
 
 
 '''
+import csv
+# 写一个9*9乘法表矩阵到csv中并读取出来
+with open('table_multiply_9_9.csv', 'w', encoding='utf-8', newline='') as file:
+    writer = csv.writer(file, dialect='excel')
+    writer.writerows([[str(i * j) for i in range(1, 10)] for j in range(1, 10)])
+with open('table_multiply_9_9.csv', 'r') as file:
+    reader = csv.reader(file, dialect='excel')
+    for row in reader:
+        print(row)
+'''
+
+'''
 # 日志模组的使用
 import logging
 from logging import Formatter
