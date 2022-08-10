@@ -1,3 +1,12 @@
+/*=====[Program Name]==========================================================
+ * Copyright YYYY Author Compelte Name <author@mail.com>
+ * All rights reserved.
+ * License: license text or at least name and link 
+         (example: BSD-3-Clause <https://opensource.org/licenses/BSD-3-Clause>)
+ *
+ * Version: 0.0.0
+ * Creation Date: YYYY/MM/DD
+ */
 
 /*=====[Inclusions of function dependencies]=================================*/
 
@@ -11,11 +20,14 @@
 
 /*=====[Main function, program entry point after power on or reset]==========*/
 
-int main( void )
+int main (void)
 {
-   // ----- Setup -----------------------------------
+   // ----- Configurations --------------------------
 
    // ----- Repeat for ever -------------------------
+   while(TRUE) {
+      
+   }
 
    // YOU NEVER REACH HERE, because this program runs directly or on a
    // microcontroller and is not called by any Operating System, as in the 

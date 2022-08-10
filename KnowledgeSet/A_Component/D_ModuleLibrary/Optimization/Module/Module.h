@@ -1,9 +1,25 @@
+/*=====[Module Name]===========================================================
+ * Copyright YYYY Author Compelte Name <author@mail.com>
+ * All rights reserved.
+ * License: license text or at least name and link 
+         (example: BSD-3-Clause <https://opensource.org/licenses/BSD-3-Clause>)
+ *
+ * Version: 0.0.0
+ * Creation Date: YYYY/MM/DD
+ */
+
 /*=====[Avoid multiple inclusion - begin]====================================*/
 
-#ifndef __MODULE_H__
-#define __MODULE_H__
+#ifndef _MODULE_H_
+#define _MODULE_H_
 
 /*=====[Inclusions of public function dependencies]==========================*/
+
+/*=====[C++ - begin]=========================================================*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*=====[Definition macros of public constants]===============================*/
 
@@ -15,6 +31,12 @@
 
 /*=====[Prototypes (declarations) of public interrupt functions]=============*/
 
+/*=====[C++ - end]===========================================================*/
+
+#ifdef __cplusplus
+}
+#endif
+
 /*=====[Avoid multiple inclusion - end]======================================*/
 
-#endif /* __MODULE_H__ */
+#endif /* _MODULE_H_ */
