@@ -1,6 +1,26 @@
 #杂七杂八
 
 
+# clean_dirs(r'C:\Users\Aoc\Desktop\PY_Project\code\linux-5.18.12', ['.c', '.h'])
+# 清除目标文件夹中非目标文件及空文件夹
+def clean_dirs(dirs_path, ext_list):
+    import os
+    # 先清除非目标文件
+    for index in os.listdir(dirs_path):
+        index_path = dirs_path + '\\' + index
+        if os.path.isfile(index_path):
+            index_ext = os.path.splitext(index_path)[-1]
+            if index_ext is not ext_list:
+                os.remove(index_path)
+    # 后递归清除子文件夹
+    for index in os.listdir(dirs_path):
+        index_path = dirs_path + '\\' + index
+        if os.path.isdir(index_path):
+            clean_dirs(index_path, ext_list)
+            if not os.listdir(index_path):
+                os.rmdir(index_path)
+
+
 # 筛选range (2, edge)中的素数,并生成素数列表
 def prime_sizer(edge):
     if edge < 2:

@@ -57,6 +57,27 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+static inline bool IsSupper(char C) {return ('A' <= C && C <= 'Z');}
+static inline bool IsLower(char C)  {return ('a' <= C && C <= 'z');}
+static inline bool IsDigit(char C)  {return ('0' <= C && C <= '9');}
+static inline bool IsAlpha(char C)  {return ('A' <= C && C <= 'Z') || ('a' <= C && C <= 'z');}
+static inline bool IsAlNum(char C)  {return ('A' <= C && C <= 'Z') || ('a' <= C && C <= 'z') ||
+                                            ('0' <= C && C <= '9');}
+static inline bool IsHexaD(char C)  {return ('A' <= C && C <= 'F') || ('a' <= C && C <= 'f') ||
+                                            ('0' <= C && C <= '9');}
+static inline bool IsBlank(char C)  {return (' ' == C || '\t' == C || '\n' == C);}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline uintptr_t AlignV(void)       /* Value  */ {return sizeof(uintptr_t);}
+static inline uintptr_t AlignO(void *Addr) /* Offset */ {return (uintptr_t)(Addr) % AlignV();}
+static inline uintptr_t AlignB(void *Addr) /* Base   */ {return (uintptr_t)(Addr) - AlignO(Addr);}
+static inline void *    AlignL(void *Addr) /* Low    */ {return AlignB(Addr);}
+static inline void *    AlignH(void *Addr) /* High   */ {return AlignB(Addr) + AlignV();}
+static inline bool      AlignC(void *Addr) /* Check  */ {return AlignO(Addr) == 0;}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 #define Min(X, Y)   ((X) < (Y) ? (X) : (Y))
 #define Max(X, Y)   ((X) > (Y) ? (X) : (Y))
 /*************************************************************************************************/
@@ -120,22 +141,6 @@ static inline int64_t Map_I16(int64_t X, int64_t LI, int64_t LO, int64_t RI, int
 #define LShift(Data, Offset)    ((Data) << (Offset))
 #define RShift(Data, Offset)    ((Data) >> (Offset))
 #define ArrLen(Array)   (sizeof(Array) / sizeof(Array[0]))
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-static inline bool IsSupper(char C) {return ('A' <= C && C <= 'Z');}
-static inline bool IsLower(char C)  {return ('a' <= C && C <= 'z');}
-static inline bool IsDigit(char C)  {return ('0' <= C && C <= '9');}
-static inline bool IsAlpha(char C)  {return ('A' <= C && C <= 'Z') || ('a' <= C && C <= 'z');}
-static inline bool IsAlNum(char C)  {return ('A' <= C && C <= 'Z') || ('a' <= C && C <= 'z') ||
-                                            ('0' <= C && C <= '9');}
-static inline bool IsHex(char C)    {return ('A' <= C && C <= 'F') || ('a' <= C && C <= 'f') ||
-                                            ('0' <= C && C <= '9');}
-static inline bool IsBlank(char C)  {return (' ' == C || '\t' == C || '\n' == C);}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-static inline uintptr_t P_To_V(void * X) {return (uintptr_t)X;}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
