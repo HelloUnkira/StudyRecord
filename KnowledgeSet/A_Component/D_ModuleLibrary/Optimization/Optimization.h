@@ -6,54 +6,117 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define Unused(Expr)  do {(volatile void *)(Expr);} while (0)
+#define MemR(Addr, Type)        ((*(volatile Type *)(Addr)))
+#define MemW(Addr, Data, Type)  ((*(volatile Type *)(Addr)) = (Data))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define MemR_F32(Addr)   (*(volatile    float *)(Addr))
-#define MemR_F64(Addr)   (*(volatile   double *)(Addr))
-#define MemR_I8( Addr)   (*(volatile   int8_t *)(Addr))
-#define MemR_I16(Addr)   (*(volatile  int16_t *)(Addr))
-#define MemR_I32(Addr)   (*(volatile  int32_t *)(Addr))
-#define MemR_I64(Addr)   (*(volatile  int64_t *)(Addr))
-#define MemR_U8( Addr)   (*(volatile  uint8_t *)(Addr))
-#define MemR_U16(Addr)   (*(volatile uint16_t *)(Addr))
-#define MemR_U32(Addr)   (*(volatile uint32_t *)(Addr))
-#define MemR_U64(Addr)   (*(volatile uint64_t *)(Addr))
+static inline    float MemR_F32(void *Addr) {return MemR(Addr, float   );}
+static inline   double MemR_F64(void *Addr) {return MemR(Addr, double  );}
+static inline   int8_t MemR_I8(void  *Addr) {return MemR(Addr, int8_t  );}
+static inline  int16_t MemR_I16(void *Addr) {return MemR(Addr, int16_t );}
+static inline  int32_t MemR_I32(void *Addr) {return MemR(Addr, int32_t );}
+static inline  int64_t MemR_I64(void *Addr) {return MemR(Addr, int64_t );}
+static inline  uint8_t MemR_U8(void  *Addr) {return MemR(Addr, uint8_t );}
+static inline uint16_t MemR_U16(void *Addr) {return MemR(Addr, uint16_t);}
+static inline uint32_t MemR_U32(void *Addr) {return MemR(Addr, uint32_t);}
+static inline uint64_t MemR_U64(void *Addr) {return MemR(Addr, uint64_t);}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define MemW_F32(Addr, Data) ((*(volatile    float *)(Addr)) = (Data))
-#define MemW_F64(Addr, Data) ((*(volatile   double *)(Addr)) = (Data))
-#define MemW_I8( Addr, Data) ((*(volatile   int8_t *)(Addr)) = (Data))
-#define MemW_I16(Addr, Data) ((*(volatile  int16_t *)(Addr)) = (Data))
-#define MemW_I32(Addr, Data) ((*(volatile  int32_t *)(Addr)) = (Data))
-#define MemW_I64(Addr, Data) ((*(volatile  int64_t *)(Addr)) = (Data))
-#define MemW_U8( Addr, Data) ((*(volatile  uint8_t *)(Addr)) = (Data))
-#define MemW_U16(Addr, Data) ((*(volatile uint16_t *)(Addr)) = (Data))
-#define MemW_U32(Addr, Data) ((*(volatile uint32_t *)(Addr)) = (Data))
-#define MemW_U64(Addr, Data) ((*(volatile uint64_t *)(Addr)) = (Data))
+static inline void MemW_F32(void *Addr,    float Data) {MemW(Addr, Data,    float);}
+static inline void MemW_F64(void *Addr,   double Data) {MemW(Addr, Data,   double);}
+static inline void MemW_I8( void *Addr,   int8_t Data) {MemW(Addr, Data,   int8_t);}
+static inline void MemW_I16(void *Addr,  int16_t Data) {MemW(Addr, Data,  int16_t);}
+static inline void MemW_I32(void *Addr,  int32_t Data) {MemW(Addr, Data,  int32_t);}
+static inline void MemW_I64(void *Addr,  int64_t Data) {MemW(Addr, Data,  int64_t);}
+static inline void MemW_U8( void *Addr,  uint8_t Data) {MemW(Addr, Data,  uint8_t);}
+static inline void MemW_U16(void *Addr, uint16_t Data) {MemW(Addr, Data, uint16_t);}
+static inline void MemW_U32(void *Addr, uint32_t Data) {MemW(Addr, Data, uint32_t);}
+static inline void MemW_U64(void *Addr, uint64_t Data) {MemW(Addr, Data, uint64_t);}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define BitG_U8( Addr, Pos) ((MemR_U8(Addr)  & (1 << (Pos % 8)))  == 0 ? false : true)
-#define BitG_U16(Addr, Pos) ((MemR_U16(Addr) & (1 << (Pos % 16))) == 0 ? false : true)
-#define BitG_U32(Addr, Pos) ((MemR_U32(Addr) & (1 << (Pos % 32))) == 0 ? false : true)
-#define BitG_U64(Addr, Pos) ((MemR_U64(Addr) & (1 << (Pos % 64))) == 0 ? false : true)
+#define BitG(Addr, Pos, Type) (MemR_U##Type(Addr) & ((1 << (Pos)) % Type)) != 0
+#define BitS(Addr, Pos, Type) (MemW_U##Type(Addr, MemR_U##Type(Addr) | ( (1 << (Pos % Type)))))
+#define BitR(Addr, Pos, Type) (MemW_U##Type(Addr, MemR_U##Type(Addr) & (~(1 << (Pos % Type)))))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define BitS_U8( Addr, Pos) (MemW_U8(Addr,  (MemR_U8(Addr)  | (1 << (Pos % 8)))))
-#define BitS_U16(Addr, Pos) (MemW_U16(Addr, (MemR_U16(Addr) | (1 << (Pos % 16)))))
-#define BitS_U32(Addr, Pos) (MemW_U32(Addr, (MemR_U32(Addr) | (1 << (Pos % 32)))))
-#define BitS_U64(Addr, Pos) (MemW_U64(Addr, (MemR_U64(Addr) | (1 << (Pos % 64)))))
+#define EBitG(Addr, Pos, Type) (BitG(&((Addr)[(Pos) / Type]), (Pos) % Type), Type)
+#define EBitS(Addr, Pos, Type) (BitS(&((Addr)[(Pos) / Type]), (Pos) % Type), Type)
+#define EBitR(Addr, Pos, Type) (BitR(&((Addr)[(Pos) / Type]), (Pos) % Type), Type)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define BitR_U8( Addr, Pos) (MemW_U8(Addr,  (MemR_U8(Addr)  & (~(1 << (Pos % 8))))))
-#define BitR_U16(Addr, Pos) (MemW_U16(Addr, (MemR_U16(Addr) & (~(1 << (Pos % 16))))))
-#define BitR_U32(Addr, Pos) (MemW_U32(Addr, (MemR_U32(Addr) & (~(1 << (Pos % 32))))))
-#define BitR_U64(Addr, Pos) (MemW_U64(Addr, (MemR_U64(Addr) & (~(1 << (Pos % 64))))))
+static inline bool EBitG_U8(uint8_t   *Addr, uintptr_t Pos) {return EBitG(Addr, Pos,  8);}
+static inline bool EBitG_U16(uint16_t *Addr, uintptr_t Pos) {return EBitG(Addr, Pos, 16);}
+static inline bool EBitG_U32(uint32_t *Addr, uintptr_t Pos) {return EBitG(Addr, Pos, 32);}
+static inline bool EBitG_U64(uint64_t *Addr, uintptr_t Pos) {return EBitG(Addr, Pos, 64);}
+static inline bool EBitS_U8(uint8_t   *Addr, uintptr_t Pos) {return EBitS(Addr, Pos,  8);}
+static inline bool EBitS_U16(uint16_t *Addr, uintptr_t Pos) {return EBitS(Addr, Pos, 16);}
+static inline bool EBitS_U32(uint32_t *Addr, uintptr_t Pos) {return EBitS(Addr, Pos, 32);}
+static inline bool EBitS_U64(uint64_t *Addr, uintptr_t Pos) {return EBitS(Addr, Pos, 64);}
+static inline bool EBitR_U8(uint8_t   *Addr, uintptr_t Pos) {return EBitR(Addr, Pos,  8);}
+static inline bool EBitR_U16(uint16_t *Addr, uintptr_t Pos) {return EBitR(Addr, Pos, 16);}
+static inline bool EBitR_U32(uint32_t *Addr, uintptr_t Pos) {return EBitR(Addr, Pos, 32);}
+static inline bool EBitR_U64(uint64_t *Addr, uintptr_t Pos) {return EBitR(Addr, Pos, 64);}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void ToLe_U8( void *Addr) {;}
+static inline void ToLe_U16(void *Addr)
+{
+    uint16_t Data_16 = MemR_U16(Addr);
+    MemW_U8((void *)((uintptr_t)Addr + 0), (Data_16 >> 0) && 0xFF);
+    MemW_U8((void *)((uintptr_t)Addr + 1), (Data_16 >> 8) && 0xFF);
+    ToLe_U8((void *)((uintptr_t)Addr + 0));
+    ToLe_U8((void *)((uintptr_t)Addr + 1));
+}
+static inline void ToLe_U32(void *Addr)
+{
+    uint32_t Data_32 = MemR_U32(Addr);
+    MemW_U16((void *)((uintptr_t)Addr + 0), (Data_32 >>  0) && 0xFFFF);
+    MemW_U16((void *)((uintptr_t)Addr + 2), (Data_32 >> 16) && 0xFFFF);
+    ToLe_U16((void *)((uintptr_t)Addr + 0));
+    ToLe_U16((void *)((uintptr_t)Addr + 2));
+}
+static inline void ToLe_U64(void *Addr)
+{
+    uint64_t Data_64 = MemR_U64(Addr);
+    MemW_U32((void *)((uintptr_t)Addr + 0), (Data_64 >>  0) && 0xFFFFFFFF);
+    MemW_U32((void *)((uintptr_t)Addr + 4), (Data_64 >> 32) && 0xFFFFFFFF);
+    ToLe_U32((void *)((uintptr_t)Addr + 0));
+    ToLe_U32((void *)((uintptr_t)Addr + 4));
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void ToBe_U8( void *Addr) {;}
+static inline void ToBe_U16(void *Addr)
+{
+    uint16_t Data_16 = MemR_U16(Addr);
+    MemW_U8((void *)((uintptr_t)Addr + 1), (Data_16 >> 0) && 0xFF);
+    MemW_U8((void *)((uintptr_t)Addr + 0), (Data_16 >> 8) && 0xFF);
+    ToBe_U8((void *)((uintptr_t)Addr + 1));
+    ToBe_U8((void *)((uintptr_t)Addr + 0));
+}
+static inline void ToBe_U32(void *Addr)
+{
+    uint32_t Data_32 = MemR_U32(Addr);
+    MemW_U16((void *)((uintptr_t)Addr + 2), (Data_32 >>  0) && 0xFFFF);
+    MemW_U16((void *)((uintptr_t)Addr + 0), (Data_32 >> 16) && 0xFFFF);
+    ToBe_U16((void *)((uintptr_t)Addr + 2));
+    ToBe_U16((void *)((uintptr_t)Addr + 0));
+}
+static inline void ToBe_U64(void *Addr)
+{
+    uint64_t Data_64 = MemR_U64(Addr);
+    MemW_U32((void *)((uintptr_t)Addr + 4), (Data_64 >>  0) && 0xFFFFFFFF);
+    MemW_U32((void *)((uintptr_t)Addr + 0), (Data_64 >> 32) && 0xFFFFFFFF);
+    ToBe_U32((void *)((uintptr_t)Addr + 4));
+    ToBe_U32((void *)((uintptr_t)Addr + 0));
+}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -72,9 +135,48 @@ static inline bool IsBlank(char C)  {return (' ' == C || '\t' == C || '\n' == C)
 static inline uintptr_t AlignV(void)       /* Value  */ {return sizeof(uintptr_t);}
 static inline uintptr_t AlignO(void *Addr) /* Offset */ {return (uintptr_t)(Addr) % AlignV();}
 static inline uintptr_t AlignB(void *Addr) /* Base   */ {return (uintptr_t)(Addr) - AlignO(Addr);}
-static inline void *    AlignL(void *Addr) /* Low    */ {return AlignB(Addr);}
-static inline void *    AlignH(void *Addr) /* High   */ {return AlignB(Addr) + AlignV();}
+static inline uintptr_t AlignL(void *Addr) /* Low    */ {return AlignB(Addr);}
+static inline uintptr_t AlignH(void *Addr) /* High   */ {return AlignB(Addr) + AlignV();}
 static inline bool      AlignC(void *Addr) /* Check  */ {return AlignO(Addr) == 0;}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#define Unused(Expr)  do {(volatile void *)(Expr);} while (0)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#define BArrLen(BArr)    (sizeof(BArr) / sizeof(BArr[0]))
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#define BArrCpy(Type, Len, BArr1, BArr2)    \
+    do {typedef struct {Type Arr[Len];} Arr; *(Arr *)(BArr1) = *(Arr *)(BArr2);} while (0)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* (封装后的一等公民,有待完善) */
+#define ArrDef(ArrType, Type, Len)  typedef struct {Type Arr[Len];} ArrType;
+#define ArrInit(...)                {.Arr[] = {__VA_ARGS__},};
+#define ArrCvrt(ArrName)            (ArrName.Arr)
+#define ArrLen(ArrName)             (sizeof(ArrName.Arr) / sizeof(ArrName.Arr[0]))
+/* Example:
+ * //生成一个(类型为int,长度为10)数组模板:
+ * ArrDef(ArrayInt10, int, 10);
+ * ArrayInt10 Array1 = {0};
+ * ArrayInt10 Array2 = ArrInit(1, 2, 3, 4, 5);
+ * //将Array2拷贝到Array1:
+ * //Array1 = Array2;
+ * //支持传参及数据返回:
+ * ArrayInt10 Array_XOR(ArrayInt10 Arg1, ArrayInt10 Arg2)
+ * {
+ *      ArrayInt10 Result = {0};
+ *      for (int I = 0; I < ArrLen(Result); I++)
+ *          //操作里面所有数据, 寻址退化:
+ *          ArrCvrt(Result)[i] = ArrCvrt(Arg1)[i] ^ ArrCvrt(Arg2)[i];
+ *      return Result;
+ * }
+ * ArrayInt10 Array0 = Array_XOR(Array1, Array2);
+ */
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -135,12 +237,6 @@ static inline  int8_t Map_I8(  int8_t X,  int8_t LI,  int8_t LO,  int8_t RI,  in
 static inline int16_t Map_I16(int16_t X, int16_t LI, int16_t LO, int16_t RI, int16_t RO) Map_Func
 static inline int32_t Map_I32(int32_t X, int32_t LI, int32_t LO, int32_t RI, int32_t RO) Map_Func
 static inline int64_t Map_I16(int64_t X, int64_t LI, int64_t LO, int64_t RI, int64_t RO) Map_Func
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-#define LShift(Data, Offset)    ((Data) << (Offset))
-#define RShift(Data, Offset)    ((Data) >> (Offset))
-#define ArrLen(Array)   (sizeof(Array) / sizeof(Array[0]))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
