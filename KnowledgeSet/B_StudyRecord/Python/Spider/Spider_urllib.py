@@ -11,7 +11,7 @@ from urllib.parse import urlencode
 from urllib.parse import quote
 import json
 import ssl
-
+import execjs
 
 '''
 # 取消默认SSL证书签验跳过
@@ -54,4 +54,43 @@ assert response.code == 200
 json_data = json.loads(response.read().decode('utf-8'))
 for s in json_data['data']:
     print('%s:%s' % (s['k'], s['v']))
+'''
+
+
+'''
+# 这是摘录与网友的JS逆向
+# pGrab.js文件需从网页进行JS逆向定位后抓取:
+# 并且在文中需要额外补充该变量.当前是一个定值
+window = {'gtk': '320305.131321201'};
+# 发送翻译请求,返回结果
+# 严格注意第二次请求的Cookie和Acs-Token,以及token字段必须要从一个有效请求中提取出
+def translate_multilanguage(language_from, language_to, query):
+    # 访问百度翻译,获得翻译结果
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0'
+    cookie = 'BAIDUID=FD5A7E51ABA4831B8738E7F75913150B:FG=1; BIDUPSID=FD5A7E51ABA4831B8D25CFEF13416C47; PSTM=1658807144; BDORZ=FFFB88E999055A3F8A630C64834BD6D0; APPGUIDE_10_0_2=1; Hm_lvt_64ecd82404c51e03dc91cb9e8c025574=1661418398; REALTIME_TRANS_SWITCH=1; FANYI_WORD_SWITCH=1; HISTORY_SWITCH=1; SOUND_SPD_SWITCH=1; SOUND_PREFER_SWITCH=1; ab_sr=1.0.1_M2Y4NzVhOTUyODE5YjFjNWYwNzE4NTg1ZDA5NDE5NmY1NWEyMGMxYjYyODhiOWNhNWZmOGI3NDYyNmE3ZDJhZmQ0MjUwMjI5ZmIyY2ViM2MzODc0M2UxMjU0OGRjNWM2Yjg1ZGVlN2Q0N2IxOTRhOWFmM2JiZjkwMGQ5MzdmY2NhODk2ZDFlYWVhNjc2ZWU2Njk0NTVlMzY2OTJiNjE1Yw==; BA_HECTOR=84050l8k8h8gal000g0l5int1hgej2s17; ZFY=P:ASdAaIg6p3f5eVjANB7Q1etnvVdfVb7UteraCDEQvQ:C; BDSFRCVID=WHkOJeC627hJG2cj3B1eMe9zgm8XSwRTH6ao313E22zmTlginGa6EG0PXx8g0Ku-2nk2ogKK3gOTH4PF_2uxOjjg8UtVJeC6EG0Ptf8g0f5; H_BDCLCKID_SF=tbkD_C-MfIvDqTrP-trf5DCShUFs2tvlB2Q-XPoO3KJVoxTPM63Kyh_IbHrEK-riWbRM2MbgylRp8P3y0bb2DUA1y4vpKbjP0eTxoUJ25DnJjlCzqfCWMR-ebPRiJ-b9Qg-JbpQ7tt5W8ncFbT7l5hKpbt-q0x-jLTnhVn0MBCK0hI0ljj82e5PVKgTa54cbb4o2WbCQbnjN8pcN2b5oQT8DWRraajOHWNvu0CTL5b6vOIJTXpOUWfAkXpJvQnJjt2JxaqRC5-olEl5jDh3Mb6ksM4FLexIO2jvy0hvctb3cShPm0MjrDRLbXU6BK5vPbNcZ0l8K3l02V-bIe-t2XjQhDNtDt60jfn3aQ5rtKRTffjrnhPF3j--UXP6-hnjy3bRLhfTt2DJKO-jEbjr0bPuUyN3MWh3RymJ42-39LPO2hpRjyxv4bnDAL4oxJpOJ5JbMBqCEHlFWj43vbURvDP-g3-AJQU5dtjTO2bc_5KnlfMQ_bf--QfbQ0hOhqP-jBRIEoK0hJC-2bKvPKITD-tFO5eT22-us2Dcr2hcHMPoosIJzWlrDM6tIDpjuK6cE5KjiaKJjBMbUoqRHXnJi0btQDPvxBf7p55rP5q5TtUJMeCnTMxFVqfTbMlJyKMnitKv9-pP2LpQrh459XP68bTkA5bjZKxtq3mkjbPbDfn028DKuj6taD6oXjHReK4uXK5nHB4t8Kb7VbU3SMUnkbfJBDGJ3Bf-HKKLe5DjHBRKBJR3zeh765pD7yajK25tDt2IHotcEQnRJjJrj-jjpQT8rWhAOK5Oib4DHWJk-ab3vOIOTXpO1jh8zBN5thURB2DkO-4bCWJ5TMl5jDh3Mb6ksDMDtqtJHKbDJ_KLXJUK; H_PS_PSSID=36549_36624_36977_36884_37003_36570_36779_37071_37144_37055_26350_37209_37234; Hm_lpvt_64ecd82404c51e03dc91cb9e8c025574=1661425136; delPer=0; PSINO=6; ZD_ENTRY=baidu'
+    acs_token = '1661410972047_1661425826632_PuH6yxM4fr5fh13uzM6gX+pOyw85ZvjktITNFUcI+5GRYQjYC98Mu++WjtOe9uwPfF2X7rs+kk/aMfkOn+4Iz3c0o3x+fBe9ld0Z/SOw+L30cc4GGJ41nEzLBnYH1cjWQw84Ios9FwmOefd0CzaMI+T6oQrLYt7HCNKWE0ddxr1NdsjS5WnedIZuvEYY4ZHgWCEdqlQgbarox+xQbxYPU06qVKnS4vz8dhldAfAE9C/F+nmyB6XJmxtHMA0zkxx8b6c/HRm8eNDMb4Z9sJe38A=='
+    headers = {'User-Agent': user_agent, 'Cookie': cookie, 'Referer': 'https://fanyi.baidu.com', 'Acs-Token': acs_token, 'x-requested-with': 'XMLHttpRequest'}
+    # 计算sign加密
+    with open('pGrab.js', mode='r', encoding='utf-8') as cmd:
+        sign = execjs.compile(cmd.read()).call('tl', query)
+    data = {'query': query}
+    # 第一次请求通讯
+    url = 'https://fanyi.baidu.com/langdetect'
+    with urlopen(Request(url, data=urlencode(data).encode('utf-8'), headers=headers)) as response:
+        assert response.code == 200
+        # print(json.loads(response.read().decode('utf-8')), '\t', sign)
+    # 第二次请求通讯
+    url = 'https://fanyi.baidu.com/v2transapi?'
+    data = {'from': language_from, 'to': language_to, 'query': query,
+            'simple_means_flag': '3', 'sign': sign, 'token': '1d868486f5da9a82d57d53063782ff62', 'domain': 'common'}
+    with urlopen(Request(url, data=urlencode(data).encode('utf-8'), headers=headers)) as response:
+        assert response.code == 200
+        json_data = json.loads(response.read().decode('utf-8'))
+        try:
+            result = json_data['trans_result']['data'][0]['dst']
+        except Exception as E:
+            print(json_data)
+            time.sleep(5)
+            result = ''
+    return result
 '''
