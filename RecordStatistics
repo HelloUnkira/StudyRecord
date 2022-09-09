@@ -1,9 +1,0 @@
-// Git Command:
-// git log --author="HelloUnkira" --pretty=tformat: --numstat | awk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf "added lines: %s, removed lines: %s, total lines: %s\n", add, subs, loc }' -
-
-2022-07-23:
-added lines: 660681, removed lines: 596749, total lines: 63932
-
-
-
-
