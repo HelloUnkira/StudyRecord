@@ -33,7 +33,9 @@ typedef uint32_t (*HillSequence)(uint32_t x);
 void InternalSort_ContainerBytesSet(void *DataSet, KeyCompare Compare,
                                     void *List, uint32_t Size,
                                     uint32_t Left, uint32_t Right);
-
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 //冒泡排序:时间复杂度:O(n**2)
 void InternalSort_Bubble(void *Basic);
 //选择排序:时间复杂度:O(n**2),空间复杂度:O(1) 1单位
@@ -48,5 +50,7 @@ void InternalSort_Heap(void *Basic);
 void InternalSort_Merge(void *Basic, void *Helper);
 //快速排序:时间复杂度:O(n log n),空间复杂度:O(n log n)
 void InternalSort_Quick(void *Basic, void *Helper);
-
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 #endif
