@@ -141,53 +141,53 @@ enum {
     E_LDEXP         ,   // double ldexp(double x, int exponent)
     E_MODF          ,   // double modf(double x, double *integer)
     /*  */
-} Expression_Flag;
+} ExpressionFlag;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 符号查阅表 */
 const struct {uint32_t Length; const char *String; uint8_t Flag; uint8_t Number;} StringFlag[] = {
     /* 数学符号: */
-    {2, "E", D_E, 0},
-    {2, "e", D_E, 0},
-    {4, "PAI", D_PAI, 0},
-    {4, "pai", D_PAI, 0},
+    {2, "E",        D_E,            0},
+    {2, "e",        D_E,            0},
+    {4, "PAI",      D_PAI,          0},
+    {4, "pai",      D_PAI,          0},
     /* 基本运算 */
-    {0, "", B_Plus, 1},
-    {0, "", B_Minus, 1},
-    {0, "", B_Add, 2},
-    {0, "", B_Subtract, 2},
-    {0, "", B_Multiply, 2},
-    {0, "", B_Devide, 2},
+    {0, "",         B_Plus,         1},
+    {0, "",         B_Minus,        1},
+    {0, "",         B_Add,          2},
+    {0, "",         B_Subtract,     2},
+    {0, "",         B_Multiply,     2},
+    {0, "",         B_Devide,       2},
     /* 自定义运算 */
-    {2, "c", C_Combi, 2},
-    {0, "",  C_Fact, 1},
-    {0, "",  C_Fact2, 1},
+    {2, "c",        C_Combi,        2},
+    {0, "",         C_Fact,         1},
+    {0, "",         C_Fact2,        1},
     /* 扩展运算1类 */
-    {5, "fmod", E_FMOD, 2},
-    {5, "fabs", E_FABS, 1},
-    {4, "pow", E_POW, 2},
+    {5, "fmod",     E_FMOD,         2},
+    {5, "fabs",     E_FABS,         1},
+    {4, "pow",      E_POW,          2},
     /* 扩展运算2类 */
-    {5, "ceil", E_CEIL, 1},
-    {6, "floor", E_FLOOR, 1},
+    {5, "ceil",     E_CEIL,         1},
+    {6, "floor",    E_FLOOR,        1},
     /* 扩展运算3类 */
-    {5, "sqrt", E_SQRT, 1},
+    {5, "sqrt",     E_SQRT,         1},
     /* 扩展运算4类 */
-    {5, "asin", E_ASIN, 1},
-    {5, "acos", E_ACOS, 1},
-    {5, "atan", E_ATAN, 1},
-    {6, "atan2", E_ATAN2, 2},
-    {4, "cos", E_COS, 1},
-    {5, "cosh", E_COSH, 1},
-    {4, "sin", E_SIN, 1},
-    {5, "sinh", E_SINH, 1},
-    {4, "tan", E_TAN, 1},
-    {5, "tanh", E_TANH, 1},
+    {5, "asin",     E_ASIN,         1},
+    {5, "acos",     E_ACOS,         1},
+    {5, "atan",     E_ATAN,         1},
+    {6, "atan2",    E_ATAN2,        2},
+    {4, "cos",      E_COS,          1},
+    {5, "cosh",     E_COSH,         1},
+    {4, "sin",      E_SIN,          1},
+    {5, "sinh",     E_SINH,         1},
+    {4, "tan",      E_TAN,          1},
+    {5, "tanh",     E_TANH,         1},
     /* 扩展运算5类 */
-    {4, "log", E_LOG, 1},
-    {6, "log10", E_LOG10, 1},
+    {4, "log",      E_LOG,          1},
+    {6, "log10",    E_LOG10,        1},
     /* 扩展运算6类 */
-    {4, "exp", E_EXP, 1},
+    {4, "exp",      E_EXP,          1},
 };
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -397,8 +397,8 @@ static inline uint8_t CalculatorParse(char *Expression, uint32_t *Index,
     /* 额外添加!!转义,如果出现!!时转为二阶乘 */
     /* 额外添加!转义, 如果出现!时转为阶乘 */
     switch (strncmp(&Expression[*Index], "**", 2) == 0 ? 1 : 
-            strncmp(&Expression[*Index], "**", 2) == 0 ? 2 : 
-            strncmp(&Expression[*Index], "**", 2) == 0 ? 3 : 0) {
+            strncmp(&Expression[*Index], "!!", 2) == 0 ? 2 : 
+            strncmp(&Expression[*Index], "!",  1) == 0 ? 3 : 0) {
     case 1: (*Index) += 2; *Flag = E_POW;   return TYPEFLAG;
     case 2: (*Index) += 2; *Flag = C_Fact2; return TYPEFLAG;
     case 3: (*Index) += 1; *Flag = C_Fact;  return TYPEFLAG;
@@ -429,7 +429,7 @@ static inline uint8_t CalculatorParse(char *Expression, uint32_t *Index,
                IndexNew++;
         /* 生成空间保留该片段,用于下一步的解析 */
         uint32_t Length = 0;
-        char *String = CalculatorMalloc(IndexNew - *Index + 1);
+        char *String = (char *)CalculatorMalloc(IndexNew - *Index + 1);
         for (uint32_t IndexTemp = *Index; IndexTemp < IndexNew; IndexTemp++) {
             if (CalculateIsBlank(Expression[IndexTemp]) == true)
                 continue;
@@ -458,7 +458,7 @@ static inline uint8_t CalculatorParse(char *Expression, uint32_t *Index,
                IndexNew++;
         /* 生成空间保留该片段,用于下一步的解析 */
         uint32_t Length = 0;
-        char *String = CalculatorMalloc(IndexNew - *Index + 1);
+        char *String = (char *)CalculatorMalloc(IndexNew - *Index + 1);
         for (uint32_t IndexTemp = *Index; IndexTemp < IndexNew; IndexTemp++) {
             if (CalculateIsBlank(Expression[IndexTemp]) == true)
                 continue;
