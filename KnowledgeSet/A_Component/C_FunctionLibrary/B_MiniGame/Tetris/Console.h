@@ -38,7 +38,7 @@ static void ConsoleHideCursor(void)
 static void ConsoleSetColor(int Color)
 {
     HANDLE Handle = GetStdHandle(STD_OUTPUT_HANDLE); 
-	SetConsoleTextAttribute(Handle, Color);
+    SetConsoleTextAttribute(Handle, Color);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -46,11 +46,11 @@ static void ConsoleSetColor(int Color)
 //光标跳转(API)
 static void ConsoleJumpCursor(int X, int Y)
 {
-	COORD Coord;
-	Coord.X = X;
-	Coord.Y = Y;
-	HANDLE Handle = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleCursorPosition(Handle, Coord);
+    COORD Coord;
+    Coord.X = X;
+    Coord.Y = Y;
+    HANDLE Handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(Handle, Coord);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

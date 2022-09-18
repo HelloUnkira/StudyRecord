@@ -13,15 +13,15 @@ uint32_t InstanceGetType(void)
 void InstanceSetRecord(uint32_t Type, TetrisBlock *Block)
 {
     uint8_t Color = 0;
-	switch (Type) {
-	case 0:  Color = 13; break;
-	case 1:  Color = 12; break;
-	case 2:
-	case 3:  Color = 10; break;
-	case 4:
-	case 5:  Color = 14; break;
-	case 6:  Color = 11; break;
-	default: Color = 7;  break;
+    switch (Type) {
+    case 0:  Color = 13; break;
+    case 1:  Color = 12; break;
+    case 2:
+    case 3:  Color = 10; break;
+    case 4:
+    case 5:  Color = 14; break;
+    case 6:  Color = 11; break;
+    default: Color = 7;  break;
     }
     Block->Record = Color;
 }
