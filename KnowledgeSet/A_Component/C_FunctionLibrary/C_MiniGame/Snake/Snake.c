@@ -51,7 +51,18 @@ static inline SnakeBlock * Snake_MatrixOffset(Snake *Instance, uint32_t X, uint3
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline uint8_t Snake_PositionIsVaild(Snake *Instance, uint32_t X, uint32_t Y, bool IsSelf)
+static inline bool Snake_InverseWayCheck(Snake *Instance, uint32_t X, uint32_t Y)
+{
+    /* 注意要跳过第二个蛇身节点,因为反方向操作时过滤为无效 */
+    SnakeNode *SecondNode = SnakeNode_GetNext(Snake_GetHead(Instance));
+    if (SecondNode == NULL || (SecondNode->PosX == X && SecondNode->PosY == Y))
+        return true;
+    return false;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline uint8_t Snake_PositionIsVaild(Snake *Instance, uint32_t X, uint32_t Y)
 {
     /* 合法位置不能越界 */
     if (X >= Instance->Width || Y >= Instance->Height)
@@ -59,14 +70,9 @@ static inline uint8_t Snake_PositionIsVaild(Snake *Instance, uint32_t X, uint32_
     /* 合法位置不能是墙 */
     if (Snake_MatrixOffset(Instance, X, Y)->Status)
         return false;
-    /* 如果接受自己的节点(刷新目标点时) */
-    if (IsSelf)
-        return true;
-    /* 注意要跳过第二个蛇身节点,这是反方向操作时过滤为无效 */
-    SnakeNode *SecondNode = SnakeNode_GetNext(Snake_GetHead(Instance));
     /* 合法位置不能是蛇身本身 */
     Snake_Traverse_Backward(Instance, Node)
-        if (SecondNode != Node && Node->PosX == X && Node->PosY == Y)
+        if (Node->PosX == X && Node->PosY == Y)
             return false;
     return true;
 }
@@ -87,9 +93,9 @@ bool Snake_Ready(Snake *Instance)
     /* 我这里偷个懒,正式逻辑不能这么搞,刷一个蛇头,蛇尾就是周围四个值 */
     while (true) {
         do {Instance->NextTouch(&Head->PosX, &Head->PosY);
-        } while (!Snake_PositionIsVaild(Instance, Head->PosX, Head->PosY, false));
+        } while (!Snake_PositionIsVaild(Instance, Head->PosX, Head->PosY));
         do {Instance->NextTouch(&Tail->PosX, &Tail->PosY);
-        } while (!Snake_PositionIsVaild(Instance, Tail->PosX, Tail->PosY, false));
+        } while (!Snake_PositionIsVaild(Instance, Tail->PosX, Tail->PosY));
     
         if ((Head->PosX - Tail->PosX == 1 ||
              Tail->PosX - Head->PosX == 1) && Head->PosY == Tail->PosY)
@@ -107,8 +113,9 @@ bool Snake_Ready(Snake *Instance)
     Instance->SetRecord2(Tail, &Node);
     
     do {Instance->NextTouch(&Instance->TouchPosX, &Instance->TouchPosY);
-    } while (!Snake_PositionIsVaild(Instance, Instance->TouchPosX, Instance->TouchPosY, true));
+    } while (!Snake_PositionIsVaild(Instance, Instance->TouchPosX, Instance->TouchPosY));
     
+    Instance->CurrentWay = Snake_None;
     return true;
 }
 /*************************************************************************************************/
@@ -128,11 +135,27 @@ bool Snake_Execute(Snake *Instance, SnakeWay Way)
     case Snake_Down:    PosX = Head->PosX; PosY = Head->PosY + 1;   break;
     case Snake_Left:    PosX = Head->PosX - 1; PosY = Head->PosY;   break;
     case Snake_Right:   PosX = Head->PosX + 1; PosY = Head->PosY;   break;
-    default:            return false;
+    default:            return true;
     }
+    /* 注意要跳过第二个蛇身节点,因为反方向操作时过滤为无效 */
+    if (Snake_InverseWayCheck(Instance, PosX, PosY))
+        if (Instance->CurrentWay == Snake_None)
+            return true;
+        else
+            Way = Instance->CurrentWay;
+    else
     /* 检查下一个节点是否非法 */
-    if (!Snake_PositionIsVaild(Instance, PosX, PosY, false))
+    if (!Snake_PositionIsVaild(Instance, PosX, PosY))
         return false;
+    /* 重新更新方向状态 */
+    Instance->CurrentWay = Way;
+    switch (Way) {
+    case Snake_Up:      PosX = Head->PosX; PosY = Head->PosY - 1;   break;
+    case Snake_Down:    PosX = Head->PosX; PosY = Head->PosY + 1;   break;
+    case Snake_Left:    PosX = Head->PosX - 1; PosY = Head->PosY;   break;
+    case Snake_Right:   PosX = Head->PosX + 1; PosY = Head->PosY;   break;
+    default:            return true;
+    }
     /* 生成一个新节点并加入到节点头 */
     Instance->Create(sizeof(SnakeNode), (void **)&Node);
     Instance->SetRecord1(Head, Node);
@@ -146,8 +169,9 @@ bool Snake_Execute(Snake *Instance, SnakeWay Way)
         /* 更新一个新的节点并返回 */
         Instance->NextTouch(&Instance->TouchPosX, &Instance->TouchPosY);
         /* 注意需要是一个有效的节点(不是墙就行) */
-        } while (!Snake_PositionIsVaild(Instance, Instance->TouchPosX, Instance->TouchPosY, true));
+        } while (!Snake_PositionIsVaild(Instance, Instance->TouchPosX, Instance->TouchPosY));
         /* 这里忽略那种蛇填满整个图的场景,我觉得没必要,没有这个必要 */
+        
         return true;
     }
     /* 移除出节点尾并销毁一个旧节点 */
