@@ -22,10 +22,8 @@ uint32_t SGui_ScreenGetHeight(void);
 /* 每一帧图像的绘制总是由帧锁开始,帧解锁结束 */
 void SGui_ScreenFrameLock(void);
 void SGui_ScreenFrameUnLock(void);
-/* 屏幕清除 */
-void SGui_ScreenClean(SGui_Color Color);
 /* 屏幕处理一个画布 */
-void SGui_ScreenCanvas(SGui_Canvas *Canvas);
+void SGui_ScreenCanvas(SGui_Canvas *Canvas, SGui_Stream *Stream);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/

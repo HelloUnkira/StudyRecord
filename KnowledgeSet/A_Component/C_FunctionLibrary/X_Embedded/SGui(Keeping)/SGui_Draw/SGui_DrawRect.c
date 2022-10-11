@@ -7,17 +7,15 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 绘制填充矩形 */
-void SGui_RectDrawType01(SGui_Rect *Rect)
+void SGui_DrawFillRect(SGui_Canvas *Canvas, SGui_Area *Clip, SGui_Pixel Pixel)
 {
-    SGui_Dot  Dot  = {0};
-    SGui_Area Clip = SGui_ClipRectAnd(Rect->Canvas->Clip, Rect->Clip);
+    SGui_Area Region = {0};
+    SGui_ClipRegionAnd(&Region, &Canvas->Clip, Clip);
+    SGui_AreaPosToOff(&Region);
     
-    for (SGui_Coord Y = Clip.LU.Y; Y < Clip.RB.Y; Y++)
-    for (SGui_Coord X = Clip.LU.X; X < Clip.RB.X; X++) {
-        Dot.Y = Y;
-        Dot.X = X;
-        // SGui_CanvasDrawPixel(Rect->Canvas, &Dot, Rect->Pixel);
-    }
+    for (SGui_Coord Y = 0; Y < Region.Off_H; Y++)
+    for (SGui_Coord X = 0; X < Region.Off_W; X++)
+        Canvas->Pixel[X + Y * Canvas->Offset.Off_W] = Pixel;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

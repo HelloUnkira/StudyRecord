@@ -1,19 +1,30 @@
-#ifndef SGUI_DRAW_RECT_H
-#define SGUI_DRAW_RECT_H
+#include "SGui_Kernel.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-typedef struct SimpleGui_Rect {
-    SGui_Canvas *Canvas; /* 绘制画布 */
-    SGui_Area    Clip;   /* 绘制区域 */
-    SGui_Pixel   Pixel;  /* 绘制像素点 */
-} SGui_Rect;
+/* 引擎适配器(目标:动画事件投递) */
+void SGui_EngineAdaptorAnimationEventDispatch(SGui_Handle Handle, uint8_t Label)
+{
+    uint32_t Length = sizeof(SGui_Handle) + sizeof(uint8_t);
+    uint8_t *Data   = SGUI_ALLOC(Length);
+    
+    ((SGui_Handle *)Data)[0] = Handle;
+    Data[Length - 1] = Label;
+    
+    SGui_EventEnqueue(SGui_EventType_Animation, Length, Data);
+}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 绘制填充矩形 */
-void SGui_RectDrawType01(SGui_Rect *Rect);
+/* 引擎适配器(目标:动画事件执行) */
+void SGui_EngineAdaptorAnimationEventExecute(uint32_t Length, uint8_t *Data)
+{
+    SGuiWidget *Widget = SGui_HandleSourceGet(((SGui_Handle *)Data)[0]);
+    
+    Widget->Callback(SGui_EventType_Animation, 1, Data + sizeof(SGui_Handle));
+        
+    SGUI_FREE(Data);
+}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#endif

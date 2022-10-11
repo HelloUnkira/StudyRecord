@@ -29,6 +29,13 @@ static SGui_EventSet EventSet = {.Head = NULL, .Tail = NULL};
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+static void (*EventSyncLock)(void)   = NULL;
+static void (*EventSyncUnlock)(void) = NULL;
+static void (*EventSyncNotify)(void) = NULL;
+static void (*EventSyncWait)(void)   = NULL;
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 bool SGui_EventSetIsEmpty(void)
 {
     if (EventSet.Head != NULL || EventSet.Tail != NULL)
@@ -40,6 +47,9 @@ bool SGui_EventSetIsEmpty(void)
 /*************************************************************************************************/
 void SGui_EventEnqueue(uint32_t EventType, uint32_t Parameter1, uint8_t *Parameter2)
 {
+    if (EventSyncLock != NULL)
+        EventSyncLock();
+    
     /* 1.生成事件记录 */
     SGui_Event *Event = SGUI_ALLOC(sizeof(SGui_Event));
     /* 2.记录事件 */    
@@ -56,12 +66,20 @@ void SGui_EventEnqueue(uint32_t EventType, uint32_t Parameter1, uint8_t *Paramet
         EventSet.Head = Event;
         EventSet.Tail = Event;
     }
+    
+    if (EventSyncUnlock != NULL)
+        EventSyncUnlock();
+    if (EventSyncNotify != NULL)
+        EventSyncNotify();
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 void SGui_EventDequeue(uint32_t *EventType, uint32_t *Parameter1, uint8_t **Parameter2)
 {
+    if (EventSyncLock != NULL)
+        EventSyncLock();
+    
     /* 1.生成事件记录 */
     SGui_Event *Event = EventSet.Head;
     /* 2.事件出队列 */
@@ -81,6 +99,28 @@ void SGui_EventDequeue(uint32_t *EventType, uint32_t *Parameter1, uint8_t **Para
          /* 移除事件记录 */
         SGUI_FREE(Event);
     }
+    
+    if (EventSyncUnlock != NULL)
+        EventSyncUnlock();
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void SGui_EventSync(void)
+{
+    if (EventSyncWait != NULL)
+        EventSyncWait();
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void SGui_EventSyncRegister(void (*Lock)(void), void (*Unlock)(void),
+                            void (*Notify)(void), void (*Wait)(void))
+{
+    EventSyncLock   = Lock;
+    EventSyncUnlock = Unlock;
+    EventSyncNotify = Notify;
+    EventSyncWait   = Wait;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

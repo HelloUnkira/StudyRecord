@@ -1,4 +1,3 @@
-#include <string.h>
 #include "SGui_Kernel.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -10,104 +9,72 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-/* 这个状态量可以设置平台信号量替换 */
-/* 因为这只是想象中的可能有效,实际上解决不了并发冲突 */
-static bool SGui_EngineRunStatus   = false;
-static bool SGui_EngineAbortStatus = false;
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-static bool SGui_EngineIsAbort(void)
+void SGui_EngineReady(void)
 {
-    return SGui_EngineAbortStatus;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static void SGui_EngineIntoRun(void)
+void SGui_EngineExecute(void)
 {
-    SGui_EngineRunStatus   = true;
-    SGui_EngineAbortStatus = false;
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-static void SGui_EngineExitRun(void)
-{
-    SGui_EngineRunStatus   = false;
-    SGui_EngineAbortStatus = false;
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-bool SGui_EngineWaitReady(bool Wait)
-{
-    if (Wait == true)
-        while (SGui_EngineRunStatus == true);
-    
-    return SGui_EngineRunStatus == true ? false : true;
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-void SGui_EngineAbort(void)
-{
-    SGui_EngineAbortStatus = true;
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-void SGui_EngineRun(void)
-{
-    SGui_EngineRunStatus = true;
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-void SGui_EngineExecuteTask(void *Pointer)
-{
-    /* 初始化动画及其定时器 */
-    SGui_AnimationRegister(SGui_AnimationAdaptorEventDispatch);
+    /* 动画事件投递回调钩子绑定 */
+    /* 动画进动回调钩子绑定 */
+    /* 就绪动画所使用的定时器 */
+    SGui_AnimationRegister(SGui_EngineAdaptorAnimationEventDispatch);
     SGui_TimerConfigure(SGui_AnimationMSHandler);
-    SGui_TimerInit();
-    /* 等待事件的到来 */
+    SGui_TimerReady();
+    /*  */
+    #if 1   //临时写入测试引擎的流程通路
+    SGui_Handle Handle1 = 1;
+    SGui_Handle Handle2 = 2;
+    SGui_Handle Handle3 = 3;
+    
+    SGui_AnimationCreate(Handle1, 1);
+    SGui_AnimationCreate(Handle1, 2);
+    SGui_AnimationCreate(Handle1, 3);
+    SGui_AnimationCreate(Handle2, 1);
+    SGui_AnimationCreate(Handle2, 2);
+    SGui_AnimationCreate(Handle3, 1);
+    
+    SGui_AnimationStart(Handle1, 1, 1000, false);
+    SGui_AnimationStart(Handle1, 2, 2000, false);
+    SGui_AnimationStart(Handle1, 3, 3000, true);
+    SGui_AnimationStart(Handle2, 1, 4000, false);
+    SGui_AnimationStart(Handle2, 2, 5000, true);
+    SGui_AnimationStart(Handle3, 1, 1000, true);
+    
+    #endif
+    /*  */
+    /* 启动动画及其定时器 */
+    SGui_TimerExecute();
+    SGui_AnimationExecute();
+    /* 等待事件,并对事件进行派发和处理 */
     while (1) {
-        /* 引擎仅仅在UI交互后执行 */
-        SGui_EngineWaitReady(true);
-        
-        
-        SGui_EngineIntoRun();
-        /* 派发UI事件交付到控件进行执行 */
-        while (SGui_EventSetIsEmpty() == false) {
-            /* 首要检查,如果外界要强行中止引擎 */
-            if (SGui_EngineIsAbort() == true) {
-                SGui_EngineExitRun();
-                break;
-            }
-            /* 处理引擎产生的事件 */
-            uint32_t Event  = SGUI_EVENT_INVALID;
-            uint32_t Length = 0;
-            uint8_t *Data   = NULL;
-            /* 取出引擎产生的事件 */
-            SGui_EventDequeue(&Event, &Length, &Data);
-            /* 通配事件派发到控件 */
-            switch (Event) {
-            
-            /* 动画事件 */
-            case SGui_EventType_Animation:
-                SGui_AnimationAdaptorEventExecute(Length, Data);
-                break;
-            /* .... */
-            default: break;    
-            }
-        }
-        
-        SGui_EngineExitRun();
+        /* 等待事件同步信号产生 */
+        SGui_EventSync();
+        /* 检查是否产生事件 */
+        if (SGui_EventSetIsEmpty() == true)
+            continue;
+        /* 从事件集合取出事件 */
+        uint8_t *Parameter2 = NULL;
+        uint32_t Parameter1 = 0;
+        uint32_t EventType  = SGUI_EVENT_INVALID;
+        /* 取出引擎产生的事件 */
+        SGui_EventDequeue(&EventType, &Parameter1, &Parameter2);
+        /* 派发事件交付到控件执行 */
+        #if SGUI_USE_LOG_MESSAGE
+        SGUI_LOGMESSAGE("EventType:%u",  EventType);
+        SGUI_LOGMESSAGE("Parameter1:%u", Parameter1);
+        for (uint32_t Index = 0; Index < Parameter1; Index++)
+            SGUI_LOGMESSAGE("Parameter2:%u", Parameter2[Index]);
+        #endif
+        /* 派发事件交付到控件执行 */
+        /* 事件派发需要层级向控件派发 */
+        /* 直到控件选择拒绝向下派发为止 */
     }
+    /* 关闭动画及其定时器 */
+    SGui_AnimationDormancy();
+    SGui_TimerDormancy();
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

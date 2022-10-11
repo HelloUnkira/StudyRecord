@@ -7,14 +7,15 @@
 typedef enum SimpleGui_EventType {
     /* 空事件,占位符 */
     SGui_EventType_None = 0,
+    /* 系统产生的事件 */
+    SGui_EventType_Animation,
     /* 硬件驱动产生的事件 */
     SGui_EventType_Key,
     SGui_EventType_TP,
-    /* 系统产生的事件 */
-    SGui_EventType_Animation,
     /* 用户自定义的事件 */
     
     /* ... */
+    SGui_EventType_All,
 } SGui_EventType;
 /*************************************************************************************************/
 /*************************************************************************************************/
