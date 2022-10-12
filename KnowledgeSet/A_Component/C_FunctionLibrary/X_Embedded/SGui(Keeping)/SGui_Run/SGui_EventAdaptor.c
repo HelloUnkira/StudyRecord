@@ -1,18 +1,28 @@
-#ifndef SGUI_INTERFACE_H
-#define SGUI_INTERFACE_H
+#include "SGui_Kernel.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* SGUI_CORE: */
-#include "SGui_Event.h"         /* 通配事件传导 */
-#include "SGui_Animation.h"     /* 动画事件响应 */
+/* 引擎适配器(目标:动画事件投递) */
+void SGui_EventAnimationDispatch(SGui_Handle Handle, uint8_t Label)
+{
+    uint32_t Length = sizeof(SGui_Handle) + sizeof(uint8_t);
+    uint8_t *Data   = SGUI_ALLOC(Length);
+    ((SGui_Handle *)Data)[0] = Handle;
+    Data[Length - 1] = Label;
+    SGui_EventEnqueue(SGui_EventType_Animation, Length, Data);
+}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* SGUI_RUN: */
-#include "SGui_EventType.h"     /* 事件集 */
-#include "SGui_Thread.h"        /* 线程 */
+/* 引擎适配器(目标:动画事件执行) */
+void SGui_EventAnimationExecute(uint32_t Length, uint8_t *Data)
+{
+    /* 动画事件来源于指定的控件,最终也只需要派发给指定的控件 */
+    SGuiWidget *Widget = SGui_HandleSourceGet(((SGui_Handle *)Data)[0]);
+    // Widget->Callback(SGui_EventType_Animation, 1, Data + sizeof(SGui_Handle));
+    SGUI_LOGMESSAGE("SGui_EventAnimationExecute:%p", Widget);
+    SGUI_FREE(Data);
+}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#endif

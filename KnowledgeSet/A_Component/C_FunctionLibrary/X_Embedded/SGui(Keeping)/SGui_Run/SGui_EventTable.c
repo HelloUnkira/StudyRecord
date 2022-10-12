@@ -2,20 +2,17 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 实现目标:画布绘制矩形 */
+/* 适配层,通配事件表 */
+static const SGui_EventTableCallback EventTable[SGui_EventType_All] = {
+    [SGui_EventType_Animation] = SGui_EventAnimationExecute,
+};
+
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 绘制填充矩形 */
-void SGui_DrawFillRect(SGui_Canvas *Canvas, SGui_Area *Clip, SGui_Pixel Pixel)
+void SGui_EventTableConfigure(void)
 {
-    SGui_Area Offset = {0};
-    SGui_ClipRegionAnd(&Offset, &Canvas->Clip, Clip);
-    SGui_AreaPosToOff(&Offset);
-    
-    for (SGui_Coord Y = 0; Y < Offset.Off_H; Y++)
-    for (SGui_Coord X = 0; X < Offset.Off_W; X++)
-        Canvas->Pixel[X + Y * Canvas->Offset.Off_W] = Pixel;
+    SGui_EventTableRegister((SGui_EventTableCallback *)EventTable, SGui_EventType_All);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

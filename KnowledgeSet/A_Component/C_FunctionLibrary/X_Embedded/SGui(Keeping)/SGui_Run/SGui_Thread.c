@@ -70,14 +70,6 @@ void SGui_ThreadReady(void)
 /*************************************************************************************************/
 void SGui_ThreadExecute(void)
 {
-    #if SGUI_INTERNAL_TEST
-    // SGui_Handle_Test();
-    // SGui_ClipRegion1_Test();
-    // SGui_ClipRegion2_Test();
-    // SGui_Event_Test();
-    // SGui_Animation_Test();
-    #endif
-
     pthread_mutex_init(&EventSyncMutex, NULL);
     sem_init(&EventSyncSem, 0, 5);
     

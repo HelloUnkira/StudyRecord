@@ -93,7 +93,7 @@ static inline void SGui_AreaReset(SGui_Area *Area)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 区域类型转化(坐标点转为偏移量) */
-static inline SGui_Area SGui_AreaPosToOff(SGui_Area *Region)
+static inline void SGui_AreaPosToOff(SGui_Area *Region)
 {
     SGui_Area Offset = {0};
     SGui_AreaReset(&Offset);
@@ -103,7 +103,23 @@ static inline SGui_Area SGui_AreaPosToOff(SGui_Area *Region)
     Offset.Off_W = Region->RB_X - Region->LU_X + 1;
     Offset.Off_H = Region->RB_Y - Region->LU_Y + 1;
 
-    return Offset;
+    *Region = Offset;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 区域类型转化(偏移量转为坐标点) */
+static inline void SGui_AreaOffToPos(SGui_Area *Offset)
+{
+    SGui_Area Region = {0};
+    SGui_AreaReset(&Region);
+    
+    Region.LU_X = Offset->Off_X;
+    Region.LU_Y = Offset->Off_Y;
+    Region.RB_X = Offset->Off_W - 1 + Offset->Off_X;
+    Region.RB_Y = Offset->Off_H - 1 + Offset->Off_Y;
+
+    *Offset = Region;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
