@@ -18,7 +18,7 @@ void SGui_EventAnimationDispatch(SGui_Handle Handle, uint8_t Label)
 void SGui_EventAnimationExecute(uint32_t Length, uint8_t *Data)
 {
     /* 动画事件来源于指定的控件,最终也只需要派发给指定的控件 */
-    SGuiWidget *Widget = SGui_HandleSourceGet(((SGui_Handle *)Data)[0]);
+    SGui_Widget *Widget = SGui_HandleSourceGet(((SGui_Handle *)Data)[0]);
     // Widget->Callback(SGui_EventType_Animation, 1, Data + sizeof(SGui_Handle));
     SGUI_LOGMESSAGE("SGui_EventAnimationExecute:%p", Widget);
     SGUI_FREE(Data);
