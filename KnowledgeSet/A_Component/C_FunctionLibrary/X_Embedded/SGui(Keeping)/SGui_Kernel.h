@@ -36,9 +36,9 @@
 /* SGUI_CORE: */
 #include "SGui_Common.h"                /* 可能优化的接口 */
 #include "SGui_Iterator.h"              /* 宏迭代器 */
-#include "SGui_BasicGraph.h"            /* 基础图元描述 */
 #include "SGui_Handle.h"                /* 句柄资源管理 */
 #include "SGui_Container.h"             /* 容器属性描述 */
+#include "SGui_BasicGraph.h"            /* 基础图元描述 */
 #include "SGui_ClipRegion.h"            /* 剪切域运算,剪切域阵列管理 */
 #include "SGui_Event.h"                 /* 通配事件传导 */
 #include "SGui_Animation.h"             /* 动画事件响应 */
