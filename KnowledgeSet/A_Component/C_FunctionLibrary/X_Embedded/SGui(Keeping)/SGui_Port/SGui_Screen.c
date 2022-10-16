@@ -117,8 +117,6 @@ void SGui_ScreenFrameLock(void)
 /*************************************************************************************************/
 void SGui_ScreenFrameUnlock(void)
 {
-
-    
     sleep(1);
 }
 /*************************************************************************************************/
@@ -140,9 +138,12 @@ void SGui_ScreenCanvas(SGui_Canvas *Canvas)
         int y = Y + ScreenRegion.Off_Y;
         int x = X + ScreenRegion.Off_X;
         
+        /* 有些屏幕需要将Alpha和Color合并到一起,有些需要分开 */
+        SGui_PixelBlendAlphatoColor(&Canvas->Pixel[X + Y * Canvas->Offset.Off_W]);
+        
         plcd_buffer[x + y * xres] = 
         
-        *(uint32_t *)&Canvas->Pixel[X + Y * Canvas->Offset.Off_W];
+        *(uint32_t *)&Canvas->Pixel[X + Y * Canvas->Offset.Off_W].Color;
     }
 }
 /*************************************************************************************************/

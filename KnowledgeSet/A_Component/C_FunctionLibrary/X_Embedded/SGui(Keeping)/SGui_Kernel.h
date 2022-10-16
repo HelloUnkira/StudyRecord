@@ -65,8 +65,8 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* SGUI_RUN: */
-#include "SGui_EventTable.h"            /* 事件类型表 */
-#include "SGui_EventAdaptor.h"          /* 事件响应适配 */
+#include "SGui_EventRespond.h"          /* 事件响应适配 */
+#include "SGui_EventAdaptor.h"          /* 事件集合适配 */
 #include "SGui_CanvasAdaptor.h"         /* 画布流程绘制平台适配 */
 #include "SGui_Engine.h"                /* 事件与窗口管理引擎 */
 #include "SGui_Thread.h"                /* 平台所需线程流 */

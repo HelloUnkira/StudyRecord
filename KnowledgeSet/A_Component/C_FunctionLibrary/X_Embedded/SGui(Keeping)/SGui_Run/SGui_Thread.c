@@ -17,21 +17,21 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 pthread_t       ThreadEngine;
-pthread_mutex_t EventSyncMutex;
+pthread_mutex_t EventSyncMutex[SGui_EventQueue_All];
 sem_t           EventSyncSem;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static void SGui_ThreadEventSyncLock(void)
+static void SGui_ThreadEventSyncLock(uint32_t Index)
 {
-    pthread_mutex_lock(&EventSyncMutex);
+    pthread_mutex_lock(&EventSyncMutex[Index]);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static void SGui_ThreadEventSyncUnlock(void)
+static void SGui_ThreadEventSyncUnlock(uint32_t Index)
 {
-    pthread_mutex_unlock(&EventSyncMutex);
+    pthread_mutex_unlock(&EventSyncMutex[Index]);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -59,10 +59,10 @@ static void * SGui_ThreadExecuteTask(void *Pointer)
 /*************************************************************************************************/
 void SGui_ThreadReady(void)
 {
-    SGui_EventSyncRegister(SGui_ThreadEventSyncLock,
-                           SGui_ThreadEventSyncUnlock,
-                           SGui_ThreadEventSyncNotify,
-                           SGui_ThreadEventSyncWait);
+    SGui_EventAdaptorQueueSyncRegister(SGui_ThreadEventSyncLock,
+                                       SGui_ThreadEventSyncUnlock,
+                                       SGui_ThreadEventSyncNotify,
+                                       SGui_ThreadEventSyncWait);
     SGui_EngineReady();
 }
 /*************************************************************************************************/
@@ -70,14 +70,16 @@ void SGui_ThreadReady(void)
 /*************************************************************************************************/
 void SGui_ThreadExecute(void)
 {
-    pthread_mutex_init(&EventSyncMutex, NULL);
+    for (uint32_t Index = 0; Index < SGui_EventQueue_All; Index++)
+        pthread_mutex_init(&EventSyncMutex[Index], NULL);
     sem_init(&EventSyncSem, 0, 5);
     
     pthread_create(&ThreadEngine, NULL, SGui_ThreadExecuteTask, NULL);
     pthread_join(ThreadEngine, NULL);
     
     sem_destroy(&EventSyncSem);
-    pthread_mutex_destroy(&EventSyncMutex);
+    for (uint32_t Index = 0; Index < SGui_EventQueue_All; Index++)
+        pthread_mutex_destroy(&EventSyncMutex[Index]);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

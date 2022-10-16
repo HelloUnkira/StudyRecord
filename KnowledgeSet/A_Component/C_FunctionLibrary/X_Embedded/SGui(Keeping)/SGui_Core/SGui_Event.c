@@ -3,147 +3,97 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 实现目标:
- * 设计简要的事件管理方案
+ * 设计简要的事件管理
  * 用于传递事件以及事件携带的数据
  */
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-typedef struct SimpleGui_Event {
-    void    *Next;
-    uint8_t *Parameter2;
-    uint32_t Parameter1;
-    uint32_t EventType;
-} SGui_Event;
+static void (*EventQueueSyncLock)(uint32_t   EventQueueType) = NULL;
+static void (*EventQueueSyncUnlock)(uint32_t EventQueueType) = NULL;
+static void (*EventQueueSyncNotify)(void)                    = NULL;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-typedef struct SimpleGui_EventSet {
-    SGui_Event *Head;
-    SGui_Event *Tail;
-} SGui_EventSet;
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-static SGui_EventSet EventSet = {.Head = NULL, .Tail = NULL};
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-static void (*EventSyncLock)(void)   = NULL;
-static void (*EventSyncUnlock)(void) = NULL;
-static void (*EventSyncNotify)(void) = NULL;
-static void (*EventSyncWait)(void)   = NULL;
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-static uint32_t                 EventTableLength   = 0;
-static SGui_EventTableCallback *EventTableCallback = NULL;
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-bool SGui_EventSetIsEmpty(void)
+void SGui_EventQueueSyncRegister(void (*Lock)(uint32_t   EventQueueType),
+                                 void (*Unlock)(uint32_t EventQueueType),
+                                 void (*Notify)(void))
 {
-    if (EventSet.Head != NULL || EventSet.Tail != NULL)
-        return false;
-    return true;
+    EventQueueSyncLock   = Lock;
+    EventQueueSyncUnlock = Unlock;
+    EventQueueSyncNotify = Notify;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-void SGui_EventEnqueue(uint32_t EventType, uint32_t Parameter1, uint8_t *Parameter2)
+/* 事件队列 */
+typedef struct SimpleGui_EventQueue {
+    SGui_Event *Head;       /* 内部使用 */
+    SGui_Event *Tail;       /* 内部使用 */
+} SGui_EventQueue;
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static SGui_EventQueue EventQueue[SGui_EventQueue_Number] = {0};
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+bool SGui_EventQueueIsEmpty(uint32_t EventQueueType)
 {
-    if (EventSyncLock != NULL)
-        EventSyncLock();
+    return EventQueue[EventQueueType].Head == NULL &&
+           EventQueue[EventQueueType].Tail == NULL ? true : false;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void SGui_EventEnqueue(uint32_t EventQueueType, SGui_Event *Event)
+{
+    if (EventQueueSyncLock != NULL)
+        EventQueueSyncLock(EventQueueType);
     
-    /* 1.生成事件记录 */
-    SGui_Event *Event = SGUI_ALLOC(sizeof(SGui_Event));
-    /* 2.记录事件 */    
-    Event->Next       = NULL;
-    Event->EventType  = EventType;
-    Event->Parameter1 = Parameter1;
-    Event->Parameter2 = Parameter2;
-    /* 3.事件入队列 */
-    if (EventSet.Tail != NULL) {
-        EventSet.Tail->Next = Event;
-        EventSet.Tail = Event;
+    /* 生成事件记录备份 */
+    SGui_Event *BackupEvent = SGUI_ALLOC(sizeof(SGui_Event));
+    *BackupEvent = *Event;
+    /* 事件备份入队列 */
+    if (EventQueue[EventQueueType].Tail != NULL) {
+        EventQueue[EventQueueType].Tail->Next = BackupEvent;
+        EventQueue[EventQueueType].Tail = BackupEvent;
     }
-    if (EventSet.Tail == NULL) {
-        EventSet.Head = Event;
-        EventSet.Tail = Event;
+    if (EventQueue[EventQueueType].Tail == NULL) {
+        EventQueue[EventQueueType].Head = BackupEvent;
+        EventQueue[EventQueueType].Tail = BackupEvent;
     }
     
-    if (EventSyncUnlock != NULL)
-        EventSyncUnlock();
-    if (EventSyncNotify != NULL)
-        EventSyncNotify();
+    if (EventQueueSyncUnlock != NULL)
+        EventQueueSyncUnlock(EventQueueType);
+    if (EventQueueSyncNotify != NULL)
+        EventQueueSyncNotify();
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-void SGui_EventDequeue(uint32_t *EventType, uint32_t *Parameter1, uint8_t **Parameter2)
+void SGui_EventDequeue(uint32_t EventQueueType, SGui_Event *Event)
 {
-    if (EventSyncLock != NULL)
-        EventSyncLock();
+    if (EventQueueSyncLock != NULL)
+        EventQueueSyncLock(EventQueueType);
     
-    /* 1.生成事件记录 */
-    SGui_Event *Event = EventSet.Head;
-    /* 2.事件出队列 */
-    if (EventSet.Head != NULL)
-        EventSet.Head = Event->Next;
-    if (EventSet.Head == NULL) {
-        EventSet.Head = NULL;
-        EventSet.Tail = NULL;
-    }
-    /* 3.提取事件 */
-    if (Event == NULL)
-        *EventType = SGUI_EVENT_INVALID;
-    if (Event != NULL) {
-        *EventType  = Event->EventType;
-        *Parameter1 = Event->Parameter1;
-        *Parameter2 = Event->Parameter2;
-         /* 移除事件记录 */
-        SGUI_FREE(Event);
+    /* 取出事件记录备份 */
+    SGui_Event *BackupEvent = EventQueue[EventQueueType].Head;
+    /* 事件出队列 */
+    if (EventQueue[EventQueueType].Head != NULL)
+        EventQueue[EventQueueType].Head =  BackupEvent->Next;
+    if (EventQueue[EventQueueType].Head == NULL)
+        EventQueue[EventQueueType].Tail =  NULL;
+    /* 提取事件 */
+    if (BackupEvent == NULL)
+       (*Event).EventType = SGui_Event_Invalid;
+    if (BackupEvent != NULL) {
+        *Event = *BackupEvent;
+        SGUI_FREE(BackupEvent);
     }
     
-    if (EventSyncUnlock != NULL)
-        EventSyncUnlock();
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-void SGui_EventSync(void)
-{
-    if (EventSyncWait != NULL)
-        EventSyncWait();
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-void SGui_EventSyncRegister(void (*Lock)(void), void (*Unlock)(void),
-                            void (*Notify)(void), void (*Wait)(void))
-{
-    EventSyncLock   = Lock;
-    EventSyncUnlock = Unlock;
-    EventSyncNotify = Notify;
-    EventSyncWait   = Wait;
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-void SGui_EventTableRegister(SGui_EventTableCallback *EventTable, uint32_t Length)
-{
-    EventTableLength   = Length;
-    EventTableCallback = EventTable;
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-bool SGui_EventTableExecute(uint32_t EventType, uint32_t Parameter1, uint8_t *Parameter2)
-{
-    if (EventType >= EventTableLength)
-        return false;
-    EventTableCallback[EventType](Parameter1, Parameter2);
-    return true;
+    if (EventQueueSyncUnlock != NULL)
+        EventQueueSyncUnlock(EventQueueType);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -154,30 +104,23 @@ bool SGui_EventTableExecute(uint32_t EventType, uint32_t Parameter1, uint8_t *Pa
 /*************************************************************************************************/
 void SGui_Event_Test(void)
 {
-    uint32_t Event1   = 1;
-    uint32_t Length1  = 7;
-    uint8_t  Data1[7] = "Event1";
-
-    uint32_t Event2   = 2;
-    uint32_t Length2  = 7;
-    uint8_t  Data2[7] = "Event2";
+    uint8_t Data1[7] = "Event1";
+    uint8_t Data2[7] = "Event2";
+    uint8_t Data3[7] = "Event3";
     
-    uint32_t Event3   = 3;
-    uint32_t Length3  = 7;
-    uint8_t  Data3[7] = "Event3";
-
-    SGui_EventEnqueue(Event2, Length2, Data2);
-    SGui_EventEnqueue(Event1, Length1, Data1);
-    SGui_EventEnqueue(Event3, Length3, Data3);
+    SGui_Event Event  = {0};
+    SGui_Event Event1 = {.EventType = 1, .Parameter1 = 7, .Parameter2 = Data1};
+    SGui_Event Event2 = {.EventType = 2, .Parameter1 = 7, .Parameter2 = Data2};
+    SGui_Event Event3 = {.EventType = 3, .Parameter1 = 7, .Parameter2 = Data3};
     
-    uint32_t EventType  = 0;
-    uint32_t Length = 0;
-    uint8_t *Data   = NULL;
+    SGui_EventEnqueue(0, &Event2);
+    SGui_EventEnqueue(0, &Event1);
+    SGui_EventEnqueue(0, &Event3);
     
-    while (SGui_EventSetIsEmpty() == false) {
-        
-        SGui_EventDequeue(&EventType, &Length, &Data);
-        SGUI_LOGMESSAGE("EventType:%d,Length:%d,Data:%s", EventType, Length, Data);
+    while (SGui_EventQueueIsEmpty(0) == false) {
+        SGui_EventDequeue(0, &Event);
+        SGUI_LOGMESSAGE("EventType:%d,Length:%d,Data:%s",
+                         Event.EventType, Event.Parameter1, Event.Parameter2);
     }
 }
 /*************************************************************************************************/

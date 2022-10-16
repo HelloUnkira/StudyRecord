@@ -2,26 +2,89 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 引擎适配器(目标:动画事件投递) */
-void SGui_EventAnimationDispatch(SGui_Handle Handle, uint8_t Label)
+/* 适配层,通配事件表,一个或多个类型的事件归属于一个特定的事件集合 */
+static struct {
+    SGui_EventCallback   Callback;
+    SGui_EventQueueTable Type;
+} EventTable[SGui_EventType_All] = {
+    /* 事件,响应回调,从属事件集合 */
+    [SGui_EventType_Animation] = {SGui_EventAnimationExecute, SGui_EventQueue_Main},
+};
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+uint32_t SGui_EventExecute(SGui_Event *Event)
 {
-    uint32_t Length = sizeof(SGui_Handle) + sizeof(uint8_t);
-    uint8_t *Data   = SGUI_ALLOC(Length);
-    ((SGui_Handle *)Data)[0] = Handle;
-    Data[Length - 1] = Label;
-    SGui_EventEnqueue(SGui_EventType_Animation, Length, Data);
+    if (Event->EventType < SGui_EventType_All)
+        return EventTable[Event->EventType].Callback(Event);
+        return SGui_EventStatus_None;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 引擎适配器(目标:动画事件执行) */
-void SGui_EventAnimationExecute(uint32_t Length, uint8_t *Data)
+uint32_t SGui_EventGetEventQueueType(SGui_Event *Event)
 {
-    /* 动画事件来源于指定的控件,最终也只需要派发给指定的控件 */
-    SGui_Widget *Widget = SGui_HandleSourceGet(((SGui_Handle *)Data)[0]);
-    // Widget->Callback(SGui_EventType_Animation, 1, Data + sizeof(SGui_Handle));
-    SGUI_LOGMESSAGE("SGui_EventAnimationExecute:%p", Widget);
-    SGUI_FREE(Data);
+    return EventTable[Event->EventType].Type;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static void (*EventQueueSyncLock)(uint32_t   EventQueueType) = NULL;
+static void (*EventQueueSyncUnlock)(uint32_t EventQueueType) = NULL;
+static void (*EventQueueSyncNotify)(void)                    = NULL;
+static void (*EventQueueSyncWait)(void)                      = NULL;
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 这里为了保持统一性做了一次额外适配(表面上而言可以不用) */
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static void SGui_EventAdaptorQueueSyncLock(uint32_t EventQueueType)
+{
+    if (EventQueueSyncLock != NULL)
+        EventQueueSyncLock(EventQueueType);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static void SGui_EventAdaptorQueueSyncUnlock(uint32_t EventQueueType)
+{
+    if (EventQueueSyncUnlock != NULL)
+        EventQueueSyncUnlock(EventQueueType);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static void SGui_EventAdaptorQueueSyncNotify(void)
+{
+    if (EventQueueSyncNotify != NULL)
+        EventQueueSyncNotify();
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void SGui_EventAdaptorQueueSyncWait(void)
+{
+    if (EventQueueSyncWait != NULL)
+        EventQueueSyncWait();
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+void SGui_EventAdaptorQueueSyncRegister(void (*Lock)(uint32_t Index),
+                                        void (*Unlock)(uint32_t Index),
+                                        void (*Notify)(void),
+                                        void (*Wait)(void))
+{
+    EventQueueSyncLock      = Lock;
+    EventQueueSyncUnlock    = Unlock;
+    EventQueueSyncNotify    = Notify;
+    EventQueueSyncWait      = Wait;
+    
+    SGui_EventQueueSyncRegister(SGui_EventAdaptorQueueSyncLock,
+                                SGui_EventAdaptorQueueSyncUnlock,
+                                SGui_EventAdaptorQueueSyncNotify);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
