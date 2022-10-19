@@ -1,14 +1,21 @@
-#ifndef SGUI_TIMER_H
-#define SGUI_TIMER_H
+#include "SGui_Draw.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* 软件定时器的初始化和反初始化(启动与关闭) */
-void SGui_TimerInit(void);
-void SGui_TimerDeinit(void);
-/* 软件定时器的毫秒回调注册功能 */
-void SGui_TimerCallBackRegister(void (*Handler)(void));
+/* 画布绘制填充矩形 */
+void SGui_DrawFillRect(SGui_Canvas *Canvas, SGui_Area *Rect, SGui_Pixel Pixel)
+{
+    SGui_Area Offset = {0};
+    SGui_ClipRegionAnd(&Offset, &Canvas->Clip, Rect);
+    /* 如果没有落在当前剪切域内,不进行绘制 */
+    if (SGui_ClipRegionIsVaild(&Offset) == false)
+        return;
+    
+    SGui_AreaPosToOff(&Offset);
+    for (SGui_Coord Y = 0; Y < Offset.Off_H; Y++)
+    for (SGui_Coord X = 0; X < Offset.Off_W; X++)
+        SGui_CanvasOffset(Canvas, X, Y) = Pixel;
+}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#endif

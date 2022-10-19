@@ -12,11 +12,10 @@ void SGui_EngineCanvasOnce(void (*HandleCanvas)(SGui_Canvas *Canvas), SGui_Area 
     /* 从屏幕获得一块像素点缓冲区 */
     SGui_ScreenTakeMap(&Pixel, &Length, &Width, &Height);
     /* 设置画布 */
-    SGui_Canvas Canvas = {0};
+    SGui_Canvas Canvas = {.Pixel = Pixel, .Length = Length};
+    SGui_CanvasCleanPixel(&Canvas);
     SGui_AreaReset(&Canvas.Offset);
     SGui_AreaReset(&Canvas.Clip);
-    SGui_CanvasSetPixel(&Canvas, Pixel, Length);
-    SGui_CanvasCleanPixel(&Canvas);
     SGui_CanvasSetClip(&Canvas, Clip);
     /* 使用该画布 */
     HandleCanvas(&Canvas);
@@ -48,11 +47,10 @@ void SGui_EngineCanvasRoll(void (*HandleCanvas)(SGui_Canvas *Canvas))
                                   .Off_Y = RePos_Y, .Off_H = Height,};
         SGui_AreaOffToPos(&CanvasRegion);
         /* 设置画布 */
-        SGui_Canvas Canvas = {0};
+        SGui_Canvas Canvas = {.Pixel = Pixel, .Length = Length};
+        SGui_CanvasCleanPixel(&Canvas);
         SGui_AreaReset(&Canvas.Offset);
         SGui_AreaReset(&Canvas.Clip);
-        SGui_CanvasSetPixel(&Canvas, Pixel, Length);
-        SGui_CanvasCleanPixel(&Canvas);
         SGui_CanvasSetClip(&Canvas, &CanvasRegion);
         /* 使用该画布 */
         HandleCanvas(&Canvas);

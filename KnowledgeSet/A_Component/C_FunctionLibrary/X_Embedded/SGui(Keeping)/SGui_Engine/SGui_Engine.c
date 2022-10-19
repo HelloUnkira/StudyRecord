@@ -52,6 +52,15 @@ void SGui_EngineDormancy(void)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+void SGui_EngineSyncRegister(void (*Lock)(uint32_t   EventQueueType),
+                             void (*Unlock)(uint32_t EventQueueType),
+                             void (*Notify)(void), void (*Wait)(void))
+{
+    SGui_EventSyncRegister(Lock, Unlock, Notify, Wait);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 void SGui_EngineReady(void)
 {
     /* 动画事件投递回调钩子绑定 */
@@ -59,6 +68,8 @@ void SGui_EngineReady(void)
     /* 就绪动画所使用的定时器 */
     SGui_AnimationRegister(SGui_EventAnimationDispatch);
     SGui_TimerCallBackRegister(SGui_AnimationMSHandler);
+    /* 配置事件表 */
+    SGui_EventAdaptorTableConfigure();
     
     /* 启动屏幕 */
     SGui_ScreenInit();
@@ -69,7 +80,7 @@ void SGui_EngineReady(void)
     
     
     #if SGUI_INTERNAL_TEST
-    // SGui_Handle_Test();
+    // SGui_Handle_Test(...);
     // SGui_ClipRegion1_Test();
     // SGui_ClipRegion2_Test();
     // SGui_Event_Test();
@@ -112,11 +123,12 @@ void SGui_EngineExecute(void)
     /* 等待事件,并对事件进行派发和处理 */
     while (1) {
         /* 等待事件同步信号产生 */
-        SGui_EventAdaptorQueueSyncWait();
+        SGui_EventSyncWait();
         /* 按事件队列优先级,检查是否产生事件 */
-        for (uint32_t EventQueueType = 0; EventQueueType < SGui_EventQueue_All; EventQueueType++) {
+        for (uint32_t EventQueueType = SGui_EventQueue_None + 1;
+                      EventQueueType < SGui_EventQueue_All; EventQueueType++) {
             /* 跳过空事件队列 */
-            if (SGui_EventQueueIsEmpty(EventQueueType))
+            if (SGui_EventIsEmpty(EventQueueType))
                 continue;
             /* 从事件集合取出事件 */
             SGui_Event Event = {0};
@@ -130,7 +142,7 @@ void SGui_EngineExecute(void)
                     SGUI_LOGMESSAGE("Parameter2:%u", Event.Parameter2[Index]);
             #endif
             /* 派发事件交付到控件执行 */
-            if (SGui_EventExecute(&Event) == SGui_EventStatus_None)
+            if (SGui_EventDispatchExecute(&Event) == SGui_EventStatus_None)
                 SGUI_LOGMESSAGE("Catch Unknown EventType:%u", Event.EventType);
         }
     }

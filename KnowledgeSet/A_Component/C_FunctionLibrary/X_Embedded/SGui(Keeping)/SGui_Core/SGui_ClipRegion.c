@@ -1,4 +1,4 @@
-#include "SGui_Kernel.h"
+#include "SGui_Core.h"
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -135,7 +135,7 @@ bool SGui_ClipRegionIsVaild(SGui_Area *Clip)
         Clip->RB_X == SGUI_COORD_INVALID || Clip->RB_Y == SGUI_COORD_INVALID)
         Result = false;
     
-    if (Clip->LU_X >= Clip->RB_X  || Clip->LU_Y >= Clip->RB_Y)
+    if (Clip->LU_X > Clip->RB_X  || Clip->LU_Y > Clip->RB_Y)
         Result = false;
 
     return Result;
