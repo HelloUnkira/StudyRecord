@@ -5,16 +5,13 @@
 /* 画布绘制填充矩形 */
 void SGui_DrawFillRect(SGui_Canvas *Canvas, SGui_Area *Rect, SGui_Pixel Pixel)
 {
-    SGui_Area Offset = {0};
-    SGui_ClipRegionAnd(&Offset, &Canvas->Clip, Rect);
-    /* 如果没有落在当前剪切域内,不进行绘制 */
-    if (SGui_ClipRegionIsVaild(&Offset) == false)
+    SGui_Area Offset = *Rect;
+    if (SGui_CanvasPosToOff(Canvas, &Offset) == false)
         return;
     
-    SGui_AreaPosToOff(&Offset);
-    for (SGui_Coord Y = 0; Y < Offset.Off_H; Y++)
-    for (SGui_Coord X = 0; X < Offset.Off_W; X++)
-        SGui_CanvasOffset(Canvas, X, Y) = Pixel;
+    for (SGui_Coord Y = Offset.Off_Y; Y < Offset.Off_Y + Offset.Off_H; Y++)
+    for (SGui_Coord X = Offset.Off_X; X < Offset.Off_X + Offset.Off_W; X++)
+        SGui_CanvasPixel(Canvas, X, Y, Pixel);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

@@ -19,10 +19,10 @@
 /* 俩个剪切域交集 */
 void SGui_ClipRegionAnd(SGui_Area *Clip, SGui_Area *Clip1, SGui_Area *Clip2)
 {
-    Clip->LU_X = SGUI_MAX(Clip1->LU_X, Clip2->LU_X);
-    Clip->LU_Y = SGUI_MAX(Clip1->LU_Y, Clip2->LU_Y);
-    Clip->RB_X = SGUI_MIN(Clip1->RB_X, Clip2->RB_X);
-    Clip->RB_Y = SGUI_MIN(Clip1->RB_Y, Clip2->RB_Y);
+    Clip->LU_X = SGui_Max(Clip1->LU_X, Clip2->LU_X);
+    Clip->LU_Y = SGui_Max(Clip1->LU_Y, Clip2->LU_Y);
+    Clip->RB_X = SGui_Min(Clip1->RB_X, Clip2->RB_X);
+    Clip->RB_Y = SGui_Min(Clip1->RB_Y, Clip2->RB_Y);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -30,10 +30,10 @@ void SGui_ClipRegionAnd(SGui_Area *Clip, SGui_Area *Clip1, SGui_Area *Clip2)
 /* 俩个剪切域并集 */
 void SGui_ClipRegionOr(SGui_Area *Clip, SGui_Area *Clip1, SGui_Area *Clip2)
 {
-    Clip->LU_X = SGUI_MIN(Clip1->LU_X, Clip2->LU_X);
-    Clip->LU_Y = SGUI_MIN(Clip1->LU_Y, Clip2->LU_Y);
-    Clip->RB_X = SGUI_MAX(Clip1->RB_X, Clip2->RB_X);
-    Clip->RB_Y = SGUI_MAX(Clip1->RB_Y, Clip2->RB_Y);
+    Clip->LU_X = SGui_Min(Clip1->LU_X, Clip2->LU_X);
+    Clip->LU_Y = SGui_Min(Clip1->LU_Y, Clip2->LU_Y);
+    Clip->RB_X = SGui_Max(Clip1->RB_X, Clip2->RB_X);
+    Clip->RB_Y = SGui_Max(Clip1->RB_Y, Clip2->RB_Y);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -51,8 +51,8 @@ bool SGui_ClipRegionUnion(SGui_Area *Clip, SGui_Area *Clip1, SGui_Area *Clip2)
         /* 场景2:相交 */
         Clip->LU_X = (Clip1->LU_X, Clip2->LU_X);
         Clip->RB_X = (Clip1->RB_X, Clip2->RB_X);
-        Clip->LU_Y = SGUI_MIN(Clip1->LU_Y, Clip2->LU_Y);
-        Clip->RB_Y = SGUI_MAX(Clip1->RB_Y, Clip2->RB_Y);
+        Clip->LU_Y = SGui_Min(Clip1->LU_Y, Clip2->LU_Y);
+        Clip->RB_Y = SGui_Max(Clip1->RB_Y, Clip2->RB_Y);
         return true;
     }
     /* 剪切域平行: */
@@ -63,8 +63,8 @@ bool SGui_ClipRegionUnion(SGui_Area *Clip, SGui_Area *Clip1, SGui_Area *Clip2)
         /* 场景2:相交 */
         Clip->LU_Y = (Clip1->LU_Y, Clip2->LU_Y);
         Clip->RB_Y = (Clip1->RB_Y, Clip2->RB_Y);
-        Clip->LU_X = SGUI_MIN(Clip1->LU_X, Clip2->LU_X);
-        Clip->RB_X = SGUI_MAX(Clip1->RB_X, Clip2->RB_X);
+        Clip->LU_X = SGui_Min(Clip1->LU_X, Clip2->LU_X);
+        Clip->RB_X = SGui_Max(Clip1->RB_X, Clip2->RB_X);
         return true;
     }
     /*  */
@@ -158,7 +158,7 @@ bool SGui_ClipRegionCheck1(SGui_Area *Child, SGui_Area *Parent)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 剪切域包含关系检查2:(点包含) */
-bool SGui_ClipRegionCheck2(SGui_Dot *Dot, SGui_Area *Clip)
+bool SGui_ClipRegionCheck2(SGui_Area *Clip, SGui_Dot *Dot)
 {
     bool Result = false;
     /* 本集与补集运算 */
@@ -167,6 +167,30 @@ bool SGui_ClipRegionCheck2(SGui_Dot *Dot, SGui_Area *Clip)
         Result = true;
 
     return Result;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 剪切域包含关系检查3:(线包含) */
+bool SGui_ClipRegionCheck3(SGui_Area *Clip, SGui_Dot *S, SGui_Dot *E)
+{
+    /* 1.端点是否在域内 */
+    if (SGui_ClipRegionCheck2(Clip, S) == true)
+        return true;
+    if (SGui_ClipRegionCheck2(Clip, E) == true)
+        return true;
+    /* 2.线段与剪切域俩条对角线是否相交 */
+    SGui_Dot S1 = {.X = Clip->LU_X, .Y = Clip->LU_Y};
+    SGui_Dot E1 = {.X = Clip->RB_X, .Y = Clip->RB_Y};
+    SGui_Dot S2 = {.X = Clip->LU_X, .Y = Clip->RB_Y};
+    SGui_Dot E2 = {.X = Clip->RB_X, .Y = Clip->LU_Y};
+    
+    if (SGui_LineIsAnd(S, E, &S1, &E1) == true)
+        return true;
+    if (SGui_LineIsAnd(S, E, &S2, &E2) == true)
+        return true;
+    
+    return false;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

@@ -2,6 +2,27 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+/* 两条线段相交判断 */
+bool SGui_LineIsAnd(SGui_Dot *S1, SGui_Dot *E1, SGui_Dot *S2, SGui_Dot *E2)
+{
+    /* 检查1:快速排斥检查 */
+    if (SGui_Min(S1->X, E1->X) > SGui_Max(S2->X, E2->X) ||
+        SGui_Min(S2->X, E2->X) > SGui_Max(S1->X, E1->X) ||
+        SGui_Min(S1->Y, E1->Y) > SGui_Max(S2->Y, E2->Y) ||
+        SGui_Min(S2->Y, E2->Y) > SGui_Max(S1->Y, E1->Y))
+        return false;
+    /* 检查2:跨立检查 */
+    if (((S1->X - S2->X) * (E2->Y - S2->Y) - (S1->Y - S2->Y) * (E2->X - S2->X)) *
+        ((E1->X - S2->X) * (E2->Y - S2->Y) - (E1->Y - S2->Y) * (E2->X - S2->X)) > 0 ||
+        ((S2->X - S1->X) * (E1->Y - S1->Y) - (S2->Y - S1->Y) * (E1->X - S1->X)) *
+        ((E2->X - S1->X) * (E1->Y - S1->Y) - (E2->Y - S1->Y) * (E1->X - S1->X)) > 0)
+        return false;
+    
+    return true;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 区域类型转化(坐标点转为偏移量) */
 void SGui_AreaPosToOff(SGui_Area *Region)
 {
@@ -37,10 +58,10 @@ void SGui_AreaOffToPos(SGui_Area *Offset)
 /* 区域转化生成(俩个点转为坐标点) */
 void SGui_AreaFromDot2(SGui_Area *Region, SGui_Dot *Dot1, SGui_Dot *Dot2)
 {
-    Region->LU_X = SGUI_MIN(Dot1->X, Dot2->X);
-    Region->LU_Y = SGUI_MIN(Dot1->Y, Dot2->Y);
-    Region->RB_X = SGUI_MAX(Dot1->X, Dot2->X);
-    Region->RB_Y = SGUI_MAX(Dot1->Y, Dot2->Y);
+    Region->LU_X = SGui_Min(Dot1->X, Dot2->X);
+    Region->LU_Y = SGui_Min(Dot1->Y, Dot2->Y);
+    Region->RB_X = SGui_Max(Dot1->X, Dot2->X);
+    Region->RB_Y = SGui_Max(Dot1->Y, Dot2->Y);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -70,6 +91,24 @@ bool SGui_CanvasSetClip(SGui_Canvas *Canvas, SGui_Area *Clip)
     Canvas->Offset.Off_Y = Clip->LU_Y;
     Canvas->Offset.Off_W = Width;
     Canvas->Offset.Off_H = Height;
+    return true;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 画布偏移量坐标点转化 */
+bool SGui_CanvasPosToOff(SGui_Canvas *Canvas, SGui_Area *Region)
+{
+    SGui_Area Offset = {0};
+    SGui_ClipRegionAnd(&Offset, &Canvas->Clip, Region);
+    /* 如果没有落在当前剪切域内,不进行计算 */
+    if (SGui_ClipRegionIsVaild(&Offset) == false)
+        return false;
+    SGui_AreaPosToOff(&Offset);
+    /* 将偏移量偏移到画布 */
+    Offset.Off_Y -= Canvas->Offset.Off_Y;
+    Offset.Off_X -= Canvas->Offset.Off_X;
+    *Region = Offset;
     return true;
 }
 /*************************************************************************************************/
