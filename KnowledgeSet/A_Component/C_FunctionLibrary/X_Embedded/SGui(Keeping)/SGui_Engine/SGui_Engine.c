@@ -90,59 +90,6 @@ void SGui_EngineReady(void)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static void SGui_EngineCanvas_Test(SGui_Canvas *Canvas)
-{
-    /* 绘制填充矩形 */ {
-        static uint8_t Count = 0;
-        SGui_Pixel Pixel = {
-            .Color.C_R = (Count + 0) % 3 == 0 ? 255 : 0,
-            .Color.C_G = (Count + 1) % 3 == 0 ? 255 : 0,
-            .Color.C_B = (Count + 2) % 3 == 0 ? 255 : 0,
-            .Alpha = Count++ * 10,
-        };
-        SGui_DrawFillRect(Canvas, &Canvas->Clip, Pixel);
-    }
-    
-    /* 绘制线段 */ {
-        SGui_Pixel Pixel = {
-            .Alpha = 255,
-            .Color.C_R = 255,
-            .Color.C_G = 255,
-            .Color.C_B = 255,
-        };
-        SGui_Dot LineDot[] = {
-            /* Line 1 */
-            {.X =   0, .Y =   0},
-            {.X = 100, .Y =   0},
-            /* Line 2 */
-            {.X =   0, .Y =   0},
-            {.X =   0, .Y = 100},
-            /* Line 3 */
-            {.X = 100, .Y =   0},
-            {.X = 100, .Y = 100},
-            /* Line 4 */
-            {.X =   0, .Y = 100},
-            {.X = 100, .Y = 100},
-            /* Line 5 */
-            {.X =   0, .Y =   0},
-            {.X = 100, .Y = 100},
-            /* Line 6 */
-            {.X =   0, .Y = 100},
-            {.X = 100, .Y =   0},
-        };
-        uint32_t Count = 0;
-        
-        while(Count < sizeof(LineDot) / sizeof(LineDot[0])) {
-            SGui_DrawLine(Canvas, &LineDot[Count], &LineDot[Count + 1], Pixel);
-            Count += 2;
-        }
-    }
-    
-    
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 void SGui_EngineExecute(void)
 {
     #if SGUI_INTERNAL_TEST
@@ -152,7 +99,7 @@ void SGui_EngineExecute(void)
     SGui_AnimationStart(HandleX, ~0, 5000, true);
     // 引擎画布滚动推送一帧
     SGui_ScreenFrameLock();
-    SGui_EngineCanvasRoll(SGui_EngineCanvas_Test);
+    SGui_EngineCanvasRoll(SGui_Draw_Test);
     SGui_ScreenFrameUnlock();
     #endif
     

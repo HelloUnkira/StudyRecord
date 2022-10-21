@@ -9,8 +9,8 @@ typedef struct SimpleGui_Window {
     SGui_Container      Container;      /* 窗口管理属性:容器 */
     SGui_Canvas        *Canvas;         /* 窗口绘制属性:画布 */
                                         /* 窗口显示属性:窗口资源及绘制 */
-    SGui_WidgetCallback Show;           /* 窗口进入:资源的申请 */
-    SGui_WidgetCallback Hide;           /* 窗口退出:资源的回收 */
+    SGui_WidgetCallback Ready;          /* 窗口显示前的准备:外部资源的准备 */
+    SGui_WidgetCallback Leave;          /* 窗口消失前的准备:外部资源的回收 */
     SGui_WidgetCallback Display;        /* 窗口显示 */
                                         /* ...... */
                                         /* 继续补充:窗口特性 */
