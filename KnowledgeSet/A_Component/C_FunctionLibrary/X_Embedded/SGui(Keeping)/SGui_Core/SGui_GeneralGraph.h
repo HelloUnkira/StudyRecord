@@ -14,7 +14,7 @@ typedef SimpleGui_Coord SGui_Coord;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 非法坐标点值(这里随意指定一个最大或最小值) */
-#define SGUI_COORD_INVALID      ((SGui_Coord)0x8000)
+#define SGui_Coord_Invaild      ((SGui_Coord)0x8000)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -86,8 +86,8 @@ typedef struct SimpleGui_Canvas {
 /* 坐标重置 */
 static inline void SGui_DotReset(SGui_Dot *Dot)
 {
-    Dot->X = SGUI_COORD_INVALID;
-    Dot->Y = SGUI_COORD_INVALID;
+    Dot->X = SGui_Coord_Invaild;
+    Dot->Y = SGui_Coord_Invaild;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -95,10 +95,10 @@ static inline void SGui_DotReset(SGui_Dot *Dot)
 /* 区域重置 */
 static inline void SGui_AreaReset(SGui_Area *Area)
 {
-    Area->BL_X = SGUI_COORD_INVALID;
-    Area->BU_Y = SGUI_COORD_INVALID;
-    Area->BR_X = SGUI_COORD_INVALID;
-    Area->BB_Y = SGUI_COORD_INVALID;
+    Area->BL_X = SGui_Coord_Invaild;
+    Area->BU_Y = SGui_Coord_Invaild;
+    Area->BR_X = SGui_Coord_Invaild;
+    Area->BB_Y = SGui_Coord_Invaild;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

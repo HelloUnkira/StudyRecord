@@ -9,7 +9,7 @@ void SGui_ContainerCreate(SGui_Container *Container, uint32_t Length)
     Container->Handles = SGUI_ALLOC(sizeof(SGui_Handle) * Length);
     
     for (uint32_t Index = 0; Index < Container->Length; Index++)
-         Container->Handles[Index] = SGUI_HANDLE_INVALID;
+         Container->Handles[Index] = SGui_Handle_Invaild;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -26,7 +26,7 @@ void SGui_ContainerDestroy(SGui_Container *Container)
 bool SGui_ContainerAdd(SGui_Container *Container, SGui_Handle Handle)
 {
     for (uint32_t Index = 0; Index < Container->Length; Index++)
-        if (Container->Handles[Index] == SGUI_HANDLE_INVALID) {
+        if (Container->Handles[Index] == SGui_Handle_Invaild) {
             Container->Handles[Index]  = Handle;
             return true;
         }
@@ -40,7 +40,7 @@ bool SGui_ContainerRemove(SGui_Container *Container, SGui_Handle Handle)
 {
     for (uint32_t Index = 0; Index < Container->Length; Index++)
         if (Container->Handles[Index] == Handle) {
-            Container->Handles[Index]  = SGUI_HANDLE_INVALID;
+            Container->Handles[Index]  = SGui_Handle_Invaild;
             return true;
         }
     return false;

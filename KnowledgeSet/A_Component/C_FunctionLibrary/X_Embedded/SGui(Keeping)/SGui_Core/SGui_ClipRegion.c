@@ -131,8 +131,8 @@ bool SGui_ClipRegionIsVaild(SGui_Area *Clip)
 {
     bool Result = true;
     /* 本集与补集运算 */
-    if (Clip->LU_X == SGUI_COORD_INVALID || Clip->LU_Y == SGUI_COORD_INVALID ||
-        Clip->RB_X == SGUI_COORD_INVALID || Clip->RB_Y == SGUI_COORD_INVALID)
+    if (Clip->LU_X == SGui_Coord_Invaild || Clip->LU_Y == SGui_Coord_Invaild ||
+        Clip->RB_X == SGui_Coord_Invaild || Clip->RB_Y == SGui_Coord_Invaild)
         Result = false;
     
     if (Clip->LU_X > Clip->RB_X  || Clip->LU_Y > Clip->RB_Y)

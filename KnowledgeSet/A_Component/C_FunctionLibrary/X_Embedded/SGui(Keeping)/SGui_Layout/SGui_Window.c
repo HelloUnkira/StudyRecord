@@ -7,7 +7,7 @@ SGui_Handle SGui_WidgetGetWindow(SGui_Handle Widget_H)
     SGui_Widget *Widget = NULL;
     /* 当前控件无效 */
     if ((Widget = SGui_HandleSourceGet(Widget_H)) == NULL)
-        return SGUI_HANDLE_INVALID;
+        return SGui_Handle_Invaild;
     
     SGui_Handle Parent_H = Widget->Parent;
     /* 迭代直到找不到寻找父控件,自己控件为祖先控件 */
@@ -30,7 +30,7 @@ SGui_Handle SGui_WindowCreate(uint32_t Number)
     SGui_HandleSourceSet(Window_H, (void *)Window);
 
     SGui_AreaReset(&Window->Widget.Clip);
-    Window->Widget.Parent = SGUI_HANDLE_INVALID;
+    Window->Widget.Parent = SGui_Handle_Invaild;
     Window->Widget.Type   = SGui_WidgetType_Window;
     return Window_H;
 }

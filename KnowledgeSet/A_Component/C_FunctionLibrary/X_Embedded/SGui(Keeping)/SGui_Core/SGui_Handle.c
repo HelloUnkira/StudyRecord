@@ -65,7 +65,7 @@ SGui_Handle SGui_HandleTake(void)
 {
     SGui_Handle Index1 = 0;
     SGui_Handle Index2 = 0;
-    SGui_Handle Handle = SGUI_HANDLE_INVALID;
+    SGui_Handle Handle = SGui_Handle_Invaild;
     /* 1.遍历资源管理单元,查找一个有空闲句柄的单元 */
     for (Index1 = 0; Index1 < HandleSet.Length; Index1++) {
         if (HandleSet.Units[Index1].Source == NULL)
@@ -190,8 +190,8 @@ void SGui_HandleGive(SGui_Handle Handle)
 /* 句柄设置资源(设置,更新,清除) */
 void SGui_HandleSourceSet(SGui_Handle Handle, void *Source)
 {
-    if (Handle >= SGUI_HANDLE_STATIC);
-    if (Handle <  SGUI_HANDLE_STATIC) {
+    if (Handle >= SGui_Handle_Static);
+    if (Handle <  SGui_Handle_Static) {
         SGui_Handle Index1 = Handle / SGUI_UNIT_LENGTH;
         SGui_Handle Index2 = Handle % SGUI_UNIT_LENGTH;
         /* 这是一个合法句柄 */
@@ -205,9 +205,9 @@ void SGui_HandleSourceSet(SGui_Handle Handle, void *Source)
 /* 句柄获取资源 */
 void * SGui_HandleSourceGet(SGui_Handle Handle)
 {
-    if (Handle >= SGUI_HANDLE_STATIC)
+    if (Handle >= SGui_Handle_Static)
         return Handle < HandleStaticLength ? HandleStaticTable[Handle] : NULL;
-    if (Handle <  SGUI_HANDLE_STATIC) {
+    if (Handle <  SGui_Handle_Static) {
         void *Source = NULL;
         SGui_Handle Index1 = Handle / SGUI_UNIT_LENGTH;
         SGui_Handle Index2 = Handle % SGUI_UNIT_LENGTH;
@@ -224,7 +224,7 @@ void * SGui_HandleSourceGet(SGui_Handle Handle)
 /* 是否静态句柄(静态句柄对应资源为静态资源) */
 bool SGui_HandleStaticCheck(SGui_Handle Handle)
 {
-    return Handle >= SGUI_HANDLE_STATIC ? true :false;
+    return Handle >= SGui_Handle_Static ? true :false;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
