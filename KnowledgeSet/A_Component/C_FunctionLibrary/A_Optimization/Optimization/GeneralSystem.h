@@ -1,5 +1,5 @@
-#ifndef OPTIMIZATION_H
-#define OPTIMIZATION_H
+#ifndef GENERAL_SYSTEM_H
+#define GENERAL_SYSTEM_H
 // C std lib
 #include <stdint.h>
 #include <stdbool.h>
@@ -37,6 +37,36 @@ static inline void MemW_U64(void *Addr, uint64_t Data) {MemW(Addr, Data, uint64_
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+static inline void MemRev_B1(void *Addr)
+{
+}
+static inline void MemRev_B2(void *Addr)
+{
+    MemRev_B1((void *)((uint8_t *)Addr + 0));
+    MemRev_B1((void *)((uint8_t *)Addr + 1));
+    
+    MemW_U16(Addr, ((uint16_t)MemR_U8((void *)((uint8_t *)Addr + 0)) << 8) |
+                   ((uint16_t)MemR_U8((void *)((uint8_t *)Addr + 1)) >> 8));
+}
+static inline void MemRev_B4(void *Addr)
+{
+    MemRev_B2((void *)((uint16_t *)Addr + 0));
+    MemRev_B2((void *)((uint16_t *)Addr + 1));
+    
+    MemW_U32(Addr, ((uint32_t)MemR_U16((void *)((uint16_t *)Addr + 0)) << 16) |
+                   ((uint32_t)MemR_U16((void *)((uint16_t *)Addr + 1)) >> 16));
+}
+static inline void MemRev_B8(void *Addr)
+{
+    MemRev_B4((void *)((uint32_t *)Addr + 0));
+    MemRev_B4((void *)((uint32_t *)Addr + 1));
+    
+    MemW_U64(Addr, ((uint64_t)MemR_U32((void *)((uint32_t *)Addr + 0)) << 32) |
+                   ((uint64_t)MemR_U32((void *)((uint32_t *)Addr + 1)) >> 32));
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 #define BitG(Addr, Pos, Type) (MemR_U##Type(Addr) & ((1 << (Pos)) % Type)) != 0
 #define BitS(Addr, Pos, Type) (MemW_U##Type(Addr, MemR_U##Type(Addr) | ( (1 << (Pos % Type)))))
 #define BitR(Addr, Pos, Type) (MemW_U##Type(Addr, MemR_U##Type(Addr) & (~(1 << (Pos % Type)))))
@@ -64,58 +94,85 @@ static inline bool EBitR_U64(uint64_t *Addr, uintptr_t Pos) {return EBitR(Addr, 
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline void ToLe_U8( void *Addr) {;}
+//#define ARCH_IS_LE
+//#define ARCH_IS_BE
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline void ToLe_U8( void *Addr)
+{
+#ifndef ARCH_IS_LE
+    ;
+#endif
+}
 static inline void ToLe_U16(void *Addr)
 {
+#ifndef ARCH_IS_LE
     uint16_t Data_16 = MemR_U16(Addr);
     MemW_U8((void *)((uintptr_t)Addr + 0), (Data_16 >> 0) && 0xFF);
     MemW_U8((void *)((uintptr_t)Addr + 1), (Data_16 >> 8) && 0xFF);
     ToLe_U8((void *)((uintptr_t)Addr + 0));
     ToLe_U8((void *)((uintptr_t)Addr + 1));
+#endif
 }
 static inline void ToLe_U32(void *Addr)
 {
+#ifndef ARCH_IS_LE
     uint32_t Data_32 = MemR_U32(Addr);
     MemW_U16((void *)((uintptr_t)Addr + 0), (Data_32 >>  0) && 0xFFFF);
     MemW_U16((void *)((uintptr_t)Addr + 2), (Data_32 >> 16) && 0xFFFF);
     ToLe_U16((void *)((uintptr_t)Addr + 0));
     ToLe_U16((void *)((uintptr_t)Addr + 2));
+#endif
 }
 static inline void ToLe_U64(void *Addr)
 {
+#ifndef ARCH_IS_LE
     uint64_t Data_64 = MemR_U64(Addr);
     MemW_U32((void *)((uintptr_t)Addr + 0), (Data_64 >>  0) && 0xFFFFFFFF);
     MemW_U32((void *)((uintptr_t)Addr + 4), (Data_64 >> 32) && 0xFFFFFFFF);
     ToLe_U32((void *)((uintptr_t)Addr + 0));
     ToLe_U32((void *)((uintptr_t)Addr + 4));
+#endif
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline void ToBe_U8( void *Addr) {;}
+static inline void ToBe_U8( void *Addr)
+{
+#ifndef ARCH_IS_BE
+    ;
+#endif
+}
 static inline void ToBe_U16(void *Addr)
 {
+#ifndef ARCH_IS_BE
     uint16_t Data_16 = MemR_U16(Addr);
     MemW_U8((void *)((uintptr_t)Addr + 1), (Data_16 >> 0) && 0xFF);
     MemW_U8((void *)((uintptr_t)Addr + 0), (Data_16 >> 8) && 0xFF);
     ToBe_U8((void *)((uintptr_t)Addr + 1));
     ToBe_U8((void *)((uintptr_t)Addr + 0));
+#endif
 }
 static inline void ToBe_U32(void *Addr)
 {
+#ifndef ARCH_IS_BE
     uint32_t Data_32 = MemR_U32(Addr);
     MemW_U16((void *)((uintptr_t)Addr + 2), (Data_32 >>  0) && 0xFFFF);
     MemW_U16((void *)((uintptr_t)Addr + 0), (Data_32 >> 16) && 0xFFFF);
     ToBe_U16((void *)((uintptr_t)Addr + 2));
     ToBe_U16((void *)((uintptr_t)Addr + 0));
+#endif
 }
 static inline void ToBe_U64(void *Addr)
 {
+#ifndef ARCH_IS_BE
     uint64_t Data_64 = MemR_U64(Addr);
     MemW_U32((void *)((uintptr_t)Addr + 4), (Data_64 >>  0) && 0xFFFFFFFF);
     MemW_U32((void *)((uintptr_t)Addr + 0), (Data_64 >> 32) && 0xFFFFFFFF);
     ToBe_U32((void *)((uintptr_t)Addr + 4));
     ToBe_U32((void *)((uintptr_t)Addr + 0));
+#endif
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -237,6 +294,19 @@ static inline  int8_t Map_I8(  int8_t X,  int8_t LI,  int8_t LO,  int8_t RI,  in
 static inline int16_t Map_I16(int16_t X, int16_t LI, int16_t LO, int16_t RI, int16_t RO) Map_Func
 static inline int32_t Map_I32(int32_t X, int32_t LI, int32_t LO, int32_t RI, int32_t RO) Map_Func
 static inline int64_t Map_I16(int64_t X, int64_t LI, int64_t LO, int64_t RI, int64_t RO) Map_Func
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#define CheckSum(Type, Buffer, Length)  \
+    {Type Result = 0; for (uint32_t I = 0; I < Length; Result += Buffer[I++]); return Result;}
+#define CheckSum_Func(Type)     CheckSum(Type, Buffer, Length)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline  uint8_t CheckSum_U8(  uint8_t *Buffer, uint32_t Length)  CheckSum_Func( uint8_t)
+static inline uint16_t CheckSum_U16(uint16_t *Buffer, uint32_t Length)  CheckSum_Func(uint16_t)
+static inline uint32_t CheckSum_U32(uint32_t *Buffer, uint32_t Length)  CheckSum_Func(uint32_t)
+static inline uint64_t CheckSum_U64(uint64_t *Buffer, uint32_t Length)  CheckSum_Func(uint64_t)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
