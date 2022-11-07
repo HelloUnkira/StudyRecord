@@ -121,7 +121,7 @@ void Cflint_Mask2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 数据转Native格式流 */
+/* Bytes转Native格式流 */
 void Cflint_Native1ToBytes(uint8_t *Bytes, uint8_t  *Native, uint32_t Length);
 void Cflint_BytesToNative1(uint8_t *Bytes, uint8_t  *Native, uint32_t Length);
 void Cflint_Native2ToBytes(uint8_t *Bytes, uint16_t *Native, uint32_t Length);
@@ -130,6 +130,18 @@ void Cflint_Native4ToBytes(uint8_t *Bytes, uint32_t *Native, uint32_t Length);
 void Cflint_BytesToNative4(uint8_t *Bytes, uint32_t *Native, uint32_t Length);
 void Cflint_Native8ToBytes(uint8_t *Bytes, uint64_t *Native, uint32_t Length);
 void Cflint_BytesToNative8(uint8_t *Bytes, uint64_t *Native, uint32_t Length);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 逆Native Hex数组(Bytes)转为操作数 */
+/* Length满足 >= strlen(Hex) / sizeof(CFLINT_TYPE) + 1 */
+void Cflint_MakeFromHex(CFLINT_TYPE *Operand, uint32_t Length, uint8_t *Hex);
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* 逆Native Num数组(Bytes)转为操作数 */
+/* Length满足 >= strlen(Hex) / sizeof(CFLINT_TYPE) + 1 */
+void Cflint_MakeFromNum(CFLINT_TYPE *Operand, uint32_t Length, uint8_t *Num);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

@@ -442,6 +442,54 @@ void Cflint_BytesToNative8(uint8_t *Bytes, uint64_t *Native, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+void Cflint_MakeFromHex(CFLINT_TYPE *Operand, uint32_t Length, uint8_t *Hex)
+{
+    /* 清零缓冲区数据 */
+    Cflint_SetValue(Operand, Length, 0);
+    /* Hex转CFLINT_TYPE直接按低位到高位进行Copy即可,注意端序兼容 */
+    uint32_t Index = 0;
+    for (uint32_t Index1 = 0; Hex[Index1] != 0; Index1++) {
+        for (uint32_t Offset = 0; Offset < CFLINT_BYTE; Offset++)
+            Operand[Index] |= Hex[Index1] == 0 ? 0 :
+                              Hex[Index1++] << Offset * 8;
+        if (Hex[Index1] == 0)
+            break;
+        Index++;
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+void Cflint_MakeFromNum(CFLINT_TYPE *Operand, uint32_t Length, uint8_t *Num)
+{
+    /* 清零缓冲区数据 */
+    Cflint_SetValue(Operand, Length, 0);
+    /* Hex转CFLINT_TYPE直接按低位到高位进行Copy即可,注意端序兼容 */
+    uint32_t Index = 0;
+    uint32_t Index1 = 0;
+    CFLINT_TYPE OldValue = 0;
+    CFLINT_TYPE Overflow = 0;
+    
+    while (Num[Index1] != 0) {
+        /* 1.记录运算前的值 */
+        OldValue = Operand[Index];
+        /* 2.倍乘,叠加进位,累加当前值 */
+        Operand[Index] *= 10;
+        Operand[Index] += Num[Index1++] + Overflow;
+        /* 3.清空进位(进位只在字进位时有效) */
+        if (Overflow != 0)
+            Overflow  = 0;
+        /* 4.产生进位,生成进位标记 */
+        if (OldValue  > Operand[Index])
+            Overflow  = 1;
+        /* 5.抓获进位标记,移动到下一个字 */
+        if (Overflow == 1)
+            Index++;
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 #endif
 /*****************************************************************************/
 /*****************************************************************************/
