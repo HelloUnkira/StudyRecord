@@ -8,7 +8,8 @@ static inline void MD5_Ready(uint32_t Buffer[4])
     const uint32_t MD5_Const[4] = {
         0x67452301,0xEFCDAB89,0x98BADCFE,0x10325476,
     };
-    for (uint32_t Index = 0; Index < 4; Buffer[Index] = MD5_Const[Index++]);
+    for (uint32_t Index = 0; Index < 4; Index++)
+        Buffer[Index] = MD5_Const[Index];
 }
 /*****************************************************************************/
 /*****************************************************************************/
