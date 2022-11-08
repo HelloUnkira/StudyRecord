@@ -442,50 +442,296 @@ void Cflint_BytesToNative8(uint8_t *Bytes, uint64_t *Native, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-void Cflint_MakeFromHex(CFLINT_TYPE *Operand, uint32_t Length, uint8_t *Hex)
+/* 逆序操作数,操作数与NativeX互转(X==CFLINT_BYTE) */
+void Cflint_OperandReverse(CFLINT_TYPE *Operand, uint32_t Length)
 {
-    /* 清零缓冲区数据 */
-    Cflint_SetValue(Operand, Length, 0);
-    /* Hex转CFLINT_TYPE直接按低位到高位进行Copy即可,注意端序兼容 */
-    uint32_t Index = 0;
-    for (uint32_t Index1 = 0; Hex[Index1] != 0; Index1++) {
-        for (uint32_t Offset = 0; Offset < CFLINT_BYTE; Offset++)
-            Operand[Index] |= Hex[Index1] == 0 ? 0 :
-                              Hex[Index1++] << Offset * 8;
-        if (Hex[Index1] == 0)
-            break;
-        Index++;
+    uint32_t Index1 = 0, Index2 = 0;
+    CFLINT_TYPE Buffer = 0;
+    for (uint32_t Index = 0; Index < Length / 2; Index++) {
+        Index1 = Index;
+        Index2 = Length - 1 - Index;
+        /* 交换俩个数 */
+        Operand[Index1] ^= Operand[Index2];
+        Operand[Index2] ^= Operand[Index1];
+        Operand[Index1] ^= Operand[Index2];
     }
 }
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-void Cflint_MakeFromNum(CFLINT_TYPE *Operand, uint32_t Length, uint8_t *Num)
+/* 操作数转化为NativeX(X==Type) */
+void Cflint_OperandToNative(CFLINT_TYPE *Operand, uint32_t Length, uint8_t Type)
 {
-    /* 清零缓冲区数据 */
-    Cflint_SetValue(Operand, Length, 0);
-    /* Hex转CFLINT_TYPE直接按低位到高位进行Copy即可,注意端序兼容 */
-    uint32_t Index = 0;
-    uint32_t Index1 = 0;
-    CFLINT_TYPE OldValue = 0;
-    CFLINT_TYPE Overflow = 0;
-    
-    while (Num[Index1] != 0) {
-        /* 1.记录运算前的值 */
-        OldValue = Operand[Index];
-        /* 2.倍乘,叠加进位,累加当前值 */
-        Operand[Index] *= 10;
-        Operand[Index] += Num[Index1++] + Overflow;
-        /* 3.清空进位(进位只在字进位时有效) */
-        if (Overflow != 0)
-            Overflow  = 0;
-        /* 4.产生进位,生成进位标记 */
-        if (OldValue  > Operand[Index])
-            Overflow  = 1;
-        /* 5.抓获进位标记,移动到下一个字 */
-        if (Overflow == 1)
-            Index++;
+    if (Type != 1 && Type != 2 && Type != 4 && Type != 8)
+        return;
+    /* 跳过无必要的转换 */
+    if (CFLINT_BYTE == Type) {
+        CFLINT_TYPE *Native = Operand;
+        Cflint_OperandReverse(Operand, Length);
+        return;
     }
+    /* 开始转换流程 */
+    CFLINT_TYPE *Native = Operand;
+    uint32_t  Length1 = Length * CFLINT_BYTE / 1;
+    uint32_t  Length2 = Length * CFLINT_BYTE / 2;
+    uint32_t  Length4 = Length * CFLINT_BYTE / 4;
+    uint32_t  Length8 = Length * CFLINT_BYTE / 8;
+     uint8_t *Native1 = ( uint8_t *)Native;
+    uint16_t *Native2 = (uint16_t *)Native;
+    uint32_t *Native4 = (uint32_t *)Native;
+    uint64_t *Native8 = (uint64_t *)Native;
+    /* 操作数转Native */
+    Cflint_OperandReverse(Operand, Length);
+    /* 将Native转化为Native1 */
+    for (uint32_t Index = 0; Index < Length; Index++) {
+#if 0
+#elif CFLINT_BYTE == 1
+        continue;
+         uint8_t Value = Native[Index];
+        Native1[Index * 1 + 0] = Value >>  0;
+#elif CFLINT_BYTE == 2
+        uint16_t Value = Native[Index];
+        Native1[Index * 2 + 0] = Value >>  8;
+        Native1[Index * 2 + 1] = Value >>  0;
+#elif CFLINT_BYTE == 4
+        uint32_t Value = Native[Index];
+        Native1[Index * 4 + 0] = Value >> 24;
+        Native1[Index * 4 + 1] = Value >> 16;
+        Native1[Index * 4 + 2] = Value >>  8;
+        Native1[Index * 4 + 3] = Value >>  0;
+#elif CFLINT_BYTE == 8
+        uint64_t Value = Native[Index];
+        Native1[Index * 8 + 0] = Value >> 56;
+        Native1[Index * 8 + 1] = Value >> 48;
+        Native1[Index * 8 + 2] = Value >> 40;
+        Native1[Index * 8 + 3] = Value >> 32;
+        Native1[Index * 8 + 4] = Value >> 24;
+        Native1[Index * 8 + 5] = Value >> 16;
+        Native1[Index * 8 + 6] = Value >>  8;
+        Native1[Index * 8 + 7] = Value >>  0;
+#else
+#endif
+    }
+    /* 将Native1转化为目标Native */
+    switch(Type) {
+    case 1:
+        break;
+        for (uint32_t Index = 0; Index < Length1; Index++) {
+             uint8_t Value = 0;
+            Value |= Native1[Index * 1 + 0];
+            Native1[Index] = Value;
+        }
+        break;
+    case 2:
+        for (uint32_t Index = 0; Index < Length2; Index++) {
+            uint16_t Value = 0;
+            Value |= Native1[Index * 2 + 0]; Value <<= 8;
+            Value |= Native1[Index * 2 + 1];
+            Native2[Index] = Value;
+        }
+        break;
+    case 4:
+        for (uint32_t Index = 0; Index < Length4; Index++) {
+            uint32_t Value = 0;
+            Value |= Native1[Index * 4 + 0]; Value <<= 8;
+            Value |= Native1[Index * 4 + 1]; Value <<= 8;
+            Value |= Native1[Index * 4 + 2]; Value <<= 8;
+            Value |= Native1[Index * 4 + 3];
+            Native4[Index] = Value;
+        }
+        break;
+    case 8:
+        for (uint32_t Index = 0; Index < Length8; Index++) {
+            uint64_t Value = 0;
+            Value |= Native1[Index * 8 + 0]; Value <<= 8;
+            Value |= Native1[Index * 8 + 1]; Value <<= 8;
+            Value |= Native1[Index * 8 + 2]; Value <<= 8;
+            Value |= Native1[Index * 8 + 3]; Value <<= 8;
+            Value |= Native1[Index * 8 + 4]; Value <<= 8;
+            Value |= Native1[Index * 8 + 5]; Value <<= 8;
+            Value |= Native1[Index * 8 + 6]; Value <<= 8;
+            Value |= Native1[Index * 8 + 7];
+            Native8[Index] = Value;
+        }
+        break;
+    }
+    /*  */
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/* NativeX转化为操作数(X==Type) */
+void Cflint_NativeToOperand(CFLINT_TYPE *Operand, uint32_t Length, uint8_t Type)
+{
+    if (Type != 1 && Type != 2 && Type != 4 && Type != 8)
+        return;
+    /* 跳过无必要的转换 */
+    if (CFLINT_BYTE == Type) {
+        CFLINT_TYPE *Native = Operand;
+        Cflint_OperandReverse(Operand, Length);
+        return;
+    }
+    /* 开始转换流程 */
+    CFLINT_TYPE *Native = Operand;
+    uint32_t  Length1 = Length * CFLINT_BYTE / 1;
+    uint32_t  Length2 = Length * CFLINT_BYTE / 2;
+    uint32_t  Length4 = Length * CFLINT_BYTE / 4;
+    uint32_t  Length8 = Length * CFLINT_BYTE / 8;
+     uint8_t *Native1 = ( uint8_t *)Native;
+    uint16_t *Native2 = (uint16_t *)Native;
+    uint32_t *Native4 = (uint32_t *)Native;
+    uint64_t *Native8 = (uint64_t *)Native;
+    /* 将目标Native转化为Native1 */
+    switch(Type) {
+    case 1:
+        break;
+        for (uint32_t Index = 0; Index < Length1; Index++) {
+             uint8_t Value = Native1[Index];
+            Native1[Index * 1 + 0] = Value >>  0;
+        }
+        break;
+    case 2:
+        for (uint32_t Index = 0; Index < Length2; Index++) {
+            uint16_t Value = Native2[Index];
+            Native1[Index * 2 + 0] = Value >>  8;
+            Native1[Index * 2 + 1] = Value >>  0;
+        }
+        break;
+    case 4:
+        for (uint32_t Index = 0; Index < Length4; Index++) {
+            uint32_t Value = Native4[Index];
+            Native1[Index * 4 + 0] = Value >> 24;
+            Native1[Index * 4 + 1] = Value >> 16;
+            Native1[Index * 4 + 2] = Value >>  8;
+            Native1[Index * 4 + 3] = Value >>  0;
+        }
+        break;
+    case 8:
+        for (uint32_t Index = 0; Index < Length8; Index++) {
+            uint64_t Value = Native8[Index];
+            Native1[Index * 8 + 0] = Value >> 56;
+            Native1[Index * 8 + 1] = Value >> 48;
+            Native1[Index * 8 + 2] = Value >> 40;
+            Native1[Index * 8 + 3] = Value >> 32;
+            Native1[Index * 8 + 4] = Value >> 24;
+            Native1[Index * 8 + 5] = Value >> 16;
+            Native1[Index * 8 + 6] = Value >>  8;
+            Native1[Index * 8 + 7] = Value >>  0;
+        }
+        break;
+    }
+    /* 将Native1转化为Native */
+    for (uint32_t Index = 0; Index < Length; Index++) {
+#if 0
+#elif CFLINT_BYTE == 1
+        continue;
+         uint8_t Value = 0;
+        Value |= Native1[Index * 1 + 0];
+        Native[Index] = Value;
+#elif CFLINT_BYTE == 2
+        uint16_t Value = 0;
+        Value |= Native1[Index * 2 + 0]; Value <<= 8;
+        Value |= Native1[Index * 2 + 1];
+        Native[Index] = Value;
+#elif CFLINT_BYTE == 4
+        uint32_t Value = 0;
+        Value |= Native1[Index * 4 + 0]; Value <<= 8;
+        Value |= Native1[Index * 4 + 1]; Value <<= 8;
+        Value |= Native1[Index * 4 + 2]; Value <<= 8;
+        Value |= Native1[Index * 4 + 3];
+        Native[Index] = Value;
+#elif CFLINT_BYTE == 8
+        uint64_t Value = 0;
+        Value |= Native1[Index * 8 + 0]; Value <<= 8;
+        Value |= Native1[Index * 8 + 1]; Value <<= 8;
+        Value |= Native1[Index * 8 + 2]; Value <<= 8;
+        Value |= Native1[Index * 8 + 3]; Value <<= 8;
+        Value |= Native1[Index * 8 + 4]; Value <<= 8;
+        Value |= Native1[Index * 8 + 5]; Value <<= 8;
+        Value |= Native1[Index * 8 + 6]; Value <<= 8;
+        Value |= Native1[Index * 8 + 7];
+        Native[Index] = Value;
+#else
+#endif
+    }
+    /* Native转操作数 */
+    Cflint_OperandReverse(Operand, Length);
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+void Cflint_NumToHex(uint8_t *Hex,      uint8_t *Num,
+                     uint8_t *Temp[2], uint32_t  Len)
+{
+    uint32_t NumLen1 = 0;
+    uint32_t NumLen2 = 0;
+    uint8_t *Swap = NULL;
+    uint8_t *Buffer1 = Temp[0]; //被除数
+    uint8_t *Buffer2 = Temp[1]; //商
+    /* 清零缓冲区数据,初始化Buffer1,Buffer2 */
+    for (uint32_t Index = 0; Index < Len; Index++) {
+        Hex[Index] = 0;
+        Buffer1[Index] = 0;
+        Buffer2[Index] = 0;
+    }
+    /* 拷贝十进制数据到Buffer1 */
+    for (uint32_t Index = 0; Index < Len; Index++) {
+        /* 这里只能接受纯数字字符串 */
+        if (Num[Index] == 0)
+            break;
+        if (Num[Index] <= '0' && Num[Index] >= '9')
+            return;
+        Buffer1[Index] = Num[Index] - '0';
+        NumLen1 = Index + 1;
+    }
+    /* 进行迭代循环 Module = Buffer1 % 255 */
+    uint32_t Index0 = 0;
+    while (1) {
+        /* 前缀0滤除锁 */
+        uint32_t PrefixLock = 0;
+        /* 进行迭代循环 */
+        uint32_t Index1 = 0;
+        uint16_t Module = 0;
+        /* Buffer2 = Buffer1 / 255 */
+        /* Module  = Buffer1 % 255 */
+        do {
+            /* 数据不够移动到下一个位 */
+            if (Index1 < NumLen1)
+                Module  = Module * 10 + Buffer1[Index1++];
+            /* 数据不够除时,商补0 */
+            /* 数据足够除时,计算商 */
+            if (Module >> 8 != 0)
+                PrefixLock  = 1;
+            /* 前缀0滤除锁(这是必备的,它会限制商以期靠近0) */
+            if (PrefixLock != 0)
+                Buffer2[NumLen2++] = Module >> 8;
+            Module &= 0xFF;
+        } while (Index1 < NumLen1);
+        /* 保存当次最后除余 */
+        Hex[Index0++] = Module;
+        /* 辗转迭代直到除数只剩下一位 */
+        if (NumLen2 == 1) {
+            Hex[Index0++] = Buffer2[0];
+            break;
+        }
+        if (NumLen2 == 0)
+            break;
+        /* 除数更新成被除数(交换指针即可) */
+        Swap    = Buffer1;
+        Buffer1 = Buffer2;
+        Buffer2 = Swap;
+        NumLen1 = NumLen2;
+        NumLen2 = 0;
+        /* 开始下一次迭代循环 */
+    }
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+void Cflint_HexToNum(uint8_t *Hex,      uint8_t *Num,
+                     uint8_t *Temp[2], uint32_t  Len)
+{
+    /* 暂未看见好的逻辑流程,待定 */
 }
 /*****************************************************************************/
 /*****************************************************************************/

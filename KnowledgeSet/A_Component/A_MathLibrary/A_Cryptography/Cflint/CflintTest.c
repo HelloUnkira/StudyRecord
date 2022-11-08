@@ -78,6 +78,7 @@ void Test_CflintFunctionSet1(void)
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/
     printf("Cflint_NativeToBytes:\n");
+    printf("Cflint_BytesToNative:\n");
     printf("\nNative1:%llu %llu", Native1[0], Native1[1]);
     printf("\nNative2:%llu %llu", Native2[0], Native2[1]);
     printf("\nNative4:%llu %llu", Native4[0], Native4[1]);
@@ -106,6 +107,95 @@ void Test_CflintFunctionSet1(void)
     printf("\nNative2:%llu %llu", Native2[0], Native2[1]);
     printf("\nNative4:%llu %llu", Native4[0], Native4[1]);
     printf("\nNative8:%llu %llu", Native8[0], Native8[1]);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    
+    /* Native与操作数互转运算 */
+    /*************************************************************************/
+    uint8_t  Native_1[4] = {110, 111};
+    uint16_t Native_2[4] = {11100, 11111};
+    uint32_t Native_4[4] = {111110000, 111111111};
+    uint64_t Native_8[4] = {1111111000000, 1111111111111};
+    CFLINT_TYPE Operand_1[1] = {0};
+    CFLINT_TYPE Operand_2[2] = {0};
+    CFLINT_TYPE Operand_4[4] = {0};
+    CFLINT_TYPE Operand_8[8] = {0};
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    printf("Cflint_NativeToOperand:\n");
+    printf("Cflint_OperandToNative:\n");
+    Cflint_Copy(Operand_1, (CFLINT_TYPE *)Native_1, 1);
+    Cflint_Copy(Operand_2, (CFLINT_TYPE *)Native_2, 2);
+    Cflint_Copy(Operand_4, (CFLINT_TYPE *)Native_4, 4);
+    Cflint_Copy(Operand_8, (CFLINT_TYPE *)Native_8, 8);
+    Cflint_NativeToOperand(Operand_1, 1, 1);
+    Cflint_NativeToOperand(Operand_2, 2, 2);
+    Cflint_NativeToOperand(Operand_4, 4, 4);
+    Cflint_NativeToOperand(Operand_8, 8, 8);
+    printf("\nNative_1:");
+    for (Index = 0; Index < 4; Index++)
+        printf("%llu ", Native_1[Index]);
+    printf("\nNative_2:");
+    for (Index = 0; Index < 4; Index++)
+        printf("%llu ", Native_2[Index]);
+    printf("\nNative_4:");
+    for (Index = 0; Index < 4; Index++)
+        printf("%llu ", Native_4[Index]);
+    printf("\nNative_8:");
+    for (Index = 0; Index < 4; Index++)
+        printf("%llu ", Native_8[Index]);
+    printf("\nOperand_1:");
+    for (Index = 0; Index < 1; Index++)
+        printf("%llu ", Operand_1[Index]);
+    printf("\nOperand_2:");
+    for (Index = 0; Index < 2; Index++)
+        printf("%llu ", Operand_2[Index]);
+    printf("\nOperand_4:");
+    for (Index = 0; Index < 4; Index++)
+        printf("%llu ", Operand_4[Index]);
+    printf("\nOperand_8:");
+    for (Index = 0; Index < 8; Index++)
+        printf("%llu ", Operand_8[Index]);
+    Cflint_OperandToNative(Operand_1, 1, 1);
+    Cflint_OperandToNative(Operand_2, 2, 2);
+    Cflint_OperandToNative(Operand_4, 4, 4);
+    Cflint_OperandToNative(Operand_8, 8, 8);
+    Cflint_Copy((CFLINT_TYPE *)Native_1, Operand_1, 1);
+    Cflint_Copy((CFLINT_TYPE *)Native_2, Operand_2, 2);
+    Cflint_Copy((CFLINT_TYPE *)Native_4, Operand_4, 4);
+    Cflint_Copy((CFLINT_TYPE *)Native_8, Operand_8, 8);
+    printf("\nNative_1:");
+    for (Index = 0; Index < 4; Index++)
+        printf("%llu ", Native_1[Index]);
+    printf("\nNative_2:");
+    for (Index = 0; Index < 4; Index++)
+        printf("%llu ", Native_2[Index]);
+    printf("\nNative_4:");
+    for (Index = 0; Index < 4; Index++)
+        printf("%llu ", Native_4[Index]);
+    printf("\nNative_8:");
+    for (Index = 0; Index < 4; Index++)
+        printf("%llu ", Native_8[Index]);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    
+    
+    /*************************************************************************/
+    uint8_t Len    = 20;
+    uint8_t Length = 20 / sizeof(CFLINT_TYPE);
+    printf("\n-------------------------------------------------------------\n");
+    /*************************************************************************/
+    {
+        uint8_t  Temp0[20] = {};
+        uint8_t  Temp1[20] = {};
+        uint8_t *Temp[2] = {Temp0, Temp1};
+        uint8_t  Hex[20] = {0};
+        uint8_t  Num[20] = "1910019100";
+        Cflint_NumToHex(Hex, Num, Temp, Len);
+        printf("\nHex:");
+        for (Index = 0; Index < 20; Index++)
+            printf("%x ", Hex[Index]);
+    }
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/
 }
