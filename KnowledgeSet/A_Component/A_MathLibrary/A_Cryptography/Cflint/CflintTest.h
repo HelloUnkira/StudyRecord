@@ -11,6 +11,7 @@ void Test_CflintFunctionSet5(void);
 void Test_CflintFunctionSet6(void);
 void Test_CflintFunctionSet7(void);
 void Test_CflintFunctionSet8(void);
+void Test_CflintFunctionSet9(void);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

@@ -23,6 +23,25 @@ bool Calculate_RNG(CFLINT_TYPE *dest, uint32_t size)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+CFLINT_TYPE Test_MakeRandom(void)
+{
+    static bool FirstUse = true;
+    if (FirstUse) {
+        FirstUse = false;
+        srand((unsigned)time(NULL));
+    }
+    
+    uint8_t Data[4] = {rand(),rand(),rand(),rand(),};
+    uint32_t Data4  = Data[0] << 24 |
+                      Data[1] << 16 |
+                      Data[2] <<  8 |
+                      Data[3] <<  0;
+    
+    return Data4;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 void Test_CflintFunctionSet1(void)
 {
     uint32_t Index = 0;
@@ -1096,6 +1115,43 @@ void Test_CflintFunctionSet8(void)
         /*********************************************************************/
     }
 #endif
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+void Test_CflintFunctionSet9(void)
+{
+    uint32_t Index = 0;
+    #define TEST_FUNCTIONSET9_LENGTH     (24 / 8)
+    CFLINT_TYPE Result[TEST_FUNCTIONSET9_LENGTH] = {0};
+    CFLINT_TYPE Min[TEST_FUNCTIONSET9_LENGTH] = {0};
+    CFLINT_TYPE Max[TEST_FUNCTIONSET9_LENGTH] = {0};
+    Min[TEST_FUNCTIONSET9_LENGTH - 1] = 0x60000000;
+    Max[TEST_FUNCTIONSET9_LENGTH - 1] = 0xa0000000;
+    /* 素数查找 */
+    {
+        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET9_LENGTH] = {0};
+        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET9_LENGTH] = {0};
+        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET9_LENGTH] = {0};
+        CFLINT_TYPE  Temp4[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
+        CFLINT_TYPE  Temp5[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
+        CFLINT_TYPE  Temp6[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
+        CFLINT_TYPE  Temp7[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
+        CFLINT_TYPE *Temp[7] = {Temp1, Temp2, Temp3, Temp4,
+                                Temp5, Temp6, Temp7,};
+        uint32_t Check = 0;
+        Check = Cflint_RandomPrime(Result, Temp, Min, Max,
+                                   TEST_FUNCTIONSET9_LENGTH,
+                                   Test_MakeRandom, ~0);
+        printf("\n---------------------------------------------------------\n");
+        printf("Cflint_RandomPrime:::%u\n", Check);
+        printf("\n-----------------------------------------------------------");
+        printf("\nResult:");
+        for (Index = 0; Index < TEST_FUNCTIONSET9_LENGTH; Index++)
+            printf("%llx ", Result[Index]);
+        printf("\n-----------------------------------------------------------");
+        
+    }
 }
 /*****************************************************************************/
 /*****************************************************************************/

@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
     // Test_CflintFunctionSet6();
     // Test_CflintFunctionSet7();
     // Test_CflintFunctionSet8();
+    Test_CflintFunctionSet9();
     // 未完成,测试不通过
     // Test_Mentgomery();
     // 未完成,测试不通过
