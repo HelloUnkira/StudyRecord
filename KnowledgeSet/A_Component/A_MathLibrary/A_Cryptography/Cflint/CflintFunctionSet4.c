@@ -97,13 +97,13 @@ bool Cflint_Root2Check(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
     
     uint16_t TT = 0;
     /* 特殊:为0检查 */
-    if (Cflint_IsZero(Operand, Length) == true) {
+    if (Cflint_IsZero(Operand, Length)) {
         Cflint_SetValue(Result, Length, 0);
         Cflint_AdditionBit(Result, Length, 1);
         return true;
     }
     /* 1.计算Operand % 64 == Operand[0] & 63 */
-    if (Q64[Operand[0] & 63] == false)
+    if (!Q64[Operand[0] & 63])
         ;//return false;
     /* 2.计算Temp = Operand % (65 * 63 * 11) */
     Cflint_SetValue(Temp[0], Length, 0);
@@ -113,18 +113,18 @@ bool Cflint_Root2Check(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
     TT |= ((uint16_t)(Temp[1][0])) << 0;
     TT |= ((uint16_t)(Temp[1][1])) << CFLINT_BITS;
     /* 3.计算Temp % 63 */
-    if (Q63[TT % 63] == false)
+    if (!Q63[TT % 63])
         ;//return false;
     /* 4.TT % 65 */
-    if (Q65[TT % 65] == false)
+    if (!Q65[TT % 65])
         ;//return false;
     /* 5.TT = TT % 11 */
-    if (Q11[TT % 11] == false)
+    if (!Q11[TT % 11])
         ;//return false;
     /* 全额检查 */
     Cflint_Root2Integer(Result, Operand, Temp, Length);
     Cflint_Square(Temp[0], Result, Length);
-    if (Cflint_Equal(Operand, Temp[0], Length) == true)
+    if (Cflint_Equal(Operand, Temp[0], Length))
         return true;
     return false;
 }
@@ -153,18 +153,17 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
     Cflint_Copy(A, Operand1, Length);
     Cflint_Copy(B, Operand2, Length);
     /* 第一步:如果B == 0,(当A == 1,K = 1)(当A != 1,K = 0) */
-    if (Cflint_IsZero(B, Length) == true) {
+    if (Cflint_IsZero(B, Length)) {
         Cflint_SetValue(T, Length, 0);
         Cflint_AdditionBit(T, Length, 1);
         bool EqualResult = Cflint_Equal(A, T, Length);
-        if (EqualResult == true)
+        if ( EqualResult)
             return 1;
-        if (EqualResult == false)
+        if (!EqualResult)
             return 0;
     }
     /* 第二步:如果A % 2 == B % 2 == 0 */
-    if (Cflint_IsEven(A, Length) == true &&
-        Cflint_IsEven(B, Length) == true)
+    if (Cflint_IsEven(A, Length) && Cflint_IsEven(B, Length))
         return 0;
     /* 第二步:如果B % 2 == 0,分解B */
     V = Cflint_Factor2(B, B, Length);
@@ -176,7 +175,7 @@ int8_t Cflint_JacobiFlag(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
         K = JacobiTable2[A[0] & 7];
     do {
         /* 第三步:如果A == 0,(当B > 1,K = 0)(当B <= 1, K = K) */
-        if (Cflint_IsZero(A, Length) == true) {
+        if (Cflint_IsZero(A, Length)) {
             Cflint_SetValue(T, Length, 0);
             Cflint_AdditionBit(T, Length, 1);
             int8_t CompareResult = Cflint_Compare(B, T, Length);
@@ -222,12 +221,12 @@ bool Cflint_ModuloP1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     /*  */
     int64_t R = 0, M = 0;
     /* 性质:P == 0 || P % 2 == 0 */
-    if (Cflint_IsZero(P, Length) == true)
+    if (Cflint_IsZero(P, Length))
         return false;
-    if (Cflint_IsEven(P, Length) == true)
+    if (Cflint_IsEven(P, Length))
         return false;
     /* 性质:A == 0 */
-    if (Cflint_IsZero(A, Length) == true) {
+    if (Cflint_IsZero(A, Length)) {
         Cflint_SetValue(X, Length, 0);
         return true;
     }
@@ -260,14 +259,14 @@ bool Cflint_ModuloP1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     Cflint_SetValue(Z, Length, 0);
     Cflint_AdditionBit(Z, Length, 1);
     /* 第三步:寻找Z**(2**M) % P === 1的最小M或结束 */
-    while (Cflint_Equal(B, Z, Length) == false)
+    while (!Cflint_Equal(B, Z, Length))
     {
         bool LoopStatus = true;
         for (M = 0; LoopStatus; M++) {
             /* 计算:Q = Q**2 % P */
             Cflint_ModuloSquare(Q, P, Q, TT, Length);
             /* 检查 */
-            if (Cflint_Equal(B, Z, Length) == false)
+            if (!Cflint_Equal(B, Z, Length))
                 LoopStatus = false;
         }
         if (M != R) {
@@ -317,7 +316,7 @@ bool Cflint_ModuloPkRoot2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     CFLINT_TYPE  *T3 = Temp[2];
     CFLINT_TYPE  *T4 = Temp[3];
     /* 解算:X(K - 1)**2 = A % P**(K - 1) */
-    if (Cflint_ModuloP1Root2(A, P, X, TT, Length) == false)
+    if (!Cflint_ModuloP1Root2(A, P, X, TT, Length))
         return false;
     /* 逆向递归 */
     for (uint32_t K = 0; K < Exponent; K++) {
@@ -361,7 +360,7 @@ bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     CFLINT_TYPE  *T1 = Temp[11]; //Length * 4
     CFLINT_TYPE  *T2 = Temp[12]; //Length * 4
     /* 查验:A == 0 */
-    if (Cflint_IsZero(A, Length * 2) == true) {
+    if (Cflint_IsZero(A, Length * 2)) {
         Cflint_SetValue(X, Length * 2, 0);
         return true;
     }
@@ -371,7 +370,7 @@ bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     Cflint_Modulo(T1, A, T0, Length * 2);
     Cflint_Copy(T, T1, Length);
     /* 解算:((XP**2) % P == A % P) */
-    if (Cflint_ModuloP1Root2(T, P, XP, TT, Length) == false)
+    if (!Cflint_ModuloP1Root2(T, P, XP, TT, Length))
         return false;
     /* 计算:T = A % Q */
     Cflint_SetValue(T0, Length * 2, 0);
@@ -379,7 +378,7 @@ bool Cflint_Modulo1Root2(CFLINT_TYPE *Operand1,  CFLINT_TYPE *Operand2,
     Cflint_Modulo(T1, A, T0, Length * 2);
     Cflint_Copy(T, T1, Length);
     /* 解算:((XQ**2) % Q == A % Q) */
-    if (Cflint_ModuloP1Root2(T, Q, XQ, TT, Length) == false)
+    if (!Cflint_ModuloP1Root2(T, Q, XQ, TT, Length))
         return false;
     /* 解算:P * U + Q * V = GCD(P, Q) */
     Cflint_GCDExtend(P, Q, N, U, &U_Flag, V, &V_Flag, TX, Length);
@@ -474,7 +473,7 @@ int8_t Cflint_LCE(CFLINT_TYPE **Operands, CFLINT_TYPE *Result,   uint64_t Number
         /* 非素检查:GCD == 1 */
         if (Cflint_SubtractionBit(GCD, Length, 1) != 0)
             return -1;
-        if (Cflint_IsZero(GCD, Length) == false)
+        if (!Cflint_IsZero(GCD, Length))
             return -1;
         /* 计算U = U * Ai, U的长度为理论最大值(Length + 1) * 4 */
         Cflint_Copy(T0, U, (Length + 1) * 2);

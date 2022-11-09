@@ -331,7 +331,7 @@ void Cflint_Devide(CFLINT_TYPE *Quotient, CFLINT_TYPE *Module,
     Cflint_SetValue(Quotient, Length, 0);
     CFLINT_TYPE *Operand = Operand1;
     /* 特例:除数为0检查 */
-    if (Cflint_IsZero(Operand, Length) == true)
+    if (Cflint_IsZero(Operand, Length))
         return;
     /* 除数移位记录 */
     int64_t MovedBits2 = 0;
@@ -409,7 +409,7 @@ void Cflint_Modulo(CFLINT_TYPE *Module, CFLINT_TYPE *Operand0,
         Cflint_Copy(Module, Operand0, Length);
     CFLINT_TYPE *Operand = Operand1;
     /* 特例:除数为0检查 */
-    if (Cflint_IsZero(Operand, Length) == true)
+    if (Cflint_IsZero(Operand, Length))
         return;
     /* 除数移位记录 */
     int64_t MovedBits2 = 0;
@@ -541,7 +541,7 @@ void Cflint_ModuloExponent(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
     CFLINT_TYPE *B = Temp[3];  //保留Operand
     
     /* 特例:除数为0检查 */
-    if (Cflint_IsZero(Module, Length) == true)
+    if (Cflint_IsZero(Module, Length))
         return;
     /* 初始化:X == 1, Y == Module */
     Cflint_SetValue(X, Length * 2, 0);
@@ -557,7 +557,7 @@ void Cflint_ModuloExponent(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
     /* 检查:2**K == Exponent */
     bool NumbersOnlyOne = Cflint_IsExponent2(Exponent, Length);
     /* 特殊优化场景:指数为2的幂 */
-    if (NumbersOnlyOne == true) {
+    if ( NumbersOnlyOne) {
         /* 一个数的0次幂为1 */
         if (Numbers == -1) {
             Cflint_Copy(Result, X, Length);
@@ -580,7 +580,7 @@ void Cflint_ModuloExponent(CFLINT_TYPE *Result,  CFLINT_TYPE *Module,
         return;
     }
     /* 普通场景 */
-    if (NumbersOnlyOne == false) {
+    if (!NumbersOnlyOne) {
         for (int64_t Bits2 = 0; Bits2 <= Numbers; Bits2++) {
             /* 索引计算 */
             uint32_t BitN = Bits2 / CFLINT_BITS;
@@ -614,7 +614,7 @@ void Cflint_ModuloInverse(CFLINT_TYPE *Result, CFLINT_TYPE *Operand,
     CFLINT_TYPE *V = Temp[3];
 
     /* 1.除数为0检查 */
-    if (Cflint_IsZero(Operand, Length) == true) {
+    if (Cflint_IsZero(Operand, Length)) {
         Cflint_SetValue(Result, Length, 0);
         return;
     }

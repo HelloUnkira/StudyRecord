@@ -19,6 +19,18 @@ void Cflint_Random(CFLINT_TYPE  *Operand, uint32_t Length,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+/* 强素数判别检查 */
+bool Cflint_IsPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[3], uint32_t Length,
+                    uint16_t SizerTable1[], uint32_t SizerLength1,
+                    uint16_t SizerTable2[], uint32_t SizerLength2)
+{
+    /* 1.奇偶判断检查 */
+    if (Cflint_IsEven(X, Length))
+        return false;
+}
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 /* 孪生素数判别检查 */
 bool Cflint_IsPrime1(CFLINT_TYPE *X, CFLINT_TYPE *Temp[3], uint32_t Length)
 {
@@ -29,11 +41,11 @@ bool Cflint_IsPrime1(CFLINT_TYPE *X, CFLINT_TYPE *Temp[3], uint32_t Length)
     Cflint_SetValue(Module, Length, 0);
     /* 单独检查:生成2,匹配2 */
     Module[0] = 2;
-    if(Cflint_Equal(X, Module, Length) == true)
+    if(Cflint_Equal(X, Module, Length))
         return true;
     /* 单独检查:生成3,匹配3 */
     Module[0] = 3;
-    if(Cflint_Equal(X, Module, Length) == true)
+    if(Cflint_Equal(X, Module, Length))
         return true;
     /* 解算:Module = X % 6 */
     Cflint_SetValue(Divisor, Length, 0);
@@ -41,11 +53,11 @@ bool Cflint_IsPrime1(CFLINT_TYPE *X, CFLINT_TYPE *Temp[3], uint32_t Length)
     Cflint_Modulo(Module, X, Divisor, Length);
     /* 验证是否为孪生素数1:(6 * N - 1) % 6 = 5 */
     Divisor[0] = 5;
-    if(Cflint_Equal(Divisor, Module, Length) == true)
+    if(Cflint_Equal(Divisor, Module, Length))
         return true;
     /* 验证是否为孪生素数2:(6 * N + 1) % 6 = 1 */
     Divisor[0] = 1;
-    if(Cflint_Equal(Divisor, Module, Length) == true)
+    if(Cflint_Equal(Divisor, Module, Length))
         return true;
     return false;
 }

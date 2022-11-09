@@ -18,7 +18,7 @@ bool Cflint_GCDCheck(CFLINT_TYPE *A, CFLINT_TYPE *B, CFLINT_TYPE *Temp[3],
     Cflint_Copy(Dividend, A, Length);
     Cflint_Copy(Divisor,  B, Length);
     /* 当B为0时 */
-    if (Cflint_IsZero(B, Length) == true)
+    if (Cflint_IsZero(B, Length))
         return false;
     /* 进行向下递归 */
     do {
@@ -28,7 +28,7 @@ bool Cflint_GCDCheck(CFLINT_TYPE *A, CFLINT_TYPE *B, CFLINT_TYPE *Temp[3],
         Cflint_Copy(Dividend, Divisor, Length);
         Cflint_Copy(Divisor,  Module,  Length);
         /* 当模为0的时候结束,用于回溯递归 */
-        if (Cflint_IsZero(Divisor, Length) == true) {
+        if (Cflint_IsZero(Divisor, Length)) {
             /* 处理这个模为0的时候的结果 */
             Cflint_AdditionBit(Divisor, Length, 1);
             /* 检查除数是否为1 */
@@ -51,7 +51,7 @@ void Cflint_GCD(CFLINT_TYPE *Result, CFLINT_TYPE *A, CFLINT_TYPE *B,
     Cflint_Copy(Dividend, A, Length);
     Cflint_Copy(Divisor,  B, Length);
     /* 当B为0时 */
-    if (Cflint_IsZero(B, Length) == true)
+    if (Cflint_IsZero(B, Length))
         return;
     /* 进行向下递归 */
     do {
@@ -61,7 +61,7 @@ void Cflint_GCD(CFLINT_TYPE *Result, CFLINT_TYPE *A, CFLINT_TYPE *B,
         Cflint_Copy(Dividend, Divisor, Length);
         Cflint_Copy(Divisor,  Module,  Length);
         /* 当模为0的时候结束,用于回溯递归 */
-        if (Cflint_IsZero(Divisor, Length) == true) {
+        if (Cflint_IsZero(Divisor, Length)) {
             /* 拷贝被除数 */
             Cflint_Copy(Result, Dividend, Length);
             return;
@@ -130,10 +130,10 @@ void Cflint_GCDExtend(CFLINT_TYPE *A, CFLINT_TYPE *B, CFLINT_TYPE *GCD,
     Cflint_Copy(Dividend, A, Length);
     Cflint_Copy(Divisor,  B, Length);
     /* 3.初始化除数为0检查 */
-    if (Cflint_IsZero(Divisor, Length) == true)
+    if (Cflint_IsZero(Divisor, Length))
         return;
     /* 开始主循环直到除数为0 */
-    while (Cflint_IsZero(Divisor, Length) == false) {
+    while (!Cflint_IsZero(Divisor, Length)) {
         /* Quotient = Dividend / Divisor */
         /* Module   = Dividend % Divisor */
         Cflint_Devide(Quotient, Module, Dividend, Divisor, Length);
@@ -195,10 +195,10 @@ void Cflint_GCDInverse(CFLINT_TYPE *A,       CFLINT_TYPE *N,
     Cflint_SetValue(T1, Length * 2, 0);
     Cflint_Copy(T1, N, Length);
     /* 4.初始化除数为0检查 */
-    if (Cflint_IsZero(Divisor, Length) == true)
+    if (Cflint_IsZero(Divisor, Length))
         return;
     /* 开始主循环直到除数为0 */
-    while (Cflint_IsZero(Divisor, Length) == false) {
+    while (!Cflint_IsZero(Divisor, Length)) {
         /* Quotient = Dividend / Divisor */
         /* Module   = Dividend % Divisor */
         Cflint_Devide(Quotient, Module, Dividend, Divisor, Length);

@@ -48,7 +48,7 @@ bool Cflint_Equal(CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1, uint32_t Length)
     CFLINT_TYPE Result = 0;
     for (uint32_t Index = 0; Index < Length; Index++)
         Result |= Operand0[Index] ^ Operand1[Index];
-    return (Result == 0 ? true : false);
+    return Result == 0 ? true : false;
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -80,12 +80,12 @@ bool Cflint_IsExponent2(CFLINT_TYPE *Operand, uint32_t Length)
     for (uint32_t Index = 0; Index < Length; Index++)
     for (uint32_t Bit2 = 0; Bit2 < CFLINT_BITS; Bit2++)
         if ((Operand[Index] & (1 << Bit2)) != 0) {
-            if (NumbersOnlyOne == false) {
-                NumbersOnlyOne  = true;
+            if (!NumbersOnlyOne) {
+                 NumbersOnlyOne = true;
                 continue;
             }
-            if (NumbersOnlyOne == true) {
-                NumbersOnlyOne  = false;
+            if ( NumbersOnlyOne) {
+                 NumbersOnlyOne = false;
                 break;
             }
         }
@@ -160,9 +160,7 @@ bool Cflint_CheckBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
     int64_t Bits_N = Bits2 / CFLINT_BITS;
     int64_t Bits_2 = Bits2 % CFLINT_BITS;
     
-    if (Bits_N < Length)
-        return ((Operand[Bits_N] & (1 << Bits_2)) != 0);
-    return false;
+    return Bits_N < Length ? ((Operand[Bits_N] & (1 << Bits_2)) != 0) : false;
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -317,10 +315,10 @@ int64_t Cflint_Factor2(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
     /* 初始化Bits2=0 */
     int64_t Bits2 = 0;
     /* 特殊检查,Operand1==0 */
-    if (Cflint_IsZero(Operand2, Length) == true)
+    if (Cflint_IsZero(Operand2, Length))
         return 0;
     /* 计算最低非0位所在位置 */
-    while (Cflint_CheckBit2(Operand2, Length, Bits2) == false)
+    while (!Cflint_CheckBit2(Operand2, Length, Bits2))
         Bits2++;
     /* 再次检查移位可行性 */
     Cflint_ShiftRight2(Operand2, Length, Bits2);
