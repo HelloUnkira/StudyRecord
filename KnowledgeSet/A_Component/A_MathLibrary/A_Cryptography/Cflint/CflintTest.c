@@ -188,13 +188,19 @@ void Test_CflintFunctionSet1(void)
     {
         uint8_t  Temp0[20] = {};
         uint8_t  Temp1[20] = {};
-        uint8_t *Temp[2] = {Temp0, Temp1};
+        uint8_t  Temp2[20] = {};
+        uint8_t *Temp[3] = {Temp0, Temp1, Temp2};
         uint8_t  Hex[20] = {0};
         uint8_t  Num[20] = "1910019100";
         Cflint_NumToHex(Hex, Num, Temp, Len);
         printf("\nHex:");
         for (Index = 0; Index < 20; Index++)
             printf("%x ", Hex[Index]);
+        
+        Cflint_HexToNum(Hex, Num, Temp, Len);
+        printf("\nNum:");
+        for (Index = 0; Index < 20; Index++)
+            printf("%c", Num[Index]);
     }
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/

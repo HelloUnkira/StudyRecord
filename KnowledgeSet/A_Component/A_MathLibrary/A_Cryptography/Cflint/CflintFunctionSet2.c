@@ -37,7 +37,7 @@ CFLINT_TYPE Cflint_AdditionBit(CFLINT_TYPE *Operand, uint32_t Length,
 CFLINT_TYPE Cflint_SubtractionBit(CFLINT_TYPE *Operand, uint32_t Length,
                                   CFLINT_TYPE  Overflow)
 {
-    /* 计算数累加一个位 */
+    /* 计算数累减一个位 */
     for (uint32_t Index = 0; Index < Length; Index++) {
         CFLINT_TYPE Temp = Operand[Index] - Overflow;
         /* 检查借位溢出 */
@@ -60,7 +60,7 @@ CFLINT_TYPE Cflint_SubtractionBit(CFLINT_TYPE *Operand, uint32_t Length,
 CFLINT_TYPE Cflint_Reserve(CFLINT_TYPE *Operand, uint32_t Length)
 {
     CFLINT_TYPE Overflow = 0;
-    /* 计算数累加一个位 */
+    /* 计算数累减一个模 */
     for (uint32_t Index = 0; Index < Length; Index++) {
         CFLINT_TYPE Temp = 0 - Operand[Index] - Overflow;
         /* 检查借位溢出 */
@@ -105,7 +105,7 @@ CFLINT_TYPE Cflint_Subtraction(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1,
     CFLINT_TYPE Overflow = 0;
     /* 计算俩数差 */
     for (uint32_t Index = 0; Index < Length; Index++) {
-        /* 计算和结果,暂存到临时区 */
+        /* 计算差结果,暂存到临时区 */
         CFLINT_TYPE Temp = Operand1[Index] - Operand2[Index] - Overflow;
         /* 检查借位溢出 */
         if (Temp > Operand1[Index])

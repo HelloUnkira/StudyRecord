@@ -445,11 +445,9 @@ void Cflint_BytesToNative8(uint8_t *Bytes, uint64_t *Native, uint32_t Length)
 /* 逆序操作数,操作数与NativeX互转(X==CFLINT_BYTE) */
 void Cflint_OperandReverse(CFLINT_TYPE *Operand, uint32_t Length)
 {
-    uint32_t Index1 = 0, Index2 = 0;
-    CFLINT_TYPE Buffer = 0;
     for (uint32_t Index = 0; Index < Length / 2; Index++) {
-        Index1 = Index;
-        Index2 = Length - 1 - Index;
+        uint32_t Index1 = Index;
+        uint32_t Index2 = Length - 1 - Index;
         /* 交换俩个数 */
         Operand[Index1] ^= Operand[Index2];
         Operand[Index2] ^= Operand[Index1];
@@ -709,14 +707,10 @@ void Cflint_NumToHex(uint8_t *Hex,      uint8_t *Num,
         } while (Index1 < NumLen1);
         /* 保存当次最后除余 */
         Hex[Index0++] = Module;
-        /* 辗转迭代直到除数只剩下一位 */
-        if (NumLen2 == 1) {
-            Hex[Index0++] = Buffer2[0];
-            break;
-        }
+        /* 辗转迭代直到商为0 */
         if (NumLen2 == 0)
             break;
-        /* 除数更新成被除数(交换指针即可) */
+        /* 商更新成被除数(交换指针即可) */
         Swap    = Buffer1;
         Buffer1 = Buffer2;
         Buffer2 = Swap;
@@ -729,9 +723,151 @@ void Cflint_NumToHex(uint8_t *Hex,      uint8_t *Num,
 /*****************************************************************************/
 /*****************************************************************************/
 void Cflint_HexToNum(uint8_t *Hex,      uint8_t *Num,
-                     uint8_t *Temp[2], uint32_t  Len)
+                     uint8_t *Temp[3], uint32_t  Len)
 {
-    /* 暂未看见好的逻辑流程,待定 */
+    uint32_t NumLen1 = 0;
+    uint32_t NumLen2 = 0;
+    uint8_t *Swap = NULL;
+    uint8_t *Buffer1 = Temp[0]; //被除数
+    uint8_t *Buffer2 = Temp[1]; //商
+    uint8_t *Buffer3 = Temp[2]; //累增除数
+    /* 清零缓冲区数据,初始化Buffer1,Buffer2 */
+    for (uint32_t Index = 0; Index < Len; Index++) {
+        Num[Index] = 0;
+        Buffer1[Index] = 0;
+        Buffer2[Index] = 0;
+        Buffer3[Index] = 0;
+    }
+    /* 拷贝十进制数据到Buffer1 */
+    for (uint32_t Index = 0; Index < Len; Index++) {
+        Buffer1[Index] = Hex[Index];
+        if (Hex[Index] != 0)
+            NumLen1 = Index + 1;
+    }
+    /* 进行迭代循环 Module = Buffer1 % 10 */
+    uint32_t Index0 = 0;
+    while (1) {
+        /* 进行迭代循环 */
+        uint32_t Index1 = 0;
+        uint16_t Module = 0;
+        /* 退出条件 */
+        if (NumLen1 == 0)
+            break;
+        /* 注意:这里只能使用原始的除转减(计算机不支持跨进制除法) */
+        /* 生成一个累赠除数,该除数恰好小于被除数偏移1位 */
+        for (uint32_t Index = 0; Index < Len; Index++)
+            Buffer3[Index] = 0;
+        Buffer3[0] = 10;
+        /* 这个累赠除数数学表示为10 * 2 ** k */
+        int64_t Offset = 0;
+        while (1) {
+            /* 比较Buffer1和Buffer3(必须大于才可以是true) */
+            int8_t Compare = 0;
+            for (int64_t Index = NumLen1 - 1; Index >= 0; Index--) {
+                if (Buffer1[Index] > Buffer3[Index]) {
+                    Compare = +1;
+                    break;
+                }
+                if (Buffer1[Index] < Buffer3[Index]) {
+                    Compare = -1;
+                    break;
+                }
+            }
+            if (Compare == 0)
+                break;
+            /* 如果Buffer1 > Buffer3则Buffer3左移一位(*2) */
+            if (Compare == +1) {
+                /* 如果Buffer3移位达到限制,再移位会产生截断时,强行中止 */
+                if (Offset >= (NumLen1 - 1) * 8 + 4)
+                    break;
+                uint8_t Overflow = 0;
+                for (uint32_t Index = 0; Index < NumLen1; Index++) {
+                    uint8_t Value  = Buffer3[Index];
+                    Buffer3[Index] = ((Value & 0x7F) << 1) | Overflow;
+                    Overflow = (Value & 0x80) >> 7;
+                }
+                Offset++;
+            }
+            /* 如果Buffer1 < Buffer3则Buffer3右移一位(/2) */
+            if (Compare == -1) {
+                uint8_t Overflow = 0;
+                for (int64_t Index = NumLen1 - 1; Index >= 0; Index--) {
+                    uint8_t Value  = Buffer3[Index];
+                    Buffer3[Index] = ((Value & 0xFE) >> 1) | Overflow;
+                    Overflow = (Value & 0x01) << 7;
+                }
+                Offset--;
+                break;
+            }
+        }
+        /* 如果第一次小于比较都不通过(踩空了) */
+        if (Offset == -1) {
+            Num[Index0++] = Buffer1[0];
+            /* Buffer1 = Buffer2 */
+            for (uint32_t Index = 0; Index < Len; Index++)
+                Buffer1[Index] = Buffer2[Index];
+            NumLen1 = NumLen2;
+            /* Buffer2 = 0 */
+            for (uint32_t Index = 0; Index < Len; Index++)
+                Buffer2[Index] = 0;
+            NumLen2 = 0;
+            continue;
+        }
+        /* 现在的Buffer3 <= Buffer1了 */
+        /* Buffer1 -= Buffer3 */
+        /* Buffer2 += Buffer3 / 10 */
+        {
+            uint8_t Overflow = 0;
+            /* Buffer1 -= Buffer3 */
+            for (uint32_t Index = 0; Index < NumLen1; Index++) {
+                /* 计算差结果 */
+                uint8_t Value = Buffer1[Index] - Buffer3[Index] - Overflow;
+                /* 检查借位溢出 */
+                if (Value > Buffer1[Index])
+                    Overflow = 1;
+                else
+                    Overflow = 0;
+                /* 保存运算结果 */
+                Buffer1[Index] = Value;
+            }
+            /* 关键: */
+            /* Buffer3 == 10  * 2 ** K(K == Offset) */
+            /* Buffer3 /= 10 == 2 ** K(K == Offset) */
+            for (uint32_t Index = 0; Index < Len; Index++)
+                Buffer3[Index] = 0;
+            Buffer3[Offset / 8] = 1 << (Offset % 8);
+            Overflow = 0;
+            /* Buffer2 += Buffer3 */
+            for (uint32_t Index = 0; Index < Len; Index++) {
+                /* 计算和结果 */
+                uint8_t Value = Buffer2[Index] + Buffer3[Index] + Overflow;
+                /* 检查进位溢出 */
+                if (Value < Buffer2[Index] || Value < Buffer3[Index])
+                    Overflow = 1;
+                if (Value > Buffer2[Index] && Value > Buffer3[Index])
+                    Overflow = 0;
+                /* 保存运算结果 */
+                Buffer2[Index] = Value;
+                if (Buffer2[Index] != 0)
+                    NumLen2 = Index + 1;
+            }
+        }
+    }
+    /* 逆序Num成Native模式 */
+    for (uint32_t Index = 0; Index < Len; Index++)
+        if (Num[Index] != 0)
+            NumLen1 = Index + 1;
+    for (uint32_t Index = 0; Index < NumLen1; Index++)
+        Num[Index] += '0';
+    
+    for (uint32_t Index = 0; Index < NumLen1 / 2; Index++) {
+        uint32_t Index1 = Index;
+        uint32_t Index2 = NumLen1 - 1 - Index;
+        /* 交换俩个数 */
+        Num[Index1] ^= Num[Index2];
+        Num[Index2] ^= Num[Index1];
+        Num[Index1] ^= Num[Index2];
+    }
 }
 /*****************************************************************************/
 /*****************************************************************************/
