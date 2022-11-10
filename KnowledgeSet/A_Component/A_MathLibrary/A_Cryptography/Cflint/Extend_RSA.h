@@ -25,19 +25,19 @@
 /* 通过目标素数对(P, Q)构造公钥(N, E)和私钥(N, D) */
 /* 要求Temp[0~7]为Length*2 */
 /* 要求Temp[7~9]为Length*4 */
-void RSA_Make(CFLINT_TYPE *P, CFLINT_TYPE *Q, CFLINT_TYPE *N,
-              CFLINT_TYPE *E, CFLINT_TYPE *D, CFLINT_TYPE *R,
-              CFLINT_TYPE *Temp[9], uint32_t Length);
+void RSA_Make(Cflint_Type *P, Cflint_Type *Q, Cflint_Type *N,
+              Cflint_Type *E, Cflint_Type *D, Cflint_Type *R,
+              Cflint_Type *Temp[9], uint32_t Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-void RSA_Encrypt(CFLINT_TYPE *N, CFLINT_TYPE *E, CFLINT_TYPE *I,
-                 CFLINT_TYPE *O, CFLINT_TYPE *Temp[4], uint32_t Length);
+void RSA_Encrypt(Cflint_Type *N, Cflint_Type *E, Cflint_Type *I,
+                 Cflint_Type *O, Cflint_Type *Temp[4], uint32_t Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-void RSA_Decrypt(CFLINT_TYPE *N, CFLINT_TYPE *D, CFLINT_TYPE *I,
-                 CFLINT_TYPE *O, CFLINT_TYPE *Temp[4], uint32_t Length);
+void RSA_Decrypt(Cflint_Type *N, Cflint_Type *D, Cflint_Type *I,
+                 Cflint_Type *O, Cflint_Type *Temp[4], uint32_t Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

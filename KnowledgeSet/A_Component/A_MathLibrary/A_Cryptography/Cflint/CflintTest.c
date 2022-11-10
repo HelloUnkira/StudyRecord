@@ -7,7 +7,7 @@
 /* Windows */
 #include <windows.h>
 #include <wincrypt.h>
-bool Calculate_RNG(CFLINT_TYPE *dest, uint32_t size)
+bool Calculate_RNG(Cflint_Type *dest, uint32_t size)
 {
     size *= CFLINT_BYTE;
     
@@ -22,7 +22,7 @@ bool Calculate_RNG(CFLINT_TYPE *dest, uint32_t size)
     return true;
 }
 #else
-bool Calculate_RNG(CFLINT_TYPE *dest, uint32_t size)
+bool Calculate_RNG(Cflint_Type *dest, uint32_t size)
 {
     static uint32_t RandomCount = 0;
     
@@ -47,7 +47,7 @@ bool Calculate_RNG(CFLINT_TYPE *dest, uint32_t size)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-CFLINT_TYPE Test_MakeRandom(void)
+Cflint_Type Test_MakeRandom(void)
 {
     static uint32_t RandomCount = 0;
     
@@ -72,7 +72,7 @@ void Test_CflintFunctionSet1(void)
 {
     uint32_t Index = 0;
     #define TEST_FUNCTIONSET1_LENGTH    10
-    CFLINT_TYPE Result[TEST_FUNCTIONSET1_LENGTH * 2] = {0};
+    Cflint_Type Result[TEST_FUNCTIONSET1_LENGTH * 2] = {0};
     
     /* 左移位运算 */
     /*************************************************************************/
@@ -101,7 +101,7 @@ void Test_CflintFunctionSet1(void)
     /* 掩码运算 */
     /*************************************************************************/
     for (Index = 0; Index < TEST_FUNCTIONSET1_LENGTH * 2; Index++)
-        Result[Index] = (CFLINT_TYPE)(~0);
+        Result[Index] = (Cflint_Type)(~0);
     Cflint_Mask2(Result, TEST_FUNCTIONSET1_LENGTH * 2, CFLINT_BITS * 4 + 3);
     printf("\n-------------------------------------------------------------\n");
     printf("Cflint_Mask2:::Result:\n");
@@ -161,18 +161,18 @@ void Test_CflintFunctionSet1(void)
     uint16_t Native_2[4] = {11100, 11111};
     uint32_t Native_4[4] = {111110000, 111111111};
     uint64_t Native_8[4] = {1111111000000, 1111111111111};
-    CFLINT_TYPE Operand_1[1] = {0};
-    CFLINT_TYPE Operand_2[2] = {0};
-    CFLINT_TYPE Operand_4[4] = {0};
-    CFLINT_TYPE Operand_8[8] = {0};
+    Cflint_Type Operand_1[1] = {0};
+    Cflint_Type Operand_2[2] = {0};
+    Cflint_Type Operand_4[4] = {0};
+    Cflint_Type Operand_8[8] = {0};
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/
     printf("Cflint_NativeToOperand:\n");
     printf("Cflint_OperandToNative:\n");
-    Cflint_Copy(Operand_1, (CFLINT_TYPE *)Native_1, 1);
-    Cflint_Copy(Operand_2, (CFLINT_TYPE *)Native_2, 2);
-    Cflint_Copy(Operand_4, (CFLINT_TYPE *)Native_4, 4);
-    Cflint_Copy(Operand_8, (CFLINT_TYPE *)Native_8, 8);
+    Cflint_Copy(Operand_1, (Cflint_Type *)Native_1, 1);
+    Cflint_Copy(Operand_2, (Cflint_Type *)Native_2, 2);
+    Cflint_Copy(Operand_4, (Cflint_Type *)Native_4, 4);
+    Cflint_Copy(Operand_8, (Cflint_Type *)Native_8, 8);
     Cflint_NativeToOperand(Operand_1, 1, 1);
     Cflint_NativeToOperand(Operand_2, 2, 2);
     Cflint_NativeToOperand(Operand_4, 4, 4);
@@ -205,10 +205,10 @@ void Test_CflintFunctionSet1(void)
     Cflint_OperandToNative(Operand_2, 2, 2);
     Cflint_OperandToNative(Operand_4, 4, 4);
     Cflint_OperandToNative(Operand_8, 8, 8);
-    Cflint_Copy((CFLINT_TYPE *)Native_1, Operand_1, 1);
-    Cflint_Copy((CFLINT_TYPE *)Native_2, Operand_2, 2);
-    Cflint_Copy((CFLINT_TYPE *)Native_4, Operand_4, 4);
-    Cflint_Copy((CFLINT_TYPE *)Native_8, Operand_8, 8);
+    Cflint_Copy((Cflint_Type *)Native_1, Operand_1, 1);
+    Cflint_Copy((Cflint_Type *)Native_2, Operand_2, 2);
+    Cflint_Copy((Cflint_Type *)Native_4, Operand_4, 4);
+    Cflint_Copy((Cflint_Type *)Native_8, Operand_8, 8);
     printf("\nNative_1:");
     for (Index = 0; Index < 4; Index++)
         printf("%llu ", Native_1[Index]);
@@ -227,9 +227,11 @@ void Test_CflintFunctionSet1(void)
     
     /*************************************************************************/
     uint8_t Len    = 20;
-    uint8_t Length = 20 / sizeof(CFLINT_TYPE);
+    uint8_t Length = 20 / sizeof(Cflint_Type);
     printf("\n-------------------------------------------------------------\n");
     /*************************************************************************/
+    printf("Cflint_NumToHex:\n");
+    printf("Cflint_HexToNum:\n");
     {
         uint8_t  Temp0[20] = {};
         uint8_t  Temp1[20] = {};
@@ -257,10 +259,10 @@ void Test_CflintFunctionSet2(void)
 {
     uint32_t Index = 0;
     #define TEST_FUNCTIONSET2_LENGTH    10
-    CFLINT_TYPE Result  [TEST_FUNCTIONSET2_LENGTH * 2] = {0};
-    CFLINT_TYPE Operand1[TEST_FUNCTIONSET2_LENGTH] = {0};
-    CFLINT_TYPE Operand2[TEST_FUNCTIONSET2_LENGTH] = {0};
-    CFLINT_TYPE Overflow = 0;
+    Cflint_Type Result  [TEST_FUNCTIONSET2_LENGTH * 2] = {0};
+    Cflint_Type Operand1[TEST_FUNCTIONSET2_LENGTH] = {0};
+    Cflint_Type Operand2[TEST_FUNCTIONSET2_LENGTH] = {0};
+    Cflint_Type Overflow = 0;
     
     /* 和运算 */
     /*************************************************************************/
@@ -327,12 +329,12 @@ void Test_CflintFunctionSet3(void)
 {
     uint32_t Index = 0;
     #define TEST_FUNCTIONSET3_LENGTH    10
-    CFLINT_TYPE Result  [TEST_FUNCTIONSET3_LENGTH * 2] = {0};
-    CFLINT_TYPE Quotient[TEST_FUNCTIONSET3_LENGTH * 2] = {0};
-    CFLINT_TYPE Module  [TEST_FUNCTIONSET3_LENGTH * 2] = {0};
-    CFLINT_TYPE Operand1[TEST_FUNCTIONSET3_LENGTH * 2] = {0};
-    CFLINT_TYPE Operand2[TEST_FUNCTIONSET3_LENGTH * 2] = {0};
-    CFLINT_TYPE Overflow = 0;
+    Cflint_Type Result  [TEST_FUNCTIONSET3_LENGTH * 2] = {0};
+    Cflint_Type Quotient[TEST_FUNCTIONSET3_LENGTH * 2] = {0};
+    Cflint_Type Module  [TEST_FUNCTIONSET3_LENGTH * 2] = {0};
+    Cflint_Type Operand1[TEST_FUNCTIONSET3_LENGTH * 2] = {0};
+    Cflint_Type Operand2[TEST_FUNCTIONSET3_LENGTH * 2] = {0};
+    Cflint_Type Overflow = 0;
     
     /* 除运算 */
     /*************************************************************************/
@@ -419,10 +421,10 @@ void Test_CflintFunctionSet4(void)
 {
     uint32_t Index = 0;
     #define TEST_FUNCTIONSET4_LENGTH    3
-    CFLINT_TYPE Result  [TEST_FUNCTIONSET4_LENGTH] = {0};
-    CFLINT_TYPE Operand [TEST_FUNCTIONSET4_LENGTH] = {0};
-    CFLINT_TYPE Exponent[TEST_FUNCTIONSET4_LENGTH] = {0};
-    CFLINT_TYPE Module  [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
+    Cflint_Type Result  [TEST_FUNCTIONSET4_LENGTH] = {0};
+    Cflint_Type Operand [TEST_FUNCTIONSET4_LENGTH] = {0};
+    Cflint_Type Exponent[TEST_FUNCTIONSET4_LENGTH] = {0};
+    Cflint_Type Module  [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
     /* 模幂运算 */
     /*************************************************************************/
     for (Index = 0; Index < TEST_FUNCTIONSET4_LENGTH; Index++) {
@@ -433,11 +435,11 @@ void Test_CflintFunctionSet4(void)
     Exponent[0] = 5;
     /* 模幂运算 */
     {
-        CFLINT_TYPE  Temp1 [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
-        CFLINT_TYPE  Temp2 [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
-        CFLINT_TYPE  Temp3 [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
-        CFLINT_TYPE  Temp4 [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
-        CFLINT_TYPE *Temp[4] = {Temp1, Temp2, Temp3, Temp4};
+        Cflint_Type  Temp1 [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
+        Cflint_Type  Temp2 [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
+        Cflint_Type  Temp3 [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
+        Cflint_Type  Temp4 [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
+        Cflint_Type *Temp[4] = {Temp1, Temp2, Temp3, Temp4};
         /* 模幂运算 */
         Cflint_ModuloExponent(Result, Module, Operand, Exponent,
                               Temp, TEST_FUNCTIONSET4_LENGTH);
@@ -467,11 +469,11 @@ void Test_CflintFunctionSet4(void)
     Module[0] = 1;
     /* 模逆运算 */
     {
-        CFLINT_TYPE  Temp1 [TEST_FUNCTIONSET4_LENGTH] = {0};
-        CFLINT_TYPE  Temp2 [TEST_FUNCTIONSET4_LENGTH] = {0};
-        CFLINT_TYPE  Temp3 [TEST_FUNCTIONSET4_LENGTH] = {0};
-        CFLINT_TYPE  Temp4 [TEST_FUNCTIONSET4_LENGTH] = {0};
-        CFLINT_TYPE *Temp[4] = {Temp1, Temp2, Temp3, Temp4};
+        Cflint_Type  Temp1 [TEST_FUNCTIONSET4_LENGTH] = {0};
+        Cflint_Type  Temp2 [TEST_FUNCTIONSET4_LENGTH] = {0};
+        Cflint_Type  Temp3 [TEST_FUNCTIONSET4_LENGTH] = {0};
+        Cflint_Type  Temp4 [TEST_FUNCTIONSET4_LENGTH] = {0};
+        Cflint_Type *Temp[4] = {Temp1, Temp2, Temp3, Temp4};
         Cflint_ModuloInverse(Result, Operand, Module,
                              Temp, TEST_FUNCTIONSET4_LENGTH);
     }
@@ -490,7 +492,7 @@ void Test_CflintFunctionSet4(void)
     printf("\n-------------------------------------------------------------\n");
     /* 注:Module和Operand如果不互素,模逆不存在 */
     printf("(Result * Operand) % Module:::Result:\n");
-    CFLINT_TYPE Temp1 [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
+    Cflint_Type Temp1 [TEST_FUNCTIONSET4_LENGTH * 2] = {0};
     Cflint_Multiply(Temp1, Result, Operand, TEST_FUNCTIONSET4_LENGTH);
     Cflint_Modulo(Temp1, Temp1, Module, TEST_FUNCTIONSET4_LENGTH * 2);
     Cflint_Copy(Result, Temp1, TEST_FUNCTIONSET4_LENGTH);
@@ -506,19 +508,19 @@ void Test_CflintFunctionSet5(void)
 {
     uint32_t Index = 0;
     #define TEST_FUNCTIONSET5_LENGTH     5
-    CFLINT_TYPE Result[TEST_FUNCTIONSET5_LENGTH]  = {0};
-    CFLINT_TYPE Result1[TEST_FUNCTIONSET5_LENGTH] = {0};
-    CFLINT_TYPE A[TEST_FUNCTIONSET5_LENGTH] = {0};
-    CFLINT_TYPE B[TEST_FUNCTIONSET5_LENGTH] = {0};
+    Cflint_Type Result[TEST_FUNCTIONSET5_LENGTH]  = {0};
+    Cflint_Type Result1[TEST_FUNCTIONSET5_LENGTH] = {0};
+    Cflint_Type A[TEST_FUNCTIONSET5_LENGTH] = {0};
+    Cflint_Type B[TEST_FUNCTIONSET5_LENGTH] = {0};
     /* 因为运算中涉及到乘和差运算,所以这是理论最大空间 */
-    CFLINT_TYPE X[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Y[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+    Cflint_Type X[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+    Cflint_Type Y[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
     /* 开辟出来的用于解算结果正确性的空间,本身无用 */
-    CFLINT_TYPE Temp5[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Temp6[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Temp7[(TEST_FUNCTIONSET5_LENGTH + 1) * 4] = {0};
-    CFLINT_TYPE Temp8[(TEST_FUNCTIONSET5_LENGTH + 1) * 4] = {0};
-    CFLINT_TYPE X_Flag = 0, Y_Flag = 0;
+    Cflint_Type Temp5[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+    Cflint_Type Temp6[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+    Cflint_Type Temp7[(TEST_FUNCTIONSET5_LENGTH + 1) * 4] = {0};
+    Cflint_Type Temp8[(TEST_FUNCTIONSET5_LENGTH + 1) * 4] = {0};
+    Cflint_Type X_Flag = 0, Y_Flag = 0;
     bool Check = 0;
     /*************************************************************************/
     for (Index = 0; Index < TEST_FUNCTIONSET5_LENGTH; Index++) {
@@ -531,11 +533,11 @@ void Test_CflintFunctionSet5(void)
     /*************************************************************************/
     /* 素数判别检查 */
     {
-        CFLINT_TYPE Result[TEST_FUNCTIONSET5_LENGTH] = {1, 0, 1};
-        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
+        Cflint_Type Result[TEST_FUNCTIONSET5_LENGTH] = {1, 0, 1};
+        Cflint_Type  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type *Temp[3] = {Temp1, Temp2, Temp3};
         Check = Cflint_IsPrime1(Result, Temp, TEST_FUNCTIONSET5_LENGTH);
     }
     printf("\n-------------------------------------------------------------\n");
@@ -544,11 +546,11 @@ void Test_CflintFunctionSet5(void)
     /*************************************************************************/
     /* 素数判别检查 */
     {
-        CFLINT_TYPE Result[TEST_FUNCTIONSET5_LENGTH] = {1, 1, 1};
-        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
+        Cflint_Type Result[TEST_FUNCTIONSET5_LENGTH] = {1, 1, 1};
+        Cflint_Type  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type *Temp[3] = {Temp1, Temp2, Temp3};
         Check = Cflint_IsPrime1(Result, Temp, TEST_FUNCTIONSET5_LENGTH);
     }
     printf("\n-------------------------------------------------------------\n");
@@ -559,10 +561,10 @@ void Test_CflintFunctionSet5(void)
     /* 欧几里得互素检查运算 */
     /*************************************************************************/
     {
-        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
+        Cflint_Type  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type *Temp[3] = {Temp1, Temp2, Temp3};
         Check = Cflint_GCDCheck(A, B, Temp, TEST_FUNCTIONSET5_LENGTH);
     }
     printf("\n-------------------------------------------------------------\n");
@@ -588,14 +590,14 @@ void Test_CflintFunctionSet5(void)
     /*************************************************************************/
     /* 扩展欧几里得运算 */
     {
-        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp4[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp5[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp6[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp7[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE *Temp[7] = {Temp1, Temp2, Temp3, Temp4,
+        Cflint_Type  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp4[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp5[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp6[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp7[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+        Cflint_Type *Temp[7] = {Temp1, Temp2, Temp3, Temp4,
                                 Temp5, Temp6, Temp7};
         Cflint_GCDExtend(A, B, Result, X, &X_Flag, Y, &Y_Flag,
                          Temp, TEST_FUNCTIONSET5_LENGTH);
@@ -639,15 +641,15 @@ void Test_CflintFunctionSet5(void)
     /* 欧几里得乘法逆 */
     /*************************************************************************/
     {
-        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp4[TEST_FUNCTIONSET5_LENGTH] = {0};
-        CFLINT_TYPE  Temp5[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp6[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp7[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp8[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE *Temp[8] = {Temp1, Temp2, Temp3, Temp4,
+        Cflint_Type  Temp1[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp2[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp3[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp4[TEST_FUNCTIONSET5_LENGTH] = {0};
+        Cflint_Type  Temp5[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp6[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp7[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp8[(TEST_FUNCTIONSET5_LENGTH + 1) * 2] = {0};
+        Cflint_Type *Temp[8] = {Temp1, Temp2, Temp3, Temp4,
                                 Temp5, Temp6, Temp7, Temp8};
         Cflint_GCDInverse(A, B, Result, Result1,
                           Temp, TEST_FUNCTIONSET5_LENGTH);
@@ -687,8 +689,8 @@ void Test_CflintFunctionSet6(void)
 {
     uint32_t Index = 0;
     #define TEST_FUNCTIONSET6_LENGTH     5
-    CFLINT_TYPE Result[TEST_FUNCTIONSET6_LENGTH] = {0};
-    CFLINT_TYPE Operand[TEST_FUNCTIONSET6_LENGTH] = {0};
+    Cflint_Type Result[TEST_FUNCTIONSET6_LENGTH] = {0};
+    Cflint_Type Operand[TEST_FUNCTIONSET6_LENGTH] = {0};
     int8_t Result1 = 0;
     
     /* 2次方根整数部运算 */
@@ -698,11 +700,11 @@ void Test_CflintFunctionSet6(void)
     /*************************************************************************/
     /* 2次方根整数部运算 */
     {
-        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET6_LENGTH] = {0};
-        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
-        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
-        CFLINT_TYPE  Temp4[TEST_FUNCTIONSET6_LENGTH] = {0};
-        CFLINT_TYPE *Temp[4] = {Temp1, Temp2, Temp3, Temp4};
+        Cflint_Type  Temp1[TEST_FUNCTIONSET6_LENGTH] = {0};
+        Cflint_Type  Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
+        Cflint_Type  Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
+        Cflint_Type  Temp4[TEST_FUNCTIONSET6_LENGTH] = {0};
+        Cflint_Type *Temp[4] = {Temp1, Temp2, Temp3, Temp4};
         Cflint_Root2Integer(Result, Operand, Temp, TEST_FUNCTIONSET6_LENGTH);
     }
     printf("\n-------------------------------------------------------------\n");
@@ -725,11 +727,11 @@ void Test_CflintFunctionSet6(void)
     Operand[1] = 2;
     /*************************************************************************/
     {
-        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET6_LENGTH * 2] = {0};
-        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
-        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
-        CFLINT_TYPE  Temp4[TEST_FUNCTIONSET6_LENGTH] = {0};
-        CFLINT_TYPE *Temp[4] = {Temp1, Temp2, Temp3, Temp4};
+        Cflint_Type  Temp1[TEST_FUNCTIONSET6_LENGTH * 2] = {0};
+        Cflint_Type  Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
+        Cflint_Type  Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
+        Cflint_Type  Temp4[TEST_FUNCTIONSET6_LENGTH] = {0};
+        Cflint_Type *Temp[4] = {Temp1, Temp2, Temp3, Temp4};
         Result1 = Cflint_Root2Check(Result, Operand, Temp,
                                     TEST_FUNCTIONSET6_LENGTH);
     }
@@ -753,10 +755,10 @@ void Test_CflintFunctionSet6(void)
     /*************************************************************************/
     /* 符号Jacobi(Operand1/Operand2)计算 */
     {
-        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET6_LENGTH] = {0};
-        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
-        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
-        CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
+        Cflint_Type  Temp1[TEST_FUNCTIONSET6_LENGTH] = {0};
+        Cflint_Type  Temp2[TEST_FUNCTIONSET6_LENGTH] = {0};
+        Cflint_Type  Temp3[TEST_FUNCTIONSET6_LENGTH] = {0};
+        Cflint_Type *Temp[3] = {Temp1, Temp2, Temp3};
         Result1 = Cflint_JacobiFlag(Result, Operand, Temp, 1);
     }
     printf("\n-------------------------------------------------------------\n");
@@ -771,12 +773,12 @@ void Test_CflintFunctionSet7(void)
 {
     uint32_t Index = 0;
     #define TEST_FUNCTIONSET7_LENGTH     3
-    CFLINT_TYPE Result[TEST_FUNCTIONSET7_LENGTH] = {0};
-    CFLINT_TYPE Module[TEST_FUNCTIONSET7_LENGTH] = {0};
-    CFLINT_TYPE Operand[TEST_FUNCTIONSET7_LENGTH] = {0};
+    Cflint_Type Result[TEST_FUNCTIONSET7_LENGTH] = {0};
+    Cflint_Type Module[TEST_FUNCTIONSET7_LENGTH] = {0};
+    Cflint_Type Operand[TEST_FUNCTIONSET7_LENGTH] = {0};
     /* 开辟出来的用于解算结果正确性的空间,本身无用 */
-    CFLINT_TYPE Temp1[(TEST_FUNCTIONSET7_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE Temp2[(TEST_FUNCTIONSET7_LENGTH + 1) * 2] = {0};
+    Cflint_Type Temp1[(TEST_FUNCTIONSET7_LENGTH + 1) * 2] = {0};
+    Cflint_Type Temp2[(TEST_FUNCTIONSET7_LENGTH + 1) * 2] = {0};
     int8_t Result1 = 0;
     
     /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
@@ -795,17 +797,17 @@ void Test_CflintFunctionSet7(void)
         /*********************************************************************/
         /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
         {
-            CFLINT_TYPE  Temp1[TEST_FUNCTIONSET7_LENGTH] = {0};
-            CFLINT_TYPE  Temp2[TEST_FUNCTIONSET7_LENGTH] = {0};
-            CFLINT_TYPE  Temp3[TEST_FUNCTIONSET7_LENGTH] = {0};
-            CFLINT_TYPE  Temp4[TEST_FUNCTIONSET7_LENGTH] = {0};
-            CFLINT_TYPE  Temp5[TEST_FUNCTIONSET7_LENGTH] = {0};
-            CFLINT_TYPE  Temp6[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
-            CFLINT_TYPE  Temp7[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
-            CFLINT_TYPE  Temp8[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
-            CFLINT_TYPE  Temp9[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
-            CFLINT_TYPE  Temp10[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
-            CFLINT_TYPE *Temp[10] = {Temp1, Temp2, Temp3, Temp4, Temp5,
+            Cflint_Type  Temp1[TEST_FUNCTIONSET7_LENGTH] = {0};
+            Cflint_Type  Temp2[TEST_FUNCTIONSET7_LENGTH] = {0};
+            Cflint_Type  Temp3[TEST_FUNCTIONSET7_LENGTH] = {0};
+            Cflint_Type  Temp4[TEST_FUNCTIONSET7_LENGTH] = {0};
+            Cflint_Type  Temp5[TEST_FUNCTIONSET7_LENGTH] = {0};
+            Cflint_Type  Temp6[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
+            Cflint_Type  Temp7[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
+            Cflint_Type  Temp8[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
+            Cflint_Type  Temp9[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
+            Cflint_Type  Temp10[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
+            Cflint_Type *Temp[10] = {Temp1, Temp2, Temp3, Temp4, Temp5,
                                      Temp6, Temp7, Temp8, Temp9, Temp10};
             /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
             Result1 = Cflint_ModuloP1Root2(Operand, Module, Result,
@@ -849,7 +851,7 @@ void Test_CflintFunctionSet7(void)
         Module[Index] = 1;
     for (Index = 0; Index < TEST_FUNCTIONSET7_LENGTH; Index++)
         Operand[Index] = 0;
-    //Module[0] = 7;
+    // Module[0] = 7;
     /*************************************************************************/
     while (1) {
         Cflint_AdditionBit(Operand, TEST_FUNCTIONSET7_LENGTH, 1);
@@ -859,17 +861,17 @@ void Test_CflintFunctionSet7(void)
         /*********************************************************************/
         /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
         {
-            CFLINT_TYPE  Temp1[TEST_FUNCTIONSET7_LENGTH] = {0};
-            CFLINT_TYPE  Temp2[TEST_FUNCTIONSET7_LENGTH] = {0};
-            CFLINT_TYPE  Temp3[TEST_FUNCTIONSET7_LENGTH] = {0};
-            CFLINT_TYPE  Temp4[TEST_FUNCTIONSET7_LENGTH] = {0};
-            CFLINT_TYPE  Temp5[TEST_FUNCTIONSET7_LENGTH] = {0};
-            CFLINT_TYPE  Temp6[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
-            CFLINT_TYPE  Temp7[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
-            CFLINT_TYPE  Temp8[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
-            CFLINT_TYPE  Temp9[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
-            CFLINT_TYPE  Temp10[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
-            CFLINT_TYPE *Temp[10] = {Temp1, Temp2, Temp3, Temp4, Temp5,
+            Cflint_Type  Temp1[TEST_FUNCTIONSET7_LENGTH] = {0};
+            Cflint_Type  Temp2[TEST_FUNCTIONSET7_LENGTH] = {0};
+            Cflint_Type  Temp3[TEST_FUNCTIONSET7_LENGTH] = {0};
+            Cflint_Type  Temp4[TEST_FUNCTIONSET7_LENGTH] = {0};
+            Cflint_Type  Temp5[TEST_FUNCTIONSET7_LENGTH] = {0};
+            Cflint_Type  Temp6[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
+            Cflint_Type  Temp7[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
+            Cflint_Type  Temp8[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
+            Cflint_Type  Temp9[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
+            Cflint_Type  Temp10[TEST_FUNCTIONSET7_LENGTH * 2] = {0};
+            Cflint_Type *Temp[10] = {Temp1, Temp2, Temp3, Temp4, Temp5,
                                      Temp6, Temp7, Temp8, Temp9, Temp10};
             /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
             Result1 = Cflint_ModuloP1Root2(Operand, Module, Result,
@@ -914,14 +916,14 @@ void Test_CflintFunctionSet8(void)
 {
     uint32_t Index = 0;
     #define TEST_FUNCTIONSET8_LENGTH     2
-    CFLINT_TYPE Operand[TEST_FUNCTIONSET8_LENGTH * 2] = {0};
-    CFLINT_TYPE Result[TEST_FUNCTIONSET8_LENGTH * 2] = {0};
-    CFLINT_TYPE Module1[TEST_FUNCTIONSET8_LENGTH] = {0};
-    CFLINT_TYPE Module2[TEST_FUNCTIONSET8_LENGTH] = {0};
+    Cflint_Type Operand[TEST_FUNCTIONSET8_LENGTH * 2] = {0};
+    Cflint_Type Result[TEST_FUNCTIONSET8_LENGTH * 2] = {0};
+    Cflint_Type Module1[TEST_FUNCTIONSET8_LENGTH] = {0};
+    Cflint_Type Module2[TEST_FUNCTIONSET8_LENGTH] = {0};
     /* 开辟出来的用于解算结果正确性的空间,本身无用 */
-    CFLINT_TYPE Temp0[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
-    CFLINT_TYPE Temp1[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
-    CFLINT_TYPE Temp2[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
+    Cflint_Type Temp0[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
+    Cflint_Type Temp1[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
+    Cflint_Type Temp2[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
     int8_t Result1 = 0;
     
     /* 意外备注:当Length为3时,使用Set7中的俩个数找不到一个满足要求的值 */
@@ -940,25 +942,10 @@ void Test_CflintFunctionSet8(void)
     Cflint_Multiply(Temp0, Module1, Module2, TEST_FUNCTIONSET8_LENGTH);
     /*************************************************************************/
     {
-        CFLINT_TYPE Result1[3] = {1, 0, 1};
-        CFLINT_TYPE Result2[3] = {7, 1, 1};
-        CFLINT_TYPE  Temp1[3] = {0};
-        CFLINT_TYPE  Temp2[3] = {0};
-        CFLINT_TYPE  Temp3[3] = {0};
-        CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
-        bool Check1 = Cflint_IsPrime1(Result1, Temp, 3);
-        bool Check2 = Cflint_IsPrime1(Result2, Temp, 3);
-        printf("\n---------------------------------------------------------\n");
-        printf("Cflint_IsPrime1:::%d\n", Check1);
-        printf("Cflint_IsPrime1:::%d\n", Check2);
-        printf("\n-----------------------------------------------------------");
-    }
-    /*************************************************************************/
-    {
-        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET8_LENGTH] = {0};
-        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET8_LENGTH] = {0};
-        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET8_LENGTH] = {0};
-        CFLINT_TYPE *Temp[3] = {Temp1, Temp2, Temp3};
+        Cflint_Type  Temp1[TEST_FUNCTIONSET8_LENGTH] = {0};
+        Cflint_Type  Temp2[TEST_FUNCTIONSET8_LENGTH] = {0};
+        Cflint_Type  Temp3[TEST_FUNCTIONSET8_LENGTH] = {0};
+        Cflint_Type *Temp[3] = {Temp1, Temp2, Temp3};
         bool Result = Cflint_GCDCheck(Module1, Module2, Temp,
                                       TEST_FUNCTIONSET8_LENGTH);
         printf("\n---------------------------------------------------------\n");
@@ -974,20 +961,20 @@ void Test_CflintFunctionSet8(void)
     /*************************************************************************/
     /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
     {
-        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET8_LENGTH] = {0};
-        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET8_LENGTH] = {0};
-        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET8_LENGTH] = {0};
-        CFLINT_TYPE  Temp4[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp5[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp6[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp7[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp8[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp9[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp10[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp11[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-        CFLINT_TYPE  Temp12[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
-        CFLINT_TYPE  Temp13[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
-        CFLINT_TYPE *Temp[13] = {Temp1,  Temp2,  Temp3, Temp4, Temp5,
+        Cflint_Type  Temp1[TEST_FUNCTIONSET8_LENGTH] = {0};
+        Cflint_Type  Temp2[TEST_FUNCTIONSET8_LENGTH] = {0};
+        Cflint_Type  Temp3[TEST_FUNCTIONSET8_LENGTH] = {0};
+        Cflint_Type  Temp4[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp5[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp6[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp7[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp8[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp9[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp10[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp11[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+        Cflint_Type  Temp12[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
+        Cflint_Type  Temp13[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
+        Cflint_Type *Temp[13] = {Temp1,  Temp2,  Temp3, Temp4, Temp5,
                                  Temp6,  Temp7,  Temp8, Temp9, Temp10,
                                  Temp11, Temp12, Temp13};
         /* 二次剩余计算:((Result**2) % (Operand2 * Operand3) ==  */
@@ -1055,20 +1042,20 @@ void Test_CflintFunctionSet8(void)
         /*********************************************************************/
         /* 二次剩余计算:((Result**2) % Operand2 == Operand1 % Operand2) */
         {
-            CFLINT_TYPE  Temp1[TEST_FUNCTIONSET8_LENGTH] = {0};
-            CFLINT_TYPE  Temp2[TEST_FUNCTIONSET8_LENGTH] = {0};
-            CFLINT_TYPE  Temp3[TEST_FUNCTIONSET8_LENGTH] = {0};
-            CFLINT_TYPE  Temp4[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-            CFLINT_TYPE  Temp5[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-            CFLINT_TYPE  Temp6[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-            CFLINT_TYPE  Temp7[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-            CFLINT_TYPE  Temp8[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-            CFLINT_TYPE  Temp9[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-            CFLINT_TYPE  Temp10[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-            CFLINT_TYPE  Temp11[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
-            CFLINT_TYPE  Temp12[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
-            CFLINT_TYPE  Temp13[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
-            CFLINT_TYPE *Temp[13] = {Temp1,  Temp2,  Temp3, Temp4, Temp5,
+            Cflint_Type  Temp1[TEST_FUNCTIONSET8_LENGTH] = {0};
+            Cflint_Type  Temp2[TEST_FUNCTIONSET8_LENGTH] = {0};
+            Cflint_Type  Temp3[TEST_FUNCTIONSET8_LENGTH] = {0};
+            Cflint_Type  Temp4[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+            Cflint_Type  Temp5[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+            Cflint_Type  Temp6[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+            Cflint_Type  Temp7[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+            Cflint_Type  Temp8[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+            Cflint_Type  Temp9[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+            Cflint_Type  Temp10[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+            Cflint_Type  Temp11[(TEST_FUNCTIONSET8_LENGTH + 1) * 2] = {0};
+            Cflint_Type  Temp12[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
+            Cflint_Type  Temp13[TEST_FUNCTIONSET8_LENGTH * 4] = {0};
+            Cflint_Type *Temp[13] = {Temp1,  Temp2,  Temp3, Temp4, Temp5,
                                      Temp6,  Temp7,  Temp8, Temp9, Temp10,
                                      Temp11, Temp12, Temp13};
             /* 二次剩余计算:((Result**2) % (Operand2 * Operand3) ==  */
@@ -1149,24 +1136,40 @@ void Test_CflintFunctionSet9(void)
 {
     uint32_t Index = 0;
     #define TEST_FUNCTIONSET9_LENGTH     (1024 / 8)
-    CFLINT_TYPE Result[TEST_FUNCTIONSET9_LENGTH] = {0};
-    CFLINT_TYPE Min[TEST_FUNCTIONSET9_LENGTH] = {0};
-    CFLINT_TYPE Max[TEST_FUNCTIONSET9_LENGTH] = {0};
+    Cflint_Type Result[TEST_FUNCTIONSET9_LENGTH] = {0};
+    Cflint_Type Min[TEST_FUNCTIONSET9_LENGTH] = {0};
+    Cflint_Type Max[TEST_FUNCTIONSET9_LENGTH] = {0};
     Min[TEST_FUNCTIONSET9_LENGTH - 1] = 0x60000000;
     Max[TEST_FUNCTIONSET9_LENGTH - 1] = 0xa0000000;
+    /*************************************************************************/
+    {
+        Cflint_Type Result1[3] = {1, 0, 1};
+        Cflint_Type Result2[3] = {7, 1, 1};
+        Cflint_Type  Temp1[3] = {0};
+        Cflint_Type  Temp2[3] = {0};
+        Cflint_Type  Temp3[3] = {0};
+        Cflint_Type *Temp[3] = {Temp1, Temp2, Temp3};
+        bool Check1 = Cflint_IsPrime1(Result1, Temp, 3);
+        bool Check2 = Cflint_IsPrime1(Result2, Temp, 3);
+        printf("\n---------------------------------------------------------\n");
+        printf("Cflint_IsPrime1:::%d\n", Check1);
+        printf("Cflint_IsPrime1:::%d\n", Check2);
+        printf("\n-----------------------------------------------------------");
+    }
+    /*************************************************************************/
     /* 素数查找 */
     {
         //!当前素数查找算法效率低下
         //!问题1:随机数不够随机,不适用素数生成
         //!问题2:内部基础算法速度过慢
-        CFLINT_TYPE  Temp1[TEST_FUNCTIONSET9_LENGTH] = {0};
-        CFLINT_TYPE  Temp2[TEST_FUNCTIONSET9_LENGTH] = {0};
-        CFLINT_TYPE  Temp3[TEST_FUNCTIONSET9_LENGTH] = {0};
-        CFLINT_TYPE  Temp4[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
-        CFLINT_TYPE  Temp5[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
-        CFLINT_TYPE  Temp6[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
-        CFLINT_TYPE  Temp7[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
-        CFLINT_TYPE *Temp[7] = {Temp1, Temp2, Temp3, Temp4,
+        Cflint_Type  Temp1[TEST_FUNCTIONSET9_LENGTH] = {0};
+        Cflint_Type  Temp2[TEST_FUNCTIONSET9_LENGTH] = {0};
+        Cflint_Type  Temp3[TEST_FUNCTIONSET9_LENGTH] = {0};
+        Cflint_Type  Temp4[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
+        Cflint_Type  Temp5[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
+        Cflint_Type  Temp6[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
+        Cflint_Type  Temp7[TEST_FUNCTIONSET9_LENGTH * 2] = {0};
+        Cflint_Type *Temp[7] = {Temp1, Temp2, Temp3, Temp4,
                                 Temp5, Temp6, Temp7,};
         uint32_t Check = 0;
         Check = Cflint_RandomPrime(Result, Temp, Min, Max,
@@ -1191,20 +1194,20 @@ void Test_Mentgomery(void)
 #if 0
     uint32_t Index = 0;
     #define TEST_MENTGOMERY_LENGTH    3
-    CFLINT_TYPE Result [TEST_MENTGOMERY_LENGTH] = {0};
-    CFLINT_TYPE X [TEST_MENTGOMERY_LENGTH] = {0};
-    CFLINT_TYPE Y [TEST_MENTGOMERY_LENGTH] = {0};
-    CFLINT_TYPE N [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE R [TEST_MENTGOMERY_LENGTH * 2] = {0};
-    CFLINT_TYPE RR_N [TEST_MENTGOMERY_LENGTH] = {0};
-    CFLINT_TYPE RP [(TEST_MENTGOMERY_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE NP [(TEST_MENTGOMERY_LENGTH + 1) * 2] = {0};
-    CFLINT_TYPE RP_Flag = 0, NP_Flag = 0;
-    CFLINT_TYPE Temp1 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
-    CFLINT_TYPE Temp2 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
-    CFLINT_TYPE Temp3 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
-    CFLINT_TYPE Temp4 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
-    CFLINT_TYPE Temp5 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
+    Cflint_Type Result [TEST_MENTGOMERY_LENGTH] = {0};
+    Cflint_Type X [TEST_MENTGOMERY_LENGTH] = {0};
+    Cflint_Type Y [TEST_MENTGOMERY_LENGTH] = {0};
+    Cflint_Type N [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    Cflint_Type R [TEST_MENTGOMERY_LENGTH * 2] = {0};
+    Cflint_Type RR_N [TEST_MENTGOMERY_LENGTH] = {0};
+    Cflint_Type RP [(TEST_MENTGOMERY_LENGTH + 1) * 2] = {0};
+    Cflint_Type NP [(TEST_MENTGOMERY_LENGTH + 1) * 2] = {0};
+    Cflint_Type RP_Flag = 0, NP_Flag = 0;
+    Cflint_Type Temp1 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
+    Cflint_Type Temp2 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
+    Cflint_Type Temp3 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
+    Cflint_Type Temp4 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
+    Cflint_Type Temp5 [(TEST_MENTGOMERY_LENGTH + 1) * 4] = {0};
     /*************************************************************************/
     for (Index = 0; Index < TEST_MENTGOMERY_LENGTH; Index++) {
         X[Index] = TEST_MENTGOMERY_LENGTH - Index;
@@ -1338,10 +1341,10 @@ void Test_Mentgomery(void)
 /* 测试椭圆曲线(未完成,测试未通过) */
 void Test_ECC(void)
 {
-    CFLINT_TYPE RNGTest[Ecc_Curve_Size1];
-    CFLINT_TYPE PublicKey[Ecc_Curve_Size1 * 2];
-    CFLINT_TYPE PrivateKey[Ecc_Curve_Size1];
-    CFLINT_TYPE SecretKey[Ecc_Curve_Size1];
+    Cflint_Type RNGTest[Ecc_Curve_Size1];
+    Cflint_Type PublicKey[Ecc_Curve_Size1 * 2];
+    Cflint_Type PrivateKey[Ecc_Curve_Size1];
+    Cflint_Type SecretKey[Ecc_Curve_Size1];
     bool Result1 = false;
     bool Result2 = false;
     bool Result3 = false;

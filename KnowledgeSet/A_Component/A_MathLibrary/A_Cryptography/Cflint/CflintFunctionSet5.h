@@ -8,15 +8,15 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /* 大随机数生成(注意初始化回调的随机状态情况) */
-void Cflint_Random(CFLINT_TYPE  *Operand, uint32_t Length,
-                   CFLINT_TYPE (*Random)(void));
+void Cflint_Random(Cflint_Type  *Operand, uint32_t Length,
+                   Cflint_Type (*Random)(void));
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 强素数判别检查(Miller_Rabin测试) */
 /* 要求:Temp[3~6]的长度为Length*2 */
-bool Cflint_IsPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7], uint32_t Length,
-                    CFLINT_TYPE (*Random)(void), bool Weak);
+bool Cflint_IsPrime(Cflint_Type *X, Cflint_Type *Temp[7], uint32_t Length,
+                    Cflint_Type (*Random)(void), bool Weak);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -25,14 +25,14 @@ bool Cflint_IsPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7], uint32_t Length,
 //!当前素数查找算法效率低下
 //!问题1:随机数不够随机,不适用素数生成
 //!问题2:内部基础算法速度过慢
-uint32_t Cflint_RandomPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7],
-                            CFLINT_TYPE *Min, CFLINT_TYPE *Max, uint32_t Length,
-                            CFLINT_TYPE (*Random)(void), uint32_t CountMax);
+uint32_t Cflint_RandomPrime(Cflint_Type *X, Cflint_Type *Temp[7],
+                            Cflint_Type *Min, Cflint_Type *Max, uint32_t Length,
+                            Cflint_Type (*Random)(void), uint32_t CountMax);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 孪生素数判别检查 */
-bool Cflint_IsPrime1(CFLINT_TYPE *X, CFLINT_TYPE *Temp[3], uint32_t Length);
+bool Cflint_IsPrime1(Cflint_Type *X, Cflint_Type *Temp[3], uint32_t Length);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/

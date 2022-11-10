@@ -8,9 +8,9 @@
 /*****************************************************************************/
 /* 蒙哥马利约减(X,R,N,NP) */
 /* X,Temp1,Temp2长度为Length*2 */
-void Mentgomery_ModuloReduction(CFLINT_TYPE *Result, uint32_t Length, int64_t R,
-                                CFLINT_TYPE *X, CFLINT_TYPE *N, CFLINT_TYPE *NP,
-                                CFLINT_TYPE *Temp1, CFLINT_TYPE *Temp2)
+void Mentgomery_ModuloReduction(Cflint_Type *Result, uint32_t Length, int64_t R,
+                                Cflint_Type *X, Cflint_Type *N, Cflint_Type *NP,
+                                Cflint_Type *Temp1, Cflint_Type *Temp2)
 {
     /* 1.计算:m = (((X % R) * NP) % R */
     Cflint_Copy(Temp2, X, Length * 2);
@@ -32,10 +32,10 @@ void Mentgomery_ModuloReduction(CFLINT_TYPE *Result, uint32_t Length, int64_t R,
 /*****************************************************************************/
 /* 蒙哥马利模乘(X,Y,N,NP,R_N) */
 /* Temp1,Temp2,Temp3,Temp4长度为Length*2 */
-void Mentgomery_ModuloMultiply(CFLINT_TYPE *Result, CFLINT_TYPE *X, CFLINT_TYPE *Y,
-                               CFLINT_TYPE *N, CFLINT_TYPE *NP, CFLINT_TYPE *RR_N,
-                               CFLINT_TYPE *Temp1, CFLINT_TYPE *Temp2,
-                               CFLINT_TYPE *Temp3, CFLINT_TYPE *Temp4,
+void Mentgomery_ModuloMultiply(Cflint_Type *Result, Cflint_Type *X, Cflint_Type *Y,
+                               Cflint_Type *N, Cflint_Type *NP, Cflint_Type *RR_N,
+                               Cflint_Type *Temp1, Cflint_Type *Temp2,
+                               Cflint_Type *Temp3, Cflint_Type *Temp4,
                                int64_t R, uint32_t Length)
 {
     /* 1.计算X' = REDC(X * RR_N),Y' = REDC(Y * RR_N) */

@@ -15,31 +15,31 @@
 /*****************************************************************************/
 /* 椭圆曲线坐标: */
 typedef struct EccPointBody {
-    CFLINT_TYPE X[Ecc_Curve_Size1];
-    CFLINT_TYPE Y[Ecc_Curve_Size1];
+    Cflint_Type X[Ecc_Curve_Size1];
+    Cflint_Type Y[Ecc_Curve_Size1];
 } EccPoint;
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 static const    EccPoint CURVE_G                  = Ecc_Curve_G;
-static const CFLINT_TYPE CURVE_P[Ecc_Curve_Size1] = Ecc_Curve_P;
-static const CFLINT_TYPE CURVE_B[Ecc_Curve_Size1] = Ecc_Curve_B;
-static const CFLINT_TYPE CURVE_N[Ecc_Curve_Size2] = Ecc_Curve_N;
+static const Cflint_Type CURVE_P[Ecc_Curve_Size1] = Ecc_Curve_P;
+static const Cflint_Type CURVE_B[Ecc_Curve_Size1] = Ecc_Curve_B;
+static const Cflint_Type CURVE_N[Ecc_Curve_Size2] = Ecc_Curve_N;
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 static    EccPoint *Curve_G = (   EccPoint *)(&CURVE_G);
-static CFLINT_TYPE *Curve_P = (CFLINT_TYPE *)( CURVE_P);
-static CFLINT_TYPE *Curve_B = (CFLINT_TYPE *)( CURVE_B);
-static CFLINT_TYPE *Curve_N = (CFLINT_TYPE *)( CURVE_N);
+static Cflint_Type *Curve_P = (Cflint_Type *)( CURVE_P);
+static Cflint_Type *Curve_B = (Cflint_Type *)( CURVE_B);
+static Cflint_Type *Curve_N = (Cflint_Type *)( CURVE_N);
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-static bool (*Ecc_RNG)(CFLINT_TYPE *Data, uint32_t Size) = NULL;
+static bool (*Ecc_RNG)(Cflint_Type *Data, uint32_t Size) = NULL;
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-void Ecc_RNG_Function(bool (*Rng)(CFLINT_TYPE *Data, uint32_t Size))
+void Ecc_RNG_Function(bool (*Rng)(Cflint_Type *Data, uint32_t Size))
 {
     Ecc_RNG = Rng;
 }
@@ -67,16 +67,16 @@ static inline bool EccPoint_IsZero(EccPoint *Point)
 /*****************************************************************************/
 /*****************************************************************************/
 /* R = P + P: */
-static void EccPoint_Double(CFLINT_TYPE *X, CFLINT_TYPE *Y, CFLINT_TYPE *Z)
+static void EccPoint_Double(Cflint_Type *X, Cflint_Type *Y, Cflint_Type *Z)
 {
-    CFLINT_TYPE *CP = Curve_P;
+    Cflint_Type *CP = Curve_P;
     /* T1 = X, T2 = Y, T3 = Z */
-    CFLINT_TYPE T4[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE T5[Ecc_Curve_Size1] = {0};
+    Cflint_Type T4[Ecc_Curve_Size1] = {0};
+    Cflint_Type T5[Ecc_Curve_Size1] = {0};
     /* 额外缓冲开销 */
-    CFLINT_TYPE  Temp1[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE  Temp2[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE *TT[] = {Temp1, Temp2};
+    Cflint_Type  Temp1[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type  Temp2[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type *TT[] = {Temp1, Temp2};
     /* 特殊检查:Z == 0 */
     if (Cflint_IsZero(Z, Ecc_Curve_Size1) == true)
         return;
@@ -97,7 +97,7 @@ static void EccPoint_Double(CFLINT_TYPE *X, CFLINT_TYPE *Y, CFLINT_TYPE *Z)
     Cflint_ModuloAddition(Y, CP, X, X, TT, Ecc_Curve_Size1);
     Cflint_ModuloAddition(Y, CP, Y, X, TT, Ecc_Curve_Size1);
     /* T2 = 3 * (X**2) / 2 = B */
-    CFLINT_TYPE Overflow = 0;
+    Cflint_Type Overflow = 0;
     if (Cflint_IsEven(Y, Ecc_Curve_Size1) == false)
         Overflow = Cflint_Addition(Y, Y, CP, Ecc_Curve_Size1);
     Cflint_ShiftRight2(Y, Ecc_Curve_Size1, 1);
@@ -139,7 +139,7 @@ static void EccPoint_Double(CFLINT_TYPE *X, CFLINT_TYPE *Y, CFLINT_TYPE *Z)
     Cflint_ModuloAddition(Z,    CP, X, X, TT, Ecc_Curve_Size1);
     Cflint_ModuloAddition(X,    CP, X, Z, TT, Ecc_Curve_Size1);
     /* T1 = 3 * (X**2 - Z**4) / 2 = B */
-    CFLINT_TYPE Overflow = 0;
+    Cflint_Type Overflow = 0;
     if (Cflint_IsEven(X, Ecc_Curve_Size1) == false)
         Overflow = Cflint_Addition(X, X, CP, Ecc_Curve_Size1);
     Cflint_ShiftRight2(X, Ecc_Curve_Size1, 1);
@@ -169,15 +169,15 @@ static void EccPoint_Double(CFLINT_TYPE *X, CFLINT_TYPE *Y, CFLINT_TYPE *Z)
 /*****************************************************************************/
 /*****************************************************************************/
 /* P(X, Y) ==> (X * Z**2, Y * Z**3) */
-static void EccPoint_ApplyZ(CFLINT_TYPE *X, CFLINT_TYPE *Y, CFLINT_TYPE *Z)
+static void EccPoint_ApplyZ(Cflint_Type *X, Cflint_Type *Y, Cflint_Type *Z)
 {
-    CFLINT_TYPE *CP = Curve_P;
+    Cflint_Type *CP = Curve_P;
     /*  */
-    CFLINT_TYPE T1[Ecc_Curve_Size1] = {0};
+    Cflint_Type T1[Ecc_Curve_Size1] = {0};
     /* 额外缓冲开销 */
-    CFLINT_TYPE  Temp1[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE  Temp2[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE *TT[] = {Temp1, Temp2};
+    Cflint_Type  Temp1[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type  Temp2[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type *TT[] = {Temp1, Temp2};
     /* T1 = (Z**2) */
     /* X  = (Z**2) * X */
     /* T1 = (Z**3) */
@@ -191,11 +191,11 @@ static void EccPoint_ApplyZ(CFLINT_TYPE *X, CFLINT_TYPE *Y, CFLINT_TYPE *Z)
 /*****************************************************************************/
 /*****************************************************************************/
 /* P(X1, Y1) => 2 * P, (X2, Y2) =>P' */
-static void EccPoint_DoubleInit(CFLINT_TYPE *X1, CFLINT_TYPE *Y1,
-                                CFLINT_TYPE *X2, CFLINT_TYPE *Y2,
-                                CFLINT_TYPE *Zi)
+static void EccPoint_DoubleInit(Cflint_Type *X1, Cflint_Type *Y1,
+                                Cflint_Type *X2, Cflint_Type *Y2,
+                                Cflint_Type *Zi)
 {
-    CFLINT_TYPE Z[Ecc_Curve_Size1] = {0};
+    Cflint_Type Z[Ecc_Curve_Size1] = {0};
     if (Zi != NULL)
         Cflint_Copy(Z, Zi, Ecc_Curve_Size1);
     if (Zi == NULL) {
@@ -217,16 +217,16 @@ static void EccPoint_DoubleInit(CFLINT_TYPE *X1, CFLINT_TYPE *Y1,
 /*****************************************************************************/
 /* Input:  P(X1, Y1, Z), Q(X2, Y2, Z) */
 /* Output: P => (P')(X1', Y1', Z3), Q => (P + Q)(X3, Y3, Z3) */
-static void EccPoint_Addition1(CFLINT_TYPE *X1, CFLINT_TYPE *Y1,
-                               CFLINT_TYPE *X2, CFLINT_TYPE *Y2)
+static void EccPoint_Addition1(Cflint_Type *X1, Cflint_Type *Y1,
+                               Cflint_Type *X2, Cflint_Type *Y2)
 {
-    CFLINT_TYPE *CP = Curve_P;
+    Cflint_Type *CP = Curve_P;
     /* T1 = X1, T2 = Y1, T3 = X2, T4 = Y2 */
-    CFLINT_TYPE T5[Ecc_Curve_Size1] = {0};
+    Cflint_Type T5[Ecc_Curve_Size1] = {0};
     /* 额外缓冲开销 */
-    CFLINT_TYPE  Temp1[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE  Temp2[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE *TT[] = {Temp1, Temp2};
+    Cflint_Type  Temp1[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type  Temp2[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type *TT[] = {Temp1, Temp2};
     /* T5 = (X2 - X1) */
     /* T5 = (X2 - X1)**2 = A */
     /* T1 = (X1 * A) = B */
@@ -261,18 +261,18 @@ static void EccPoint_Addition1(CFLINT_TYPE *X1, CFLINT_TYPE *Y1,
 /*****************************************************************************/
 /* Input:  P(X1, Y1, Z), Q(X2, Y2, Z) */
 /* Output: P => (P - Q)(X3', Y3', Z3), Q => (P + Q)(X3, Y3, Z3) */
-static void EccPoint_Addition2(CFLINT_TYPE *X1, CFLINT_TYPE *Y1,
-                               CFLINT_TYPE *X2, CFLINT_TYPE *Y2)
+static void EccPoint_Addition2(Cflint_Type *X1, Cflint_Type *Y1,
+                               Cflint_Type *X2, Cflint_Type *Y2)
 {
-    CFLINT_TYPE *CP = Curve_P;
+    Cflint_Type *CP = Curve_P;
     /* T1 = X1, T2 = Y1, T3 = X2, T4 = Y2 */
-    CFLINT_TYPE T5[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE T6[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE T7[Ecc_Curve_Size1] = {0};
+    Cflint_Type T5[Ecc_Curve_Size1] = {0};
+    Cflint_Type T6[Ecc_Curve_Size1] = {0};
+    Cflint_Type T7[Ecc_Curve_Size1] = {0};
     /* 额外缓冲开销 */
-    CFLINT_TYPE  Temp1[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE  Temp2[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE *TT[] = {Temp1, Temp2};
+    Cflint_Type  Temp1[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type  Temp2[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type *TT[] = {Temp1, Temp2};
     /* T5 = (X2 - X1) */
     /* T5 = (X2 - X1)**2 = A */
     /* T1 = (X1 * A) = B */
@@ -318,15 +318,15 @@ static void EccPoint_Addition2(CFLINT_TYPE *X1, CFLINT_TYPE *Y1,
 /*****************************************************************************/
 /*****************************************************************************/
 /* Result = X**3 + A * X + B */
-static void EccPoint_CurveX(CFLINT_TYPE *Result, CFLINT_TYPE *X)
+static void EccPoint_CurveX(Cflint_Type *Result, Cflint_Type *X)
 {
-    CFLINT_TYPE *R  = Result;
-    CFLINT_TYPE *CP = Curve_P;
-    CFLINT_TYPE *CB = Curve_B;
+    Cflint_Type *R  = Result;
+    Cflint_Type *CP = Curve_P;
+    Cflint_Type *CB = Curve_B;
     /* 额外缓冲开销 */
-    CFLINT_TYPE  Temp1[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE  Temp2[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE *TT[] = {Temp1, Temp2};
+    Cflint_Type  Temp1[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type  Temp2[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type *TT[] = {Temp1, Temp2};
 #if (Ecc_CURVE == Ecc_secp256k1)
     /* R = (X**2) */
     /* R = (X**3) */
@@ -336,7 +336,7 @@ static void EccPoint_CurveX(CFLINT_TYPE *Result, CFLINT_TYPE *X)
     Cflint_ModuloAddition(R, CP, CB, R, TT, Ecc_Curve_Size1);
 #else
     /* -A = 3 */
-    CFLINT_TYPE N3[Ecc_Curve_Size1] = {3};
+    Cflint_Type N3[Ecc_Curve_Size1] = {3};
     /* R = (X**2) */
     /* R = (X**2) - 3 */
     /* R = (X**3) - 3 * X */
@@ -350,23 +350,23 @@ static void EccPoint_CurveX(CFLINT_TYPE *Result, CFLINT_TYPE *X)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-static void EccPoint_Multiply(EccPoint *Result, CFLINT_TYPE *Scalar,
-                              EccPoint *Point,  CFLINT_TYPE *InitZ,
+static void EccPoint_Multiply(EccPoint *Result, Cflint_Type *Scalar,
+                              EccPoint *Point,  Cflint_Type *InitZ,
                                int64_t  Bits2)
 {
-    CFLINT_TYPE *CP = Curve_P;
+    Cflint_Type *CP = Curve_P;
     /* R0, R1 */
-    CFLINT_TYPE RX[2][Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE RY[2][Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE Z[Ecc_Curve_Size1] = {0};
+    Cflint_Type RX[2][Ecc_Curve_Size1] = {0};
+    Cflint_Type RY[2][Ecc_Curve_Size1] = {0};
+    Cflint_Type Z[Ecc_Curve_Size1] = {0};
     bool Bit2 = false;
     int64_t Index = 0;
     /* 额外缓冲开销 */
-    CFLINT_TYPE  Temp1[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE  Temp2[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE  Temp3[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE  Temp4[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE *TT[] = {Temp1, Temp2, Temp3, Temp4};
+    Cflint_Type  Temp1[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type  Temp2[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type  Temp3[Ecc_Curve_Size1] = {0};
+    Cflint_Type  Temp4[Ecc_Curve_Size1] = {0};
+    Cflint_Type *TT[] = {Temp1, Temp2, Temp3, Temp4};
     /* (Rx[1], Ry[1]) <=== (Point->X, Point->Y) */
     Cflint_Copy(RX[1], Point->X, Ecc_Curve_Size1);
     Cflint_Copy(RY[1], Point->Y, Ecc_Curve_Size1);
@@ -409,7 +409,7 @@ static void EccPoint_Multiply(EccPoint *Result, CFLINT_TYPE *Scalar,
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-static bool Ecc_ComputeKey(EccPoint *Public, CFLINT_TYPE *Private)
+static bool Ecc_ComputeKey(EccPoint *Public, Cflint_Type *Private)
 {
     if (Cflint_IsZero(Private, Ecc_Curve_Size1) == true)
         return false;
@@ -418,11 +418,11 @@ static bool Ecc_ComputeKey(EccPoint *Public, CFLINT_TYPE *Private)
     EccPoint_Multiply(Public, Curve_G, Private, NULL, Bits2);
     return (EccPoint_IsZero(Public) == true) ? false : true;
 #else
-    CFLINT_TYPE  Temp1[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE  Temp2[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE *TT[] = {Temp1, Temp2};
-    CFLINT_TYPE  Overflow = 0;
-    uint32_t     Length = CFLINT_BITS * Ecc_Curve_Size1 + 1;
+    Cflint_Type  Temp1[Ecc_Curve_Size1] = {0};
+    Cflint_Type  Temp2[Ecc_Curve_Size1] = {0};
+    Cflint_Type *TT[] = {Temp1, Temp2};
+    Cflint_Type  Overflow = 0;
+    uint32_t     Length = Cflint_Bits * Ecc_Curve_Size1 + 1;
     
     if (Cflint_Compare(Curve_N, Private, Ecc_Curve_Size1) != 1)
         return false;
@@ -438,11 +438,11 @@ static bool Ecc_ComputeKey(EccPoint *Public, CFLINT_TYPE *Private)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-bool Ecc_MakeKey(CFLINT_TYPE PublicKey[Ecc_Curve_Size1 * 2],
-                 CFLINT_TYPE PrivateKey[Ecc_Curve_Size1])
+bool Ecc_MakeKey(Cflint_Type PublicKey[Ecc_Curve_Size1 * 2],
+                 Cflint_Type PrivateKey[Ecc_Curve_Size1])
 {
     EccPoint    Public = {0};
-    CFLINT_TYPE Private[Ecc_Curve_Size1] = {0};
+    Cflint_Type Private[Ecc_Curve_Size1] = {0};
     
     for (uint32_t tries = 0; tries < ECC_MAX_TRIES; tries++) {
         /* 生成随机私钥 */
@@ -461,15 +461,15 @@ bool Ecc_MakeKey(CFLINT_TYPE PublicKey[Ecc_Curve_Size1 * 2],
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-bool Ecc_ShareSecret(CFLINT_TYPE PublicKey[Ecc_Curve_Size1 * 2],
-                     CFLINT_TYPE PrivateKey[Ecc_Curve_Size1],
-                     CFLINT_TYPE SecretKey[Ecc_Curve_Size1])
+bool Ecc_ShareSecret(Cflint_Type PublicKey[Ecc_Curve_Size1 * 2],
+                     Cflint_Type PrivateKey[Ecc_Curve_Size1],
+                     Cflint_Type SecretKey[Ecc_Curve_Size1])
 {
     EccPoint     Product;
     EccPoint     Public = {0};
-    CFLINT_TYPE  Private[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE  Random[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE *InitZ = NULL;
+    Cflint_Type  Private[Ecc_Curve_Size1] = {0};
+    Cflint_Type  Random[Ecc_Curve_Size1] = {0};
+    Cflint_Type *InitZ = NULL;
     /* 生成随机Z */
     for (uint32_t tries = 0; tries < ECC_MAX_TRIES; tries++) {
         if (Ecc_RNG(Random, Ecc_Curve_Size1) == false)
@@ -486,10 +486,10 @@ bool Ecc_ShareSecret(CFLINT_TYPE PublicKey[Ecc_Curve_Size1 * 2],
     int64_t Bits2 = Cflint_Numbers2(Private, Ecc_Curve_Size1) + 1;
     EccPoint_Multiply(&Product, Private, &Public, InitZ, Bits2);
 #else
-    CFLINT_TYPE  Temp[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE *TT[] = {Private, Temp};
-    CFLINT_TYPE  Overflow = 0;
-    uint32_t     Length = CFLINT_BITS * Ecc_Curve_Size1 + 1;
+    Cflint_Type  Temp[Ecc_Curve_Size1] = {0};
+    Cflint_Type *TT[] = {Private, Temp};
+    Cflint_Type  Overflow = 0;
+    uint32_t     Length = Cflint_Bits * Ecc_Curve_Size1 + 1;
     
     Overflow = 
     Cflint_Addition(Private, Private, Curve_N, Ecc_Curve_Size1);
@@ -503,14 +503,14 @@ bool Ecc_ShareSecret(CFLINT_TYPE PublicKey[Ecc_Curve_Size1 * 2],
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-bool Ecc_ValidKey(CFLINT_TYPE PublicKey[Ecc_Curve_Size1 * 2])
+bool Ecc_ValidKey(Cflint_Type PublicKey[Ecc_Curve_Size1 * 2])
 {
     EccPoint     Public = {0};
-    CFLINT_TYPE  Temp_1[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE  Temp_2[Ecc_Curve_Size1] = {0};
-    CFLINT_TYPE  Temp1[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE  Temp2[Ecc_Curve_Size1 * 2] = {0};
-    CFLINT_TYPE *TT[] = {Temp1, Temp2};
+    Cflint_Type  Temp_1[Ecc_Curve_Size1] = {0};
+    Cflint_Type  Temp_2[Ecc_Curve_Size1] = {0};
+    Cflint_Type  Temp1[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type  Temp2[Ecc_Curve_Size1 * 2] = {0};
+    Cflint_Type *TT[] = {Temp1, Temp2};
     
     Ecc_BytesToNative(PublicKey + Ecc_Curve_Size1 * 0, Public.X, Ecc_Curve_Size1);
     Ecc_BytesToNative(PublicKey + Ecc_Curve_Size1 * 1, Public.Y, Ecc_Curve_Size1);

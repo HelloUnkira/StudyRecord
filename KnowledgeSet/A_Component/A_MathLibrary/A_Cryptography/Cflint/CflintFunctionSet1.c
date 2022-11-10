@@ -7,9 +7,9 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /* 交换:Operand0 <=> Operand1 */
-void Cflint_Swap(CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1, uint32_t Length)
+void Cflint_Swap(Cflint_Type *Operand0, Cflint_Type *Operand1, uint32_t Length)
 {
-    CFLINT_TYPE Temp0 = 0, Temp1 = 0;
+    Cflint_Type Temp0 = 0, Temp1 = 0;
     for (uint32_t Index = 0; Index < Length; Index++) {
         Temp0 = Operand0[Index]; Temp1 = Operand1[Index];
         Operand0[Index] = Temp1; Operand1[Index] = Temp0;
@@ -19,7 +19,7 @@ void Cflint_Swap(CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 拷贝:Operand0 = Operand1 */
-void Cflint_Copy(CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1, uint32_t Length)
+void Cflint_Copy(Cflint_Type *Operand0, Cflint_Type *Operand1, uint32_t Length)
 {
     for (uint32_t Index = 0; Index < Length; Index++)
         Operand0[Index] = Operand1[Index];
@@ -28,7 +28,7 @@ void Cflint_Copy(CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 比较:((>:1);(==:0);(<:-1)) */
-int8_t Cflint_Compare(CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1, uint32_t Length)
+int8_t Cflint_Compare(Cflint_Type *Operand0, Cflint_Type *Operand1, uint32_t Length)
 {
     for (int64_t Index = (int64_t)Length - 1; Index >= 0; Index--)
         if (Operand0[Index] != Operand1[Index]) {
@@ -43,9 +43,9 @@ int8_t Cflint_Compare(CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1, uint32_t Len
 /*****************************************************************************/
 /*****************************************************************************/
 /* 相等判断:((==:1);(!=:0)) */
-bool Cflint_Equal(CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1, uint32_t Length)
+bool Cflint_Equal(Cflint_Type *Operand0, Cflint_Type *Operand1, uint32_t Length)
 {
-    CFLINT_TYPE Result = 0;
+    Cflint_Type Result = 0;
     for (uint32_t Index = 0; Index < Length; Index++)
         Result |= Operand0[Index] ^ Operand1[Index];
     return Result == 0 ? true : false;
@@ -54,7 +54,7 @@ bool Cflint_Equal(CFLINT_TYPE *Operand0, CFLINT_TYPE *Operand1, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 为0判断:Operand == 0 */
-bool Cflint_IsZero(CFLINT_TYPE *Operand, uint32_t Length)
+bool Cflint_IsZero(Cflint_Type *Operand, uint32_t Length)
 {
     for (uint32_t Index = 0; Index < Length; Index++)
         if (Operand[Index] != 0)
@@ -65,7 +65,7 @@ bool Cflint_IsZero(CFLINT_TYPE *Operand, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 设值:类似memset */
-void Cflint_SetValue(CFLINT_TYPE *Operand, uint32_t Length, CFLINT_TYPE Value)
+void Cflint_SetValue(Cflint_Type *Operand, uint32_t Length, Cflint_Type Value)
 {
     for (uint32_t Index = 0; Index < Length; Index++)
         Operand[Index] = Value;
@@ -74,7 +74,7 @@ void Cflint_SetValue(CFLINT_TYPE *Operand, uint32_t Length, CFLINT_TYPE Value)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 检查一个数是否为2的幂次方 */
-bool Cflint_IsExponent2(CFLINT_TYPE *Operand, uint32_t Length)
+bool Cflint_IsExponent2(Cflint_Type *Operand, uint32_t Length)
 {
     uint32_t UnZeroWord = 0;
     /* 1.每一个字都满足2的幂次方;2.只有一个非0字 */
@@ -94,7 +94,7 @@ bool Cflint_IsExponent2(CFLINT_TYPE *Operand, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 计算2进制最高位索引 */
-int64_t Cflint_Numbers2(CFLINT_TYPE *Operand, uint32_t Length)
+int64_t Cflint_Numbers2(Cflint_Type *Operand, uint32_t Length)
 {
     /* 先计算前导0,这里使用普通的方式,使用折半查找效果会更好 */
     int64_t Index1 = 0, Index2 = 0;
@@ -105,18 +105,18 @@ int64_t Cflint_Numbers2(CFLINT_TYPE *Operand, uint32_t Length)
     /* 查验,全空时最高位索引为-1 */
     if (Index1 < 0) return -1;
     /* 不存在全空时,查验落点位 */
-    for (Index2 = (int64_t)CFLINT_BITS - 1; Index2 >= 0; Index2--)
+    for (Index2 = (int64_t)Cflint_Bits - 1; Index2 >= 0; Index2--)
         if ((Operand[Index1] & (1 << Index2)) != 0)
             break;
     /* 计算最高位 */
-    return (Index1 * CFLINT_BITS + Index2);
+    return (Index1 * Cflint_Bits + Index2);
 }
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 /* 位或运算 */
-void Cflint_OR(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1, 
-               CFLINT_TYPE *Operand2,  uint32_t  Length)
+void Cflint_OR(Cflint_Type *Result, Cflint_Type *Operand1, 
+               Cflint_Type *Operand2,  uint32_t  Length)
 {
     for (uint32_t Index = 0; Index < Length; Index++)
         Result[Index] = Operand1[Index] | Operand2[Index];
@@ -125,8 +125,8 @@ void Cflint_OR(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 位与运算 */
-void Cflint_AND(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1, 
-                CFLINT_TYPE *Operand2,  uint32_t  Length)
+void Cflint_AND(Cflint_Type *Result, Cflint_Type *Operand1, 
+                Cflint_Type *Operand2,  uint32_t  Length)
 {
     for (uint32_t Index = 0; Index < Length; Index++)
         Result[Index] = Operand1[Index] & Operand2[Index];
@@ -135,8 +135,8 @@ void Cflint_AND(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 位异或运算 */
-void Cflint_XOR(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1, 
-                CFLINT_TYPE *Operand2,  uint32_t  Length)
+void Cflint_XOR(Cflint_Type *Result, Cflint_Type *Operand1, 
+                Cflint_Type *Operand2,  uint32_t  Length)
 {
     for (uint32_t Index = 0; Index < Length; Index++)
         Result[Index] = Operand1[Index] ^ Operand2[Index];
@@ -145,7 +145,7 @@ void Cflint_XOR(CFLINT_TYPE *Result, CFLINT_TYPE *Operand1,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 位反运算 */
-void Cflint_NOT(CFLINT_TYPE *Operand, uint32_t Length)
+void Cflint_NOT(Cflint_Type *Operand, uint32_t Length)
 {
     for (uint32_t Index = 0; Index < Length; Index++)
         Operand[Index] = ~Operand[Index];
@@ -154,10 +154,10 @@ void Cflint_NOT(CFLINT_TYPE *Operand, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 位检查 */
-bool Cflint_CheckBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
+bool Cflint_CheckBit2(Cflint_Type *Operand, uint32_t Length, int64_t Bits2)
 {
-    int64_t Bits_N = Bits2 / CFLINT_BITS;
-    int64_t Bits_2 = Bits2 % CFLINT_BITS;
+    int64_t Bits_N = Bits2 / Cflint_Bits;
+    int64_t Bits_2 = Bits2 % Cflint_Bits;
     
     return Bits_N < Length ? ((Operand[Bits_N] & (1 << Bits_2)) != 0) : false;
 }
@@ -165,10 +165,10 @@ bool Cflint_CheckBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 位设置 */
-void Cflint_SetBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
+void Cflint_SetBit2(Cflint_Type *Operand, uint32_t Length, int64_t Bits2)
 {
-    int64_t Bits_N = Bits2 / CFLINT_BITS;
-    int64_t Bits_2 = Bits2 % CFLINT_BITS;
+    int64_t Bits_N = Bits2 / Cflint_Bits;
+    int64_t Bits_2 = Bits2 % Cflint_Bits;
     
     if (Bits_N < Length)
         Operand[Bits_N] |= (1 << Bits_2);
@@ -177,10 +177,10 @@ void Cflint_SetBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 位清除 */
-void Cflint_ClearBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
+void Cflint_ClearBit2(Cflint_Type *Operand, uint32_t Length, int64_t Bits2)
 {
-    int64_t Bits_N = Bits2 / CFLINT_BITS;
-    int64_t Bits_2 = Bits2 % CFLINT_BITS;
+    int64_t Bits_N = Bits2 / Cflint_Bits;
+    int64_t Bits_2 = Bits2 % Cflint_Bits;
     
     if (Bits_N < Length)
         Operand[Bits_N] &= ~(1 << Bits_2);
@@ -189,7 +189,7 @@ void Cflint_ClearBit2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 偶数判断 */
-bool Cflint_IsEven(CFLINT_TYPE *Operand, uint32_t Length)
+bool Cflint_IsEven(Cflint_Type *Operand, uint32_t Length)
 {
     return ((Operand[0] & 1) == 0);
 }
@@ -197,25 +197,25 @@ bool Cflint_IsEven(CFLINT_TYPE *Operand, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 左移位运算 */
-void Cflint_ShiftLeft2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
+void Cflint_ShiftLeft2(Cflint_Type *Operand, uint32_t Length, uint64_t Bits2)
 {
     /* 特殊检查:空移位 */
     if (Bits2 == 0)
         return;
     /* 一个DIGIT_TYPE字节下进制的位有多少个2进制位 */
     int64_t Index  = 0;
-    int64_t Bits_N = Bits2 / CFLINT_BITS;
-    int64_t Bits_2 = Bits2 % CFLINT_BITS;
-    int64_t Last_2 = CFLINT_BITS - Bits_2;
-    CFLINT_TYPE Bit_N1 = 0, Bit_High = 0;
-    CFLINT_TYPE Bit_N2 = 0, Bit_Low  = 0;
+    int64_t Bits_N = Bits2 / Cflint_Bits;
+    int64_t Bits_2 = Bits2 % Cflint_Bits;
+    int64_t Last_2 = Cflint_Bits - Bits_2;
+    Cflint_Type Bit_N1 = 0, Bit_High = 0;
+    Cflint_Type Bit_N2 = 0, Bit_Low  = 0;
     
     for (Index = (int64_t)Length - 1; Index - Bits_N - 1 >= 0; Index--) {
         Bit_N1    = Operand[Index - Bits_N];
         Bit_N2    = Operand[Index - Bits_N - 1];
         Bit_High  = (Bit_N1 << Bits_2);
         Bit_Low   = (Bit_N2 >> Last_2);
-        Bit_Low   = (Last_2 >= CFLINT_BITS) ? 0 : Bit_Low;
+        Bit_Low   = (Last_2 >= Cflint_Bits) ? 0 : Bit_Low;
         Operand[Index] = Bit_High | Bit_Low;
     }
     {
@@ -223,7 +223,7 @@ void Cflint_ShiftLeft2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
         //Bit_N2 = Operand[Index - Bits_N - 1];
         Bit_High  = (Bit_N1 << Bits_2);
         //Bit_Low   = (Bit_N2 >> Last_2);
-        //Bit_Low   = (Last_2 >= CFLINT_BITS) ? 0 : Bit_Low;
+        //Bit_Low   = (Last_2 >= Cflint_Bits) ? 0 : Bit_Low;
         Operand[Index] = Bit_High;// | (Bit_N2 >> Last_2);
     }
     
@@ -234,25 +234,25 @@ void Cflint_ShiftLeft2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 右移位运算 */
-void Cflint_ShiftRight2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
+void Cflint_ShiftRight2(Cflint_Type *Operand, uint32_t Length, uint64_t Bits2)
 {
     /* 特殊检查:空移位 */
     if (Bits2 == 0)
         return;
     /* 一个DIGIT_TYPE字节下进制的位有多少个2进制位 */
     int64_t Index  = 0;
-    int64_t Bits_N = Bits2 / CFLINT_BITS;
-    int64_t Bits_2 = Bits2 % CFLINT_BITS;
-    int64_t Last_2 = CFLINT_BITS - Bits_2;
-    CFLINT_TYPE Bit_N1 = 0, Bit_Low  = 0;
-    CFLINT_TYPE Bit_N2 = 0, Bit_High = 0;
+    int64_t Bits_N = Bits2 / Cflint_Bits;
+    int64_t Bits_2 = Bits2 % Cflint_Bits;
+    int64_t Last_2 = Cflint_Bits - Bits_2;
+    Cflint_Type Bit_N1 = 0, Bit_Low  = 0;
+    Cflint_Type Bit_N2 = 0, Bit_High = 0;
     
     for (Index = 0; Index + Bits_N + 1 < (int64_t)Length; Index++) {
         Bit_N1    = Operand[Index + Bits_N];
         Bit_N2    = Operand[Index + Bits_N + 1];
         Bit_Low   = (Bit_N1 >> Bits_2);
         Bit_High  = (Bit_N2 << Last_2);
-        Bit_High  = (Last_2 >= CFLINT_BITS) ? 0 : Bit_High;
+        Bit_High  = (Last_2 >= Cflint_Bits) ? 0 : Bit_High;
         Operand[Index] = Bit_Low | Bit_High;
     }
     {
@@ -260,7 +260,7 @@ void Cflint_ShiftRight2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
         //Bit_N2 = Operand[Index + Bits_N + 1];
         Bit_Low = (Bit_N1 >> Bits_2);
         //Bit_High = (Bit_N2 << Last_2);
-        //Bit_High = (Last_2 >= CFLINT_BITS) ? 0 : Bit_High;
+        //Bit_High = (Last_2 >= Cflint_Bits) ? 0 : Bit_High;
         Operand[Index] = Bit_Low;// | (Bit_N2 << Last_2);
     }
     
@@ -271,7 +271,7 @@ void Cflint_ShiftRight2(CFLINT_TYPE *Operand, uint32_t Length, uint64_t Bits2)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 左移位运算 */
-void Cflint_ShiftLeftN(CFLINT_TYPE *Operand, uint32_t Length, uint32_t BitsN)
+void Cflint_ShiftLeftN(Cflint_Type *Operand, uint32_t Length, uint32_t BitsN)
 {
     /* 超出限制时,直接清空 */
     if (BitsN >= Length) {
@@ -288,7 +288,7 @@ void Cflint_ShiftLeftN(CFLINT_TYPE *Operand, uint32_t Length, uint32_t BitsN)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 右移位运算 */
-void Cflint_ShiftRightN(CFLINT_TYPE *Operand, uint32_t Length, uint32_t BitsN)
+void Cflint_ShiftRightN(Cflint_Type *Operand, uint32_t Length, uint32_t BitsN)
 {
     /* 超出移位限制时,直接清空 */
     if (BitsN >= Length) {
@@ -305,7 +305,7 @@ void Cflint_ShiftRightN(CFLINT_TYPE *Operand, uint32_t Length, uint32_t BitsN)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 数分解运算 */
-int64_t Cflint_Factor2(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
+int64_t Cflint_Factor2(Cflint_Type *Operand1, Cflint_Type *Operand2,
                           uint32_t  Length)
 {
     /* 初始化Operand2=Operand1 */
@@ -328,21 +328,21 @@ int64_t Cflint_Factor2(CFLINT_TYPE *Operand1, CFLINT_TYPE *Operand2,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 掩码运算 */
-void Cflint_Mask2(CFLINT_TYPE *Operand, uint32_t Length, int64_t Bits2)
+void Cflint_Mask2(Cflint_Type *Operand, uint32_t Length, int64_t Bits2)
 {
-    int64_t Bits_N = Bits2 / CFLINT_BITS;
-    int64_t Bits_2 = Bits2 % CFLINT_BITS;
-    CFLINT_TYPE Bit_N = 0;
+    int64_t Bits_N = Bits2 / Cflint_Bits;
+    int64_t Bits_2 = Bits2 % Cflint_Bits;
+    Cflint_Type Bit_N = 0;
     /* 简要检查 */
-    if (Bits2 > Length *CFLINT_BITS || Bits2 == 0)
+    if (Bits2 > Length *Cflint_Bits || Bits2 == 0)
         return;
     /* 移除高位 */
     for (int64_t Index = Bits_N + 1; Index < Length; Index++)
         Operand[Index] = 0;
     /* 移出位内高位 */
     Bit_N = Operand[Bits_N];
-    Operand[Bits_N] <<= (CFLINT_BITS - Bits_2);
-    Operand[Bits_N] >>= (CFLINT_BITS - Bits_2);
+    Operand[Bits_N] <<= (Cflint_Bits - Bits_2);
+    Operand[Bits_N] >>= (Cflint_Bits - Bits_2);
 }
 /*****************************************************************************/
 /*****************************************************************************/
@@ -439,8 +439,8 @@ void Cflint_BytesToNative8(uint8_t *Bytes, uint64_t *Native, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
-/* 逆序操作数,操作数与NativeX互转(X==CFLINT_BYTE) */
-void Cflint_OperandReverse(CFLINT_TYPE *Operand, uint32_t Length)
+/* 逆序操作数,操作数与NativeX互转(X==Cflint_Byte) */
+void Cflint_OperandReverse(Cflint_Type *Operand, uint32_t Length)
 {
     for (uint32_t Index = 0; Index < Length / 2; Index++) {
         uint32_t Index1 = Index;
@@ -455,22 +455,22 @@ void Cflint_OperandReverse(CFLINT_TYPE *Operand, uint32_t Length)
 /*****************************************************************************/
 /*****************************************************************************/
 /* 操作数转化为NativeX(X==Type) */
-void Cflint_OperandToNative(CFLINT_TYPE *Operand, uint32_t Length, uint8_t Type)
+void Cflint_OperandToNative(Cflint_Type *Operand, uint32_t Length, uint8_t Type)
 {
     if (Type != 1 && Type != 2 && Type != 4 && Type != 8)
         return;
     /* 跳过无必要的转换 */
-    if (CFLINT_BYTE == Type) {
-        CFLINT_TYPE *Native = Operand;
+    if (Cflint_Byte == Type) {
+        Cflint_Type *Native = Operand;
         Cflint_OperandReverse(Operand, Length);
         return;
     }
     /* 开始转换流程 */
-    CFLINT_TYPE *Native = Operand;
-    uint32_t  Length1 = Length * CFLINT_BYTE / 1;
-    uint32_t  Length2 = Length * CFLINT_BYTE / 2;
-    uint32_t  Length4 = Length * CFLINT_BYTE / 4;
-    uint32_t  Length8 = Length * CFLINT_BYTE / 8;
+    Cflint_Type *Native = Operand;
+    uint32_t  Length1 = Length * Cflint_Byte / 1;
+    uint32_t  Length2 = Length * Cflint_Byte / 2;
+    uint32_t  Length4 = Length * Cflint_Byte / 4;
+    uint32_t  Length8 = Length * Cflint_Byte / 8;
      uint8_t *Native1 = ( uint8_t *)Native;
     uint16_t *Native2 = (uint16_t *)Native;
     uint32_t *Native4 = (uint32_t *)Native;
@@ -480,21 +480,21 @@ void Cflint_OperandToNative(CFLINT_TYPE *Operand, uint32_t Length, uint8_t Type)
     /* 将Native转化为Native1 */
     for (uint32_t Index = 0; Index < Length; Index++) {
 #if 0
-#elif CFLINT_BYTE == 1
+#elif Cflint_Byte == 1
         continue;
          uint8_t Value = Native[Index];
         Native1[Index * 1 + 0] = Value >>  0;
-#elif CFLINT_BYTE == 2
+#elif Cflint_Byte == 2
         uint16_t Value = Native[Index];
         Native1[Index * 2 + 0] = Value >>  8;
         Native1[Index * 2 + 1] = Value >>  0;
-#elif CFLINT_BYTE == 4
+#elif Cflint_Byte == 4
         uint32_t Value = Native[Index];
         Native1[Index * 4 + 0] = Value >> 24;
         Native1[Index * 4 + 1] = Value >> 16;
         Native1[Index * 4 + 2] = Value >>  8;
         Native1[Index * 4 + 3] = Value >>  0;
-#elif CFLINT_BYTE == 8
+#elif Cflint_Byte == 8
         uint64_t Value = Native[Index];
         Native1[Index * 8 + 0] = Value >> 56;
         Native1[Index * 8 + 1] = Value >> 48;
@@ -556,22 +556,22 @@ void Cflint_OperandToNative(CFLINT_TYPE *Operand, uint32_t Length, uint8_t Type)
 /*****************************************************************************/
 /*****************************************************************************/
 /* NativeX转化为操作数(X==Type) */
-void Cflint_NativeToOperand(CFLINT_TYPE *Operand, uint32_t Length, uint8_t Type)
+void Cflint_NativeToOperand(Cflint_Type *Operand, uint32_t Length, uint8_t Type)
 {
     if (Type != 1 && Type != 2 && Type != 4 && Type != 8)
         return;
     /* 跳过无必要的转换 */
-    if (CFLINT_BYTE == Type) {
-        CFLINT_TYPE *Native = Operand;
+    if (Cflint_Byte == Type) {
+        Cflint_Type *Native = Operand;
         Cflint_OperandReverse(Operand, Length);
         return;
     }
     /* 开始转换流程 */
-    CFLINT_TYPE *Native = Operand;
-    uint32_t  Length1 = Length * CFLINT_BYTE / 1;
-    uint32_t  Length2 = Length * CFLINT_BYTE / 2;
-    uint32_t  Length4 = Length * CFLINT_BYTE / 4;
-    uint32_t  Length8 = Length * CFLINT_BYTE / 8;
+    Cflint_Type *Native = Operand;
+    uint32_t  Length1 = Length * Cflint_Byte / 1;
+    uint32_t  Length2 = Length * Cflint_Byte / 2;
+    uint32_t  Length4 = Length * Cflint_Byte / 4;
+    uint32_t  Length8 = Length * Cflint_Byte / 8;
      uint8_t *Native1 = ( uint8_t *)Native;
     uint16_t *Native2 = (uint16_t *)Native;
     uint32_t *Native4 = (uint32_t *)Native;
@@ -618,24 +618,24 @@ void Cflint_NativeToOperand(CFLINT_TYPE *Operand, uint32_t Length, uint8_t Type)
     /* 将Native1转化为Native */
     for (uint32_t Index = 0; Index < Length; Index++) {
 #if 0
-#elif CFLINT_BYTE == 1
+#elif Cflint_Byte == 1
         continue;
          uint8_t Value = 0;
         Value |= Native1[Index * 1 + 0];
         Native[Index] = Value;
-#elif CFLINT_BYTE == 2
+#elif Cflint_Byte == 2
         uint16_t Value = 0;
         Value |= Native1[Index * 2 + 0]; Value <<= 8;
         Value |= Native1[Index * 2 + 1];
         Native[Index] = Value;
-#elif CFLINT_BYTE == 4
+#elif Cflint_Byte == 4
         uint32_t Value = 0;
         Value |= Native1[Index * 4 + 0]; Value <<= 8;
         Value |= Native1[Index * 4 + 1]; Value <<= 8;
         Value |= Native1[Index * 4 + 2]; Value <<= 8;
         Value |= Native1[Index * 4 + 3];
         Native[Index] = Value;
-#elif CFLINT_BYTE == 8
+#elif Cflint_Byte == 8
         uint64_t Value = 0;
         Value |= Native1[Index * 8 + 0]; Value <<= 8;
         Value |= Native1[Index * 8 + 1]; Value <<= 8;

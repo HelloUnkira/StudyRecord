@@ -7,8 +7,8 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /* 大随机数生成 */
-void Cflint_Random(CFLINT_TYPE  *Operand, uint32_t Length,
-                   CFLINT_TYPE (*Random)(void))
+void Cflint_Random(Cflint_Type  *Operand, uint32_t Length,
+                   Cflint_Type (*Random)(void))
 {
     /* 这里直接以最简单的方式生成即可,但要逆向生成 */
     /* 因为随机数的目标是每一个bit位都随机 */
@@ -20,13 +20,13 @@ void Cflint_Random(CFLINT_TYPE  *Operand, uint32_t Length,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 强素数判别检查(Miller_Rabin测试) */
-bool Cflint_IsPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7], uint32_t Length,
-                    CFLINT_TYPE (*Random)(void), bool Weak)
+bool Cflint_IsPrime(Cflint_Type *X, Cflint_Type *Temp[7], uint32_t Length,
+                    Cflint_Type (*Random)(void), bool Weak)
 {
-    CFLINT_TYPE  *A  = Temp[0];
-    CFLINT_TYPE  *R  = Temp[1];
-    CFLINT_TYPE  *E  = Temp[2];
-    CFLINT_TYPE **TT = Temp + 3;   //Temp[3~6]:Length * 2
+    Cflint_Type  *A  = Temp[0];
+    Cflint_Type  *R  = Temp[1];
+    Cflint_Type  *E  = Temp[2];
+    Cflint_Type **TT = Temp + 3;   //Temp[3~6]:Length * 2
     /* 小素数筛查 */
     if (Weak) {
         /* 数据量决定了当次小筛选的强度 */
@@ -42,12 +42,12 @@ bool Cflint_IsPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7], uint32_t Length,
             Cflint_SetValue(A, Length, 0);
             /* 设置除数 */
 #if 0
-#elif CFLINT_BYTE == 1
+#elif Cflint_Byte == 1
             A[0] = SizerTable[Index] >>  0;
             A[1] = SizerTable[Index] >>  8;
             A[2] = SizerTable[Index] >> 16;
             A[3] = SizerTable[Index] >> 24;
-#elif CFLINT_BYTE == 2
+#elif Cflint_Byte == 2
             A[0] = SizerTable[Index] >>  0;
             A[1] = SizerTable[Index] >> 16;
 #else
@@ -64,7 +64,7 @@ bool Cflint_IsPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7], uint32_t Length,
     //位长度: 1024; 轮数: 4
     //位长度: 1536; 轮数: 3
     uint32_t Wheel = 10;
-    uint32_t Bits2 = Length * CFLINT_BITS;
+    uint32_t Bits2 = Length * Cflint_Bits;
     if (Bits2 >= 1536) Wheel = 3; else
     if (Bits2 >= 1024) Wheel = 4; else
     if (Bits2 >=  512) Wheel = 7; else Wheel = 10;
@@ -120,9 +120,9 @@ bool Cflint_IsPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7], uint32_t Length,
 /*****************************************************************************/
 /*****************************************************************************/
 /* 指定查找次数,尝试找到一个强素数(Min和Max同时为空则取值范围在全域内) */
-uint32_t Cflint_RandomPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7],
-                            CFLINT_TYPE *Min, CFLINT_TYPE *Max, uint32_t Length,
-                            CFLINT_TYPE (*Random)(void), uint32_t CountMax)
+uint32_t Cflint_RandomPrime(Cflint_Type *X, Cflint_Type *Temp[7],
+                            Cflint_Type *Min, Cflint_Type *Max, uint32_t Length,
+                            Cflint_Type (*Random)(void), uint32_t CountMax)
 {
     for (uint32_t Count = 0; Count < CountMax; Count++) {
         /* 生成随机数 */
@@ -150,11 +150,11 @@ uint32_t Cflint_RandomPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7],
 /*****************************************************************************/
 /*****************************************************************************/
 /* 孪生素数判别检查 */
-bool Cflint_IsPrime1(CFLINT_TYPE *X, CFLINT_TYPE *Temp[3], uint32_t Length)
+bool Cflint_IsPrime1(Cflint_Type *X, Cflint_Type *Temp[3], uint32_t Length)
 {
     /* 固有开销 */
-    CFLINT_TYPE *Module   = Temp[1];
-    CFLINT_TYPE *Divisor  = Temp[2];
+    Cflint_Type *Module   = Temp[1];
+    Cflint_Type *Divisor  = Temp[2];
     /* 单独检查:2, 3 */
     Cflint_SetValue(Module, Length, 0);
     /* 单独检查:生成2,匹配2 */
