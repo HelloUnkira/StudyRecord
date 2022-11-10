@@ -3,6 +3,7 @@
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+# if 0
 /* Windows */
 #include <windows.h>
 #include <wincrypt.h>
@@ -20,14 +21,39 @@ bool Calculate_RNG(CFLINT_TYPE *dest, uint32_t size)
     CryptReleaseContext(prov, 0);
     return true;
 }
+#else
+bool Calculate_RNG(CFLINT_TYPE *dest, uint32_t size)
+{
+    static uint32_t RandomCount = 0;
+    
+    /* 在每~~~次后更新一次随机数种子 */
+    if ((RandomCount += 4) % rand() % 10000) {
+        RandomCount = 0;
+        srand((unsigned)time(NULL));
+    }
+    
+    for (uint32_t Index = 0; Index < size; Index++) {
+    
+        uint8_t Data[4] = {rand(),rand(),rand(),rand(),};
+        uint32_t Data4  = Data[0] << 24 |
+                          Data[1] << 16 |
+                          Data[2] <<  8 |
+                          Data[3] <<  0;
+        
+        dest[Index] = Data4;
+    }
+}
+#endif
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
 CFLINT_TYPE Test_MakeRandom(void)
 {
-    static bool FirstUse = true;
-    if (FirstUse) {
-        FirstUse = false;
+    static uint32_t RandomCount = 0;
+    
+    /* 在每~~~次后更新一次随机数种子 */
+    if ((RandomCount += 4) % rand() % 10000) {
+        RandomCount = 0;
         srand((unsigned)time(NULL));
     }
     
@@ -1122,7 +1148,7 @@ void Test_CflintFunctionSet8(void)
 void Test_CflintFunctionSet9(void)
 {
     uint32_t Index = 0;
-    #define TEST_FUNCTIONSET9_LENGTH     (24 / 8)
+    #define TEST_FUNCTIONSET9_LENGTH     (1024 / 8)
     CFLINT_TYPE Result[TEST_FUNCTIONSET9_LENGTH] = {0};
     CFLINT_TYPE Min[TEST_FUNCTIONSET9_LENGTH] = {0};
     CFLINT_TYPE Max[TEST_FUNCTIONSET9_LENGTH] = {0};
@@ -1130,6 +1156,9 @@ void Test_CflintFunctionSet9(void)
     Max[TEST_FUNCTIONSET9_LENGTH - 1] = 0xa0000000;
     /* 素数查找 */
     {
+        //!当前素数查找算法效率低下
+        //!问题1:随机数不够随机,不适用素数生成
+        //!问题2:内部基础算法速度过慢
         CFLINT_TYPE  Temp1[TEST_FUNCTIONSET9_LENGTH] = {0};
         CFLINT_TYPE  Temp2[TEST_FUNCTIONSET9_LENGTH] = {0};
         CFLINT_TYPE  Temp3[TEST_FUNCTIONSET9_LENGTH] = {0};

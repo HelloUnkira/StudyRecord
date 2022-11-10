@@ -141,7 +141,7 @@ uint32_t Cflint_RandomPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7],
                 return 0;
         }
         
-        if (Cflint_IsPrime(X, Temp, Length, Random, true))
+        if (Cflint_IsPrime(X, Temp, Length, Random, false))
             return Count;
     }
     return CountMax;

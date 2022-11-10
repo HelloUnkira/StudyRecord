@@ -22,6 +22,9 @@ bool Cflint_IsPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7], uint32_t Length,
 /*****************************************************************************/
 /* 指定查找次数,尝试找到一个强素数(Min和Max同时为空则取值范围在全域内) */
 /* 要求:Temp[4~7]的长度为Length*2 */
+//!当前素数查找算法效率低下
+//!问题1:随机数不够随机,不适用素数生成
+//!问题2:内部基础算法速度过慢
 uint32_t Cflint_RandomPrime(CFLINT_TYPE *X, CFLINT_TYPE *Temp[7],
                             CFLINT_TYPE *Min, CFLINT_TYPE *Max, uint32_t Length,
                             CFLINT_TYPE (*Random)(void), uint32_t CountMax);

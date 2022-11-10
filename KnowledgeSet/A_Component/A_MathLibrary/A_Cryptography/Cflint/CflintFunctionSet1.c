@@ -76,20 +76,19 @@ void Cflint_SetValue(CFLINT_TYPE *Operand, uint32_t Length, CFLINT_TYPE Value)
 /* 检查一个数是否为2的幂次方 */
 bool Cflint_IsExponent2(CFLINT_TYPE *Operand, uint32_t Length)
 {
-    bool NumbersOnlyOne = false;
-    for (uint32_t Index = 0; Index < Length; Index++)
-    for (uint32_t Bit2 = 0; Bit2 < CFLINT_BITS; Bit2++)
-        if ((Operand[Index] & (1 << Bit2)) != 0) {
-            if (!NumbersOnlyOne) {
-                 NumbersOnlyOne = true;
-                continue;
-            }
-            if ( NumbersOnlyOne) {
-                 NumbersOnlyOne = false;
-                break;
-            }
-        }
-    return NumbersOnlyOne;
+    uint32_t UnZeroWord = 0;
+    /* 1.每一个字都满足2的幂次方;2.只有一个非0字 */
+    for (uint32_t Index = 0; Index < Length; Index++) {
+        if ((Operand[Index] == 0))
+            continue;
+        if ((Operand[Index] & (Operand[Index] - 1)) != 0)
+            return false;
+        if (UnZeroWord++ != 0)
+            return false;
+    }
+    if (UnZeroWord == 1)
+        return true;
+    return false;
 }
 /*****************************************************************************/
 /*****************************************************************************/
