@@ -101,13 +101,10 @@ static inline bool EBitR_U64(uint64_t *Addr, uintptr_t Pos) {return EBitR(Addr, 
 /*************************************************************************************************/
 static inline void ToLe_U8( void *Addr)
 {
-#ifndef ARCH_IS_LE
-    ;
-#endif
 }
 static inline void ToLe_U16(void *Addr)
 {
-#ifndef ARCH_IS_LE
+#ifndef ARCH_IS_BE
     uint16_t Data_16 = MemR_U16(Addr);
     MemW_U8((void *)((uintptr_t)Addr + 0), (Data_16 >> 0) && 0xFF);
     MemW_U8((void *)((uintptr_t)Addr + 1), (Data_16 >> 8) && 0xFF);
@@ -117,7 +114,7 @@ static inline void ToLe_U16(void *Addr)
 }
 static inline void ToLe_U32(void *Addr)
 {
-#ifndef ARCH_IS_LE
+#ifndef ARCH_IS_BE
     uint32_t Data_32 = MemR_U32(Addr);
     MemW_U16((void *)((uintptr_t)Addr + 0), (Data_32 >>  0) && 0xFFFF);
     MemW_U16((void *)((uintptr_t)Addr + 2), (Data_32 >> 16) && 0xFFFF);
@@ -127,7 +124,7 @@ static inline void ToLe_U32(void *Addr)
 }
 static inline void ToLe_U64(void *Addr)
 {
-#ifndef ARCH_IS_LE
+#ifndef ARCH_IS_BE
     uint64_t Data_64 = MemR_U64(Addr);
     MemW_U32((void *)((uintptr_t)Addr + 0), (Data_64 >>  0) && 0xFFFFFFFF);
     MemW_U32((void *)((uintptr_t)Addr + 4), (Data_64 >> 32) && 0xFFFFFFFF);
@@ -140,13 +137,10 @@ static inline void ToLe_U64(void *Addr)
 /*************************************************************************************************/
 static inline void ToBe_U8( void *Addr)
 {
-#ifndef ARCH_IS_BE
-    ;
-#endif
 }
 static inline void ToBe_U16(void *Addr)
 {
-#ifndef ARCH_IS_BE
+#ifndef ARCH_IS_LE
     uint16_t Data_16 = MemR_U16(Addr);
     MemW_U8((void *)((uintptr_t)Addr + 1), (Data_16 >> 0) && 0xFF);
     MemW_U8((void *)((uintptr_t)Addr + 0), (Data_16 >> 8) && 0xFF);
@@ -156,7 +150,7 @@ static inline void ToBe_U16(void *Addr)
 }
 static inline void ToBe_U32(void *Addr)
 {
-#ifndef ARCH_IS_BE
+#ifndef ARCH_IS_LE
     uint32_t Data_32 = MemR_U32(Addr);
     MemW_U16((void *)((uintptr_t)Addr + 2), (Data_32 >>  0) && 0xFFFF);
     MemW_U16((void *)((uintptr_t)Addr + 0), (Data_32 >> 16) && 0xFFFF);
@@ -166,7 +160,7 @@ static inline void ToBe_U32(void *Addr)
 }
 static inline void ToBe_U64(void *Addr)
 {
-#ifndef ARCH_IS_BE
+#ifndef ARCH_IS_LE
     uint64_t Data_64 = MemR_U64(Addr);
     MemW_U32((void *)((uintptr_t)Addr + 4), (Data_64 >>  0) && 0xFFFFFFFF);
     MemW_U32((void *)((uintptr_t)Addr + 0), (Data_64 >> 32) && 0xFFFFFFFF);
@@ -177,15 +171,15 @@ static inline void ToBe_U64(void *Addr)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline bool IsSupper(char C) {return ('A' <= C && C <= 'Z');}
-static inline bool IsLower(char C)  {return ('a' <= C && C <= 'z');}
-static inline bool IsDigit(char C)  {return ('0' <= C && C <= '9');}
-static inline bool IsAlpha(char C)  {return ('A' <= C && C <= 'Z') || ('a' <= C && C <= 'z');}
-static inline bool IsAlNum(char C)  {return ('A' <= C && C <= 'Z') || ('a' <= C && C <= 'z') ||
-                                            ('0' <= C && C <= '9');}
-static inline bool IsHexaD(char C)  {return ('A' <= C && C <= 'F') || ('a' <= C && C <= 'f') ||
-                                            ('0' <= C && C <= '9');}
-static inline bool IsBlank(char C)  {return (' ' == C || '\t' == C || '\n' == C);}
+static inline bool IsUpper(char C) {return ('A' <= C && C <= 'Z');}
+static inline bool IsLower(char C) {return ('a' <= C && C <= 'z');}
+static inline bool IsDigit(char C) {return ('0' <= C && C <= '9');}
+static inline bool IsAlpha(char C) {return ('A' <= C && C <= 'Z') || ('a' <= C && C <= 'z');}
+static inline bool IsAlNum(char C) {return ('A' <= C && C <= 'Z') || ('a' <= C && C <= 'z') ||
+                                           ('0' <= C && C <= '9');}
+static inline bool IsADHex(char C) {return ('A' <= C && C <= 'F') || ('a' <= C && C <= 'f') ||
+                                           ('0' <= C && C <= '9');}
+static inline bool IsBlank(char C) {return (' ' == C || '\t' == C || '\n' == C);}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -202,38 +196,46 @@ static inline bool      AlignC(void *Addr) /* Check  */ {return AlignO(Addr) == 
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define BArrLen(BArr)    (sizeof(BArr) / sizeof(BArr[0]))
+#define ArrLen(Arr)     (sizeof(Arr) / sizeof(Arr[0]))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define BArrCpy(Type, Len, BArr1, BArr2)    \
-    do {typedef struct {Type Arr[Len];} Arr; *(Arr *)(BArr1) = *(Arr *)(BArr2);} while (0)
+#define ArrCpy(Arr1, Arr2, Len)     \
+    for (uint32_t Idx = 0; Idx < Len; Arr1[Idx] = Arr2[Idx], Idx++)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/* (封装后的一等公民,有待完善) */
-#define ArrDef(ArrType, Type, Len)  typedef struct {Type Arr[Len];} ArrType;
-#define ArrInit(...)                {.Arr[] = {__VA_ARGS__},};
-#define ArrCvrt(ArrName)            (ArrName.Arr)
-#define ArrLen(ArrName)             (sizeof(ArrName.Arr) / sizeof(ArrName.Arr[0]))
-/* Example:
- * //生成一个(类型为int,长度为10)数组模板:
- * ArrDef(ArrayInt10, int, 10);
- * ArrayInt10 Array1 = {0};
- * ArrayInt10 Array2 = ArrInit(1, 2, 3, 4, 5);
- * //将Array2拷贝到Array1:
- * //Array1 = Array2;
- * //支持传参及数据返回:
- * ArrayInt10 Array_XOR(ArrayInt10 Arg1, ArrayInt10 Arg2)
- * {
- *      ArrayInt10 Result = {0};
- *      for (int I = 0; I < ArrLen(Result); I++)
- *          //操作里面所有数据, 寻址退化:
- *          ArrCvrt(Result)[i] = ArrCvrt(Arg1)[i] ^ ArrCvrt(Arg2)[i];
- *      return Result;
- * }
- * ArrayInt10 Array0 = Array_XOR(Array1, Array2);
- */
+#define ArrRev(Type, Arr, Len)                              \
+    do {                                                    \
+        for (uint32_t Idx0 = 0; Idx0 < Len / 2; Idx0++) {   \
+             uint32_t Idx1 = Len - 1 - Idx0;                \
+             Type Tmp = Arr[Idx0];                          \
+            Arr[Idx0] = Arr[Idx1];                          \
+            Arr[Idx1] = Tmp;                                \
+        }                                                   \
+    } while (0)                                             \
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* Array Left Shift(Rest Is 0) */
+#define ArrLSft(Arr, Len, Cnt)                              \
+    do {                                                    \
+        for (int32_t Idx = 0; Idx + Cnt < Len; Idx++)       \
+            Arr[Idx] = Arr[Idx + Cnt];                      \
+        for (int32_t Idx = 0; Idx < Cnt; Idx++)             \
+            Arr[Idx] = 0;                                   \
+    } while (0)                                             \
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* Array Right Shift(Rest Is 0) */
+#define ArrRSft(Arr, Len, Cnt)                             \
+    do {                                                    \
+        for (int32_t Idx = Len - 1; Idx - Cnt >= 0; Idx--)  \
+            Arr[Idx] = Arr[Idx - Cnt];                      \
+        for (int32_t Idx = Cnt - 1; Idx >= 0; Idx--)        \
+            Arr[Idx] = 0;                                   \
+    } while (0)                                             \
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
