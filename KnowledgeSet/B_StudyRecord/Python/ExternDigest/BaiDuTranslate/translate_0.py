@@ -18,12 +18,12 @@ if __name__ == '__main__':
     print('\n\n-----step2-----\n\n')
     with open('translate.json', mode='r', encoding='utf-8') as json_file:
         json_data = json.loads(json_file.read())
-        print('User-Agnet: ', json_data['User-Agnet'])
+        print('User-Agent: ', json_data['User-Agent'])
         print('Cookie:     ', json_data['Cookie'])
         print('Acs-Token:  ', json_data['Acs-Token'])
         print('token:      ', json_data['token'])
     headers = {
-        'User-Agent': json_data['User-Agnet'],
+        'User-Agent': json_data['User-Agent'],
         'Cookie': json_data['Cookie'],
         'Referer': 'https://fanyi.baidu.com',
         'Acs-Token': json_data['Acs-Token'],
