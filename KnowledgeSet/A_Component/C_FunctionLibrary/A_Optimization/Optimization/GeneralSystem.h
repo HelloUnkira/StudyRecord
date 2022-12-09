@@ -6,34 +6,34 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define MemR(Addr, Type)        ((*(volatile Type *)(Addr)))
-#define MemW(Addr, Data, Type)  ((*(volatile Type *)(Addr)) = (Data))
+#define MemRd(Addr, Type)       ((*(volatile Type *)(Addr)))            /* Memory Read */
+#define MemWt(Addr, Data, Type) ((*(volatile Type *)(Addr)) = (Data))   /* Memory Write */
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline    float MemR_F32(void *Addr) {return MemR(Addr, float   );}
-static inline   double MemR_F64(void *Addr) {return MemR(Addr, double  );}
-static inline   int8_t MemR_I8(void  *Addr) {return MemR(Addr, int8_t  );}
-static inline  int16_t MemR_I16(void *Addr) {return MemR(Addr, int16_t );}
-static inline  int32_t MemR_I32(void *Addr) {return MemR(Addr, int32_t );}
-static inline  int64_t MemR_I64(void *Addr) {return MemR(Addr, int64_t );}
-static inline  uint8_t MemR_U8(void  *Addr) {return MemR(Addr, uint8_t );}
-static inline uint16_t MemR_U16(void *Addr) {return MemR(Addr, uint16_t);}
-static inline uint32_t MemR_U32(void *Addr) {return MemR(Addr, uint32_t);}
-static inline uint64_t MemR_U64(void *Addr) {return MemR(Addr, uint64_t);}
+static inline    float MemRd_F32(void *Addr) {return MemRd(Addr,    float);}
+static inline   double MemRd_F64(void *Addr) {return MemRd(Addr,   double);}
+static inline   int8_t MemRd_I8(void  *Addr) {return MemRd(Addr,   int8_t);}
+static inline  int16_t MemRd_I16(void *Addr) {return MemRd(Addr,  int16_t);}
+static inline  int32_t MemRd_I32(void *Addr) {return MemRd(Addr,  int32_t);}
+static inline  int64_t MemRd_I64(void *Addr) {return MemRd(Addr,  int64_t);}
+static inline  uint8_t MemRd_U8(void  *Addr) {return MemRd(Addr,  uint8_t);}
+static inline uint16_t MemRd_U16(void *Addr) {return MemRd(Addr, uint16_t);}
+static inline uint32_t MemRd_U32(void *Addr) {return MemRd(Addr, uint32_t);}
+static inline uint64_t MemRd_U64(void *Addr) {return MemRd(Addr, uint64_t);}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline void MemW_F32(void *Addr,    float Data) {MemW(Addr, Data,    float);}
-static inline void MemW_F64(void *Addr,   double Data) {MemW(Addr, Data,   double);}
-static inline void MemW_I8( void *Addr,   int8_t Data) {MemW(Addr, Data,   int8_t);}
-static inline void MemW_I16(void *Addr,  int16_t Data) {MemW(Addr, Data,  int16_t);}
-static inline void MemW_I32(void *Addr,  int32_t Data) {MemW(Addr, Data,  int32_t);}
-static inline void MemW_I64(void *Addr,  int64_t Data) {MemW(Addr, Data,  int64_t);}
-static inline void MemW_U8( void *Addr,  uint8_t Data) {MemW(Addr, Data,  uint8_t);}
-static inline void MemW_U16(void *Addr, uint16_t Data) {MemW(Addr, Data, uint16_t);}
-static inline void MemW_U32(void *Addr, uint32_t Data) {MemW(Addr, Data, uint32_t);}
-static inline void MemW_U64(void *Addr, uint64_t Data) {MemW(Addr, Data, uint64_t);}
+static inline void MemWt_F32(void *Addr,    float Data) {MemWt(Addr, Data,    float);}
+static inline void MemWt_F64(void *Addr,   double Data) {MemWt(Addr, Data,   double);}
+static inline void MemWt_I8( void *Addr,   int8_t Data) {MemWt(Addr, Data,   int8_t);}
+static inline void MemWt_I16(void *Addr,  int16_t Data) {MemWt(Addr, Data,  int16_t);}
+static inline void MemWt_I32(void *Addr,  int32_t Data) {MemWt(Addr, Data,  int32_t);}
+static inline void MemWt_I64(void *Addr,  int64_t Data) {MemWt(Addr, Data,  int64_t);}
+static inline void MemWt_U8( void *Addr,  uint8_t Data) {MemWt(Addr, Data,  uint8_t);}
+static inline void MemWt_U16(void *Addr, uint16_t Data) {MemWt(Addr, Data, uint16_t);}
+static inline void MemWt_U32(void *Addr, uint32_t Data) {MemWt(Addr, Data, uint32_t);}
+static inline void MemWt_U64(void *Addr, uint64_t Data) {MemWt(Addr, Data, uint64_t);}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -45,52 +45,52 @@ static inline void MemRev_B2(void *Addr)
     MemRev_B1((void *)((uint8_t *)Addr + 0));
     MemRev_B1((void *)((uint8_t *)Addr + 1));
     
-    MemW_U16(Addr, ((uint16_t)MemR_U8((void *)((uint8_t *)Addr + 0)) << 8) |
-                   ((uint16_t)MemR_U8((void *)((uint8_t *)Addr + 1)) >> 8));
+    MemWt_U16(Addr, ((uint16_t)MemRd_U8((void *)((uint8_t *)Addr + 0)) << 8) |
+                    ((uint16_t)MemRd_U8((void *)((uint8_t *)Addr + 1)) >> 8));
 }
 static inline void MemRev_B4(void *Addr)
 {
     MemRev_B2((void *)((uint16_t *)Addr + 0));
     MemRev_B2((void *)((uint16_t *)Addr + 1));
     
-    MemW_U32(Addr, ((uint32_t)MemR_U16((void *)((uint16_t *)Addr + 0)) << 16) |
-                   ((uint32_t)MemR_U16((void *)((uint16_t *)Addr + 1)) >> 16));
+    MemWt_U32(Addr, ((uint32_t)MemRd_U16((void *)((uint16_t *)Addr + 0)) << 16) |
+                    ((uint32_t)MemRd_U16((void *)((uint16_t *)Addr + 1)) >> 16));
 }
 static inline void MemRev_B8(void *Addr)
 {
     MemRev_B4((void *)((uint32_t *)Addr + 0));
     MemRev_B4((void *)((uint32_t *)Addr + 1));
     
-    MemW_U64(Addr, ((uint64_t)MemR_U32((void *)((uint32_t *)Addr + 0)) << 32) |
-                   ((uint64_t)MemR_U32((void *)((uint32_t *)Addr + 1)) >> 32));
+    MemWt_U64(Addr, ((uint64_t)MemRd_U32((void *)((uint32_t *)Addr + 0)) << 32) |
+                    ((uint64_t)MemRd_U32((void *)((uint32_t *)Addr + 1)) >> 32));
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define BitG(Addr, Pos, Type) (MemR_U##Type(Addr) & ((1 << (Pos)) % Type)) != 0
-#define BitS(Addr, Pos, Type) (MemW_U##Type(Addr, MemR_U##Type(Addr) | ( (1 << (Pos % Type)))))
-#define BitR(Addr, Pos, Type) (MemW_U##Type(Addr, MemR_U##Type(Addr) & (~(1 << (Pos % Type)))))
+#define BitGet(Addr, Pos, Type) (MemRd_U##Type(Addr) & ((1 << (Pos)) % Type)) != 0
+#define BitSet(Addr, Pos, Type) (MemWt_U##Type(Addr, MemRd_U##Type(Addr) | ( (1 << (Pos % Type)))))
+#define BitRst(Addr, Pos, Type) (MemWt_U##Type(Addr, MemRd_U##Type(Addr) & (~(1 << (Pos % Type)))))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#define EBitG(Addr, Pos, Type) (BitG(&((Addr)[(Pos) / Type]), (Pos) % Type), Type)
-#define EBitS(Addr, Pos, Type) (BitS(&((Addr)[(Pos) / Type]), (Pos) % Type), Type)
-#define EBitR(Addr, Pos, Type) (BitR(&((Addr)[(Pos) / Type]), (Pos) % Type), Type)
+#define EBitGet(Addr, Pos, Type) (BitGet(&((Addr)[(Pos) / Type]), (Pos) % Type), Type)
+#define EBitSet(Addr, Pos, Type) (BitSet(&((Addr)[(Pos) / Type]), (Pos) % Type), Type)
+#define EBitRst(Addr, Pos, Type) (BitRst(&((Addr)[(Pos) / Type]), (Pos) % Type), Type)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-static inline bool EBitG_U8(uint8_t   *Addr, uintptr_t Pos) {return EBitG(Addr, Pos,  8);}
-static inline bool EBitG_U16(uint16_t *Addr, uintptr_t Pos) {return EBitG(Addr, Pos, 16);}
-static inline bool EBitG_U32(uint32_t *Addr, uintptr_t Pos) {return EBitG(Addr, Pos, 32);}
-static inline bool EBitG_U64(uint64_t *Addr, uintptr_t Pos) {return EBitG(Addr, Pos, 64);}
-static inline bool EBitS_U8(uint8_t   *Addr, uintptr_t Pos) {return EBitS(Addr, Pos,  8);}
-static inline bool EBitS_U16(uint16_t *Addr, uintptr_t Pos) {return EBitS(Addr, Pos, 16);}
-static inline bool EBitS_U32(uint32_t *Addr, uintptr_t Pos) {return EBitS(Addr, Pos, 32);}
-static inline bool EBitS_U64(uint64_t *Addr, uintptr_t Pos) {return EBitS(Addr, Pos, 64);}
-static inline bool EBitR_U8(uint8_t   *Addr, uintptr_t Pos) {return EBitR(Addr, Pos,  8);}
-static inline bool EBitR_U16(uint16_t *Addr, uintptr_t Pos) {return EBitR(Addr, Pos, 16);}
-static inline bool EBitR_U32(uint32_t *Addr, uintptr_t Pos) {return EBitR(Addr, Pos, 32);}
-static inline bool EBitR_U64(uint64_t *Addr, uintptr_t Pos) {return EBitR(Addr, Pos, 64);}
+static inline bool EBitGet_U8(uint8_t   *Addr, uintptr_t Pos) {return EBitGet(Addr, Pos,  8);}
+static inline bool EBitGet_U16(uint16_t *Addr, uintptr_t Pos) {return EBitGet(Addr, Pos, 16);}
+static inline bool EBitGet_U32(uint32_t *Addr, uintptr_t Pos) {return EBitGet(Addr, Pos, 32);}
+static inline bool EBitGet_U64(uint64_t *Addr, uintptr_t Pos) {return EBitGet(Addr, Pos, 64);}
+static inline bool EBitSet_U8(uint8_t   *Addr, uintptr_t Pos) {return EBitSet(Addr, Pos,  8);}
+static inline bool EBitSet_U16(uint16_t *Addr, uintptr_t Pos) {return EBitSet(Addr, Pos, 16);}
+static inline bool EBitSet_U32(uint32_t *Addr, uintptr_t Pos) {return EBitSet(Addr, Pos, 32);}
+static inline bool EBitSet_U64(uint64_t *Addr, uintptr_t Pos) {return EBitSet(Addr, Pos, 64);}
+static inline bool EBitRst_U8(uint8_t   *Addr, uintptr_t Pos) {return EBitRst(Addr, Pos,  8);}
+static inline bool EBitRst_U16(uint16_t *Addr, uintptr_t Pos) {return EBitRst(Addr, Pos, 16);}
+static inline bool EBitRst_U32(uint32_t *Addr, uintptr_t Pos) {return EBitRst(Addr, Pos, 32);}
+static inline bool EBitRst_U64(uint64_t *Addr, uintptr_t Pos) {return EBitRst(Addr, Pos, 64);}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -105,9 +105,9 @@ static inline void ToLe_U8( void *Addr)
 static inline void ToLe_U16(void *Addr)
 {
 #ifndef ARCH_IS_BE
-    uint16_t Data_16 = MemR_U16(Addr);
-    MemW_U8((void *)((uintptr_t)Addr + 0), (Data_16 >> 0) && 0xFF);
-    MemW_U8((void *)((uintptr_t)Addr + 1), (Data_16 >> 8) && 0xFF);
+    uint16_t Data_16 = MemRd_U16(Addr);
+    MemWt_U8((void *)((uintptr_t)Addr + 0), (Data_16 >> 0) && 0xFF);
+    MemWt_U8((void *)((uintptr_t)Addr + 1), (Data_16 >> 8) && 0xFF);
     ToLe_U8((void *)((uintptr_t)Addr + 0));
     ToLe_U8((void *)((uintptr_t)Addr + 1));
 #endif
@@ -115,9 +115,9 @@ static inline void ToLe_U16(void *Addr)
 static inline void ToLe_U32(void *Addr)
 {
 #ifndef ARCH_IS_BE
-    uint32_t Data_32 = MemR_U32(Addr);
-    MemW_U16((void *)((uintptr_t)Addr + 0), (Data_32 >>  0) && 0xFFFF);
-    MemW_U16((void *)((uintptr_t)Addr + 2), (Data_32 >> 16) && 0xFFFF);
+    uint32_t Data_32 = MemRd_U32(Addr);
+    MemWt_U16((void *)((uintptr_t)Addr + 0), (Data_32 >>  0) && 0xFFFF);
+    MemWt_U16((void *)((uintptr_t)Addr + 2), (Data_32 >> 16) && 0xFFFF);
     ToLe_U16((void *)((uintptr_t)Addr + 0));
     ToLe_U16((void *)((uintptr_t)Addr + 2));
 #endif
@@ -125,9 +125,9 @@ static inline void ToLe_U32(void *Addr)
 static inline void ToLe_U64(void *Addr)
 {
 #ifndef ARCH_IS_BE
-    uint64_t Data_64 = MemR_U64(Addr);
-    MemW_U32((void *)((uintptr_t)Addr + 0), (Data_64 >>  0) && 0xFFFFFFFF);
-    MemW_U32((void *)((uintptr_t)Addr + 4), (Data_64 >> 32) && 0xFFFFFFFF);
+    uint64_t Data_64 = MemRd_U64(Addr);
+    MemWt_U32((void *)((uintptr_t)Addr + 0), (Data_64 >>  0) && 0xFFFFFFFF);
+    MemWt_U32((void *)((uintptr_t)Addr + 4), (Data_64 >> 32) && 0xFFFFFFFF);
     ToLe_U32((void *)((uintptr_t)Addr + 0));
     ToLe_U32((void *)((uintptr_t)Addr + 4));
 #endif
@@ -141,9 +141,9 @@ static inline void ToBe_U8( void *Addr)
 static inline void ToBe_U16(void *Addr)
 {
 #ifndef ARCH_IS_LE
-    uint16_t Data_16 = MemR_U16(Addr);
-    MemW_U8((void *)((uintptr_t)Addr + 1), (Data_16 >> 0) && 0xFF);
-    MemW_U8((void *)((uintptr_t)Addr + 0), (Data_16 >> 8) && 0xFF);
+    uint16_t Data_16 = MemRd_U16(Addr);
+    MemWt_U8((void *)((uintptr_t)Addr + 1), (Data_16 >> 0) && 0xFF);
+    MemWt_U8((void *)((uintptr_t)Addr + 0), (Data_16 >> 8) && 0xFF);
     ToBe_U8((void *)((uintptr_t)Addr + 1));
     ToBe_U8((void *)((uintptr_t)Addr + 0));
 #endif
@@ -151,9 +151,9 @@ static inline void ToBe_U16(void *Addr)
 static inline void ToBe_U32(void *Addr)
 {
 #ifndef ARCH_IS_LE
-    uint32_t Data_32 = MemR_U32(Addr);
-    MemW_U16((void *)((uintptr_t)Addr + 2), (Data_32 >>  0) && 0xFFFF);
-    MemW_U16((void *)((uintptr_t)Addr + 0), (Data_32 >> 16) && 0xFFFF);
+    uint32_t Data_32 = MemRd_U32(Addr);
+    MemWt_U16((void *)((uintptr_t)Addr + 2), (Data_32 >>  0) && 0xFFFF);
+    MemWt_U16((void *)((uintptr_t)Addr + 0), (Data_32 >> 16) && 0xFFFF);
     ToBe_U16((void *)((uintptr_t)Addr + 2));
     ToBe_U16((void *)((uintptr_t)Addr + 0));
 #endif
@@ -161,9 +161,9 @@ static inline void ToBe_U32(void *Addr)
 static inline void ToBe_U64(void *Addr)
 {
 #ifndef ARCH_IS_LE
-    uint64_t Data_64 = MemR_U64(Addr);
-    MemW_U32((void *)((uintptr_t)Addr + 4), (Data_64 >>  0) && 0xFFFFFFFF);
-    MemW_U32((void *)((uintptr_t)Addr + 0), (Data_64 >> 32) && 0xFFFFFFFF);
+    uint64_t Data_64 = MemRd_U64(Addr);
+    MemWt_U32((void *)((uintptr_t)Addr + 4), (Data_64 >>  0) && 0xFFFFFFFF);
+    MemWt_U32((void *)((uintptr_t)Addr + 0), (Data_64 >> 32) && 0xFFFFFFFF);
     ToBe_U32((void *)((uintptr_t)Addr + 4));
     ToBe_U32((void *)((uintptr_t)Addr + 0));
 #endif
@@ -174,12 +174,28 @@ static inline void ToBe_U64(void *Addr)
 static inline bool IsUpper(char C) {return ('A' <= C && C <= 'Z');}
 static inline bool IsLower(char C) {return ('a' <= C && C <= 'z');}
 static inline bool IsDigit(char C) {return ('0' <= C && C <= '9');}
-static inline bool IsAlpha(char C) {return ('A' <= C && C <= 'Z') || ('a' <= C && C <= 'z');}
-static inline bool IsAlNum(char C) {return ('A' <= C && C <= 'Z') || ('a' <= C && C <= 'z') ||
-                                           ('0' <= C && C <= '9');}
-static inline bool IsADHex(char C) {return ('A' <= C && C <= 'F') || ('a' <= C && C <= 'f') ||
-                                           ('0' <= C && C <= '9');}
-static inline bool IsBlank(char C) {return (' ' == C || '\t' == C || '\n' == C);}
+static inline bool IsUpHex(char C) {return ('A' <= C && C <= 'F');}
+static inline bool IsLoHex(char C) {return ('a' <= C && C <= 'f');}
+static inline bool IsPrint(char C) {return (' ' <= C && C <= '~');}  /* Printable */
+static inline bool IsGraph(char C) {return ('!' <= C && C <= '~');}  /* Printable(Except Space) */
+static inline bool IsBlank(char C) {return (' ' == C || '\t' == C || '\v' == C);}
+static inline bool IsSpace(char C) {return (' ' == C || C - '\t' <= 4);} /* Spaceable */
+static inline bool IsAlpha(char C) {return (IsUpper(C) || IsLower(C));}
+static inline bool IsAlNum(char C) {return (IsUpper(C) || IsLower(C) || IsDigit(C));}
+static inline bool IsADHex(char C) {return (IsUpHex(C) || IsLoHex(C) || IsDigit(C));}
+static inline bool IsPunct(char C) {return (IsPrint(C) && !IsAlNum(C) && ! IsSpace(C));} /* Punctuation */
+static inline char ToUpper(char C) {return (IsLower(C) ? C - 'a' + 'A' : C);}
+static inline char ToLower(char C) {return (IsUpper(C) ? C - 'A' + 'a' : C);}
+static inline bool IsAscii(char C) {return ((C & 0x80) == 0);}
+static inline char ToAscii(char C) {return ((C & 0x7F));}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline uint8_t AlNumToHex(char C) {return IsDigit(C) ? C - '0' :
+                                                 IsUpper(C) ? C - 'A' + 10 :
+                                                 IsLower(C) ? C - 'a' + 10 : 0xFF;}
+static inline char HexToAlNum(uint8_t C) {return IsADHex(C) ? C < 10 ? C + '0' :
+                                                              C - 10 + 'A' : 0xFF;}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -196,6 +212,16 @@ static inline bool      AlignC(void *Addr) /* Check  */ {return AlignO(Addr) == 
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+#define CheckOne(Cond, Expr)  if (Cond) do {Expr;} while (0)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* Gets Its(Structure) Owner Address From The Member Address(Compile Resolution) */
+#define GetOwner(Type, MemName, MemAddr)    \
+    ((Type *)((uint8_t *)(MemAddr) - ((uint64_t) &((Type *)0)->MemName)))
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 #define ArrLen(Arr)     (sizeof(Arr) / sizeof(Arr[0]))
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -205,6 +231,7 @@ static inline bool      AlignC(void *Addr) /* Check  */ {return AlignO(Addr) == 
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+/* Array Reverse */
 #define ArrRev(Type, Arr, Len)                              \
     do {                                                    \
         for (uint32_t Idx0 = 0; Idx0 < Len / 2; Idx0++) {   \
@@ -229,7 +256,7 @@ static inline bool      AlignC(void *Addr) /* Check  */ {return AlignO(Addr) == 
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* Array Right Shift(Rest Is 0) */
-#define ArrRSft(Arr, Len, Cnt)                             \
+#define ArrRSft(Arr, Len, Cnt)                              \
     do {                                                    \
         for (int32_t Idx = Len - 1; Idx - Cnt >= 0; Idx--)  \
             Arr[Idx] = Arr[Idx - Cnt];                      \
