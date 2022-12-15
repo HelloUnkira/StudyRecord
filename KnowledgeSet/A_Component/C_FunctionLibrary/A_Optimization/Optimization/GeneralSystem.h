@@ -339,6 +339,43 @@ static inline uint64_t CheckSum_U64(uint64_t *Buffer, uint32_t Length)  CheckSum
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+#define StrToNum(Str, Type, NoInt, CheckFlag, BaseFlag)         \
+{                                                               \
+    bool Flag = false;                                          \
+    Type Num1 = 0, Num2 = 0; uint8_t Base = 10;                 \
+    while (IsBlank(*Str)) Str++;                                \
+    CheckFlag && *Str == '-' && (Str++, Flag = ~Flag);          \
+    CheckFlag && *Str == '+' && (Str++);                        \
+    BaseFlag && *Str == '0' && (Str++, Base = 8);               \
+    BaseFlag && *Str == 'x' && (Str++, Base = 16);              \
+    BaseFlag && *Str == 'X' && (Str++, Base = 16);              \
+    while (IsDigit(*Str)) Num1 = Num1 * Base - (*Str++ - '0');  \
+    if (NoInt)                                                  \
+    if (*Str == '.') {Str++;}                                   \
+    if (NoInt)                                                  \
+    while (IsDigit(*Str)) Num2 = Num2 / Base - (*Str++ - '0');  \
+    return Flag ? Num1 + Num2 : - Num1 - Num2;                  \
+}                                                               \
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline    float StrToF32(char *Str) StrToNum(Str,    float,  true, true,  false)
+static inline   double StrToF64(char *Str) StrToNum(Str,   double,  true, true,  false)
+static inline   int8_t StrToI8( char *Str) StrToNum(Str,   int8_t, false, true,  false)
+static inline  int16_t StrToI16(char *Str) StrToNum(Str,  int16_t, false, true,  false)
+static inline  int32_t StrToI32(char *Str) StrToNum(Str,  int32_t, false, true,  false)
+static inline  int64_t StrToI64(char *Str) StrToNum(Str,  int64_t, false, true,  false)
+static inline  uint8_t StrToU8( char *Str) StrToNum(Str,  uint8_t, false, false, false)
+static inline uint16_t StrToU16(char *Str) StrToNum(Str, uint16_t, false, false, false)
+static inline uint32_t StrToU32(char *Str) StrToNum(Str, uint32_t, false, false, false)
+static inline uint64_t StrToU64(char *Str) StrToNum(Str, uint64_t, false, false, false)
+static inline  uint8_t StrToH8( char *Str) StrToNum(Str,  uint8_t, false, true,  true)
+static inline uint16_t StrToH16(char *Str) StrToNum(Str, uint16_t, false, true,  true)
+static inline uint32_t StrToH32(char *Str) StrToNum(Str, uint32_t, false, true,  true)
+static inline uint64_t StrToH64(char *Str) StrToNum(Str, uint64_t, false, true,  true)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 #define KeepSupplement(...)
 /*************************************************************************************************/
 /*************************************************************************************************/
