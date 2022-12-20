@@ -1,6 +1,8 @@
-#ifndef MEMORYMANAGEUSERCONFIGURE_H
-#define MEMORYMANAGEUSERCONFIGURE_H
-//C std lib
+#ifndef MEMORY_MANAGE_USER_CONFIGURE_H
+#define MEMORY_MANAGE_USER_CONFIGURE_H
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>

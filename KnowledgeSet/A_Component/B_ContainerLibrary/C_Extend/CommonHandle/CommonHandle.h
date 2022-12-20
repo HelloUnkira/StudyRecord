@@ -1,6 +1,8 @@
-#ifndef COMMONHANDLE_H
-#define COMMONHANDLE_H
-//C std lib
+#ifndef COMMON_HANDLE_H
+#define COMMON_HANDLE_H
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>

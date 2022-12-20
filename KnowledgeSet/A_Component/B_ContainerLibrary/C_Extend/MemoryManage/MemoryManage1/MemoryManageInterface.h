@@ -1,6 +1,8 @@
-#ifndef MEMORYMANAGEINTERFACE_H
-#define MEMORYMANAGEINTERFACE_H
-//C std lib
+#ifndef MEMORY_MANAGE_INTERFACE_H
+#define MEMORY_MANAGE_INTERFACE_H
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>

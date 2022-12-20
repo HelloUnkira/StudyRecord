@@ -1,6 +1,8 @@
 #ifndef GENERAL_SYSTEM_H
 #define GENERAL_SYSTEM_H
-// C std lib
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
 /*************************************************************************************************/
@@ -373,6 +375,61 @@ static inline  uint8_t StrToH8( char *Str) StrToNum(Str,  uint8_t, false, true, 
 static inline uint16_t StrToH16(char *Str) StrToNum(Str, uint16_t, false, true,  true)
 static inline uint32_t StrToH32(char *Str) StrToNum(Str, uint32_t, false, true,  true)
 static inline uint64_t StrToH64(char *Str) StrToNum(Str, uint64_t, false, true,  true)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#define CountLeadZero(Type, Data)                               \
+{                                                               \
+    for (uint8_t Index = 0; Index < sizeof(Type) * 8; Index++)  \
+        if ((1 << (sizeof(Type) * 8 - 1 - Index)) & Data)       \
+            return sizeof(Type) * 8 - 1 - Index;                \
+            return sizeof(Type) * 8;                            \
+}                                                               \
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline  uint8_t CLZ_B1( uint8_t Data) CountLeadZero( uint8_t, Data)
+static inline uint16_t CLZ_B2(uint16_t Data) CountLeadZero(uint16_t, Data)
+static inline uint32_t CLZ_B4(uint32_t Data) CountLeadZero(uint32_t, Data)
+static inline uint64_t CLZ_B8(uint64_t Data) CountLeadZero(uint64_t, Data)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#define CountTailZero(Type, Data)                               \
+{                                                               \
+    for (uint8_t Index = 0; Index < sizeof(Type) * 8; Index++)  \
+        if ((1 << (Index)) & Data)                              \
+            return Index;                                       \
+            return sizeof(Type) * 8;                            \
+}                                                               \
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline  uint8_t CTZ_B1( uint8_t Data) CountTailZero( uint8_t, Data)
+static inline uint16_t CTZ_B2(uint16_t Data) CountTailZero(uint16_t, Data)
+static inline uint32_t CTZ_B4(uint32_t Data) CountTailZero(uint32_t, Data)
+static inline uint64_t CTZ_B8(uint64_t Data) CountTailZero(uint64_t, Data)
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+#define CountZero(Type, Data)                                   \
+{                                                               \
+    uint8_t Count = 0;                                          \
+    for (uint8_t Index = 0; Index < sizeof(Type) * 8; Index++)  \
+        if (((1 << (Index)) & Data) == 0) Count++;              \
+    return Count;                                               \
+}                                                               \
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+static inline uint8_t CZ_B1( uint8_t Data) CountZero( uint8_t, Data)
+static inline uint8_t CZ_B2(uint16_t Data) CountZero(uint16_t, Data)
+static inline uint8_t CZ_B4(uint32_t Data) CountZero(uint32_t, Data)
+static inline uint8_t CZ_B8(uint64_t Data) CountZero(uint64_t, Data)
+static inline uint8_t CO_B1( uint8_t Data) {return sizeof( uint8_t) - CZ_B1(Data);}
+static inline uint8_t CO_B2(uint16_t Data) {return sizeof(uint16_t) - CZ_B2(Data);}
+static inline uint8_t CO_B4(uint32_t Data) {return sizeof(uint32_t) - CZ_B4(Data);}
+static inline uint8_t CO_B8(uint64_t Data) {return sizeof(uint64_t) - CZ_B8(Data);}
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
