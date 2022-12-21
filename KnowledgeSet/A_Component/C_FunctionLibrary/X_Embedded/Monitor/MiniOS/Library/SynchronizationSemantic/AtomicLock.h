@@ -1,6 +1,8 @@
 #ifndef ATOMIC_LOCK_H
 #define ATOMIC_LOCK_H
-//C std lib
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -17,7 +19,7 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 比较与配置(设置,重置)原子量 */
-static inline bool Atomic_CC(AtomicValue *Atomic, bool OldValue, bool NewValue)
+static inline bool Atomic_CC(AtomicValue *Atomic, AtomicValue OldValue, AtomicValue NewValue)
 {
     bool Result = false;
     CriticalZoneEnter(AtomicLock);
