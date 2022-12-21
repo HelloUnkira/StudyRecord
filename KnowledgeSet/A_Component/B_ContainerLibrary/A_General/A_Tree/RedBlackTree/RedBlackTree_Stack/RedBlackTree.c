@@ -19,14 +19,14 @@
 /* 红黑树核心(红黑树容器) */
 typedef struct RedBlackTree_Node {
     struct RedBlackTree_Node *LeftChildAndColor;    /* 节点左孩子和颜色 */
-	struct RedBlackTree_Node *RightChild;           /* 节点右孩子 */
+    struct RedBlackTree_Node *RightChild;           /* 节点右孩子 */
 } RBT_Node;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 红黑树核心(红黑树集合) */
 typedef struct RedBlackTree_Tree {
-	RBT_Node *Root;
+    RBT_Node *Root;
     uint8_t (*KeyCompare)(RBT_Node *ThisNode, RBT_Node *ThatNode);
     uint8_t (*KeyConfirm)(RBT_Node *ThisNode, RBT_Node *ThatNode);
     /* 红黑树维护与追踪时需要使用到的堆栈 */
