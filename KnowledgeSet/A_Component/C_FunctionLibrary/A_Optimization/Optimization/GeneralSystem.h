@@ -220,7 +220,7 @@ static inline bool      AlignC(void *Addr) /* Check  */ {return AlignO(Addr) == 
 /*************************************************************************************************/
 /* Gets Its(Structure) Owner Address From The Member Address(Compile Resolution) */
 #define GetOwner(Type, MemName, MemAddr)    \
-    ((Type *)((uint8_t *)(MemAddr) - ((uint64_t) &((Type *)0)->MemName)))
+    ((Type *)((uint8_t *)(MemAddr) - ((uintptr_t) &((Type *)0)->MemName)))
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
