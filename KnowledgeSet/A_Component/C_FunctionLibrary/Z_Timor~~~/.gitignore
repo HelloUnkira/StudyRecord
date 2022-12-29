@@ -1,0 +1,4 @@
+Library/*.o
+Source/*.o
+Project/*.win
+Project/*.exe
