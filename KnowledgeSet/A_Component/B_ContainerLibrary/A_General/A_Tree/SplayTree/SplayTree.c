@@ -33,7 +33,7 @@ typedef struct SplayTree_Node {
 /*************************************************************************************************/
 /* 伸展树集合(树根) */
 typedef struct SplayTree_Tree {
-    ST_Node *Root;
+    ST_Node  *Root;
     uint8_t (*KeyCompare)(ST_Node *ThisNode, ST_Node *ThatNode);
     uint8_t (*KeyConfirm)(ST_Node *ThisNode, ST_Node *ThatNode);
 } ST_Tree;
@@ -341,8 +341,8 @@ static void ST_InsertNode_Only(ST_Tree *Tree, ST_Node *Node)
 /* 单次删除函数 */
 static void ST_RemoveNode_Only(ST_Tree *Tree, ST_Node *Node)
 {
-    ERROR_PRINT(Tree == NULL,   "ST_RemoveNode_Only: Tree");
-    ERROR_PRINT(Node == NULL,   "ST_RemoveNode_Only: Node");
+    ERROR_PRINT(Tree == NULL, "ST_RemoveNode_Only: Tree");
+    ERROR_PRINT(Node == NULL, "ST_RemoveNode_Only: Node");
     /* 找不到要删除的结点，就return */
     RETURN_EMPTY(Node == NULL);
     /* 1.获得该节点的左右孩子 */

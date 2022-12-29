@@ -240,7 +240,7 @@ static void RBT_RotateNode(RBT_Tree *Tree, RBT_Node *Child, RBT_Node *Parent)
 /* 搜索函数(大小元) */
 static RBT_Node * RBT_Search_MinOrMax(RBT_Node *Node, RBT_Side Side)
 {
-    ERROR_PRINT(Node == NULL,  "RBT_Search_MinOrMax: Node");
+    ERROR_PRINT(Node == NULL,      "RBT_Search_MinOrMax: Node");
     ERROR_PRINT(Side == RBT_ERROR, "RBT_Search_MinOrMax: Side");
     
     while (Node != NULL && RBT_NodeGetChild(Node, Side) != NULL)
@@ -254,7 +254,7 @@ static RBT_Node * RBT_Search_MinOrMax(RBT_Node *Node, RBT_Side Side)
 /* 搜索函数(前驱和后继) */
 RBT_Node * RBT_Search_PrevOrNext(RBT_Node *Node, RBT_Side Side)
 {
-    ERROR_PRINT(Node == NULL,  "RBT_Search_PrevOrNext: Node");
+    ERROR_PRINT(Node == NULL,      "RBT_Search_PrevOrNext: Node");
     ERROR_PRINT(Side == RBT_ERROR, "RBT_Search_PrevOrNext: Side");
     
     RBT_Node *Child      = RBT_NodeGetChild(Node, Side);
