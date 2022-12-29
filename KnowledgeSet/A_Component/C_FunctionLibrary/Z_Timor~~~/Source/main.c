@@ -7,8 +7,7 @@
 
 int main(int argc, char *argv[])
 {
-    char String1[] = "*Hello***World* *";
-    char String2[] = "*Hello***World* *";
+    Timor_Misc_All();
     
     return 0;
 }
