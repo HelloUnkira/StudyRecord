@@ -995,7 +995,7 @@ uint32_t BST_GetBytes_Container(void)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 辅助动作 */
-void BST_SetTree(void *Tree, uint32_t Length, data_key Key)
+void BST_SetTree(void *Tree, uint32_t Length, BST_DataKey Key)
 {
     //一旦创建便会固定,所以需要容错处理
     RETURN_EMPTY(Tree == NULL || Key == NULL || Length < 3);
