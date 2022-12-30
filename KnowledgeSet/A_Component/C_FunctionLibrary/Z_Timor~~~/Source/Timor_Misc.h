@@ -6,25 +6,32 @@
 static inline void Timor_Misc_All(void)
 {
     /* Function Declare */
-    void Timor_Misc_1_Function(void);
-    void Timor_Misc_2_Function(void);
-    void Timor_Misc_3_Function(void);
-    void Timor_Misc_4_Function(void);
-    void Timor_Misc_5_Function(void);
-    void Timor_Misc_6_Function(void);
-    void Timor_Misc_7_Function(void);
-    void Timor_Misc_8_Function(void);
+    void Timor_Misc_001_Function(void);
+    void Timor_Misc_002_Function(void);
+    void Timor_Misc_003_Function(void);
+    void Timor_Misc_004_Function(void);
+    void Timor_Misc_005_Function(void);
+    void Timor_Misc_006_Function(void);
+    void Timor_Misc_007_Function(void);
+    void Timor_Misc_008_Function(void);
+    void Timor_Misc_009_Function(void);
+    void Timor_Misc_010_Function(void);
+    void Timor_Misc_011_Function(void);
+    
     
     
     /* Function Quote */
-    Timor_Misc_1_Function();
-    Timor_Misc_2_Function();
-    Timor_Misc_3_Function();
-    Timor_Misc_4_Function();
-    Timor_Misc_5_Function();
-    Timor_Misc_6_Function();
-    Timor_Misc_7_Function();
-    Timor_Misc_8_Function();
+    Timor_Misc_001_Function();
+    Timor_Misc_002_Function();
+    Timor_Misc_003_Function();
+    Timor_Misc_004_Function();
+    Timor_Misc_005_Function();
+    Timor_Misc_006_Function();
+    Timor_Misc_007_Function();
+    Timor_Misc_008_Function();
+    Timor_Misc_009_Function();
+    Timor_Misc_010_Function();
+    Timor_Misc_011_Function();
 }
 
 /*************************************************************************************************/
