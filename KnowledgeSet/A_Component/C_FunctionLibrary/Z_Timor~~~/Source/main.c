@@ -3,11 +3,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "Timor_Misc.h"
+#include "TimorMisc.h"
+#include "TimorChapter1.h"
 
 int main(int argc, char *argv[])
 {
-    Timor_Misc_All();
+    TM_All();
+    TC1_All();
     
     return 0;
 }
