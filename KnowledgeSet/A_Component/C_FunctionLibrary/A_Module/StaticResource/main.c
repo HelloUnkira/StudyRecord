@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "SR.h"
 
-/* ÎªÁË²âÊÔÕâÀïÓÅÏÈ¼¶ºÍÓÅÏÈ²ã¼¶¶¼ÊÇÄæÐòµÄ */
+/* ä¸ºäº†æµ‹è¯•è¿™é‡Œä¼˜å…ˆçº§å’Œä¼˜å…ˆå±‚çº§éƒ½æ˜¯é€†åºçš„ */
 
 /* Application */
 static uint8_t Application2Parameter = 0x22;
@@ -15,11 +15,11 @@ bool Application1Loading(const void *Parameter)
 {
     printf("%s:%x\n", __func__, *(uint8_t *)Parameter);
 }
-/* É¢ÂäÔÚ¸÷¸öÎÄ¼þÖÐµÄModule²ã¾²Ì¬Ïî¼ÓÔØ */
+/* æ•£è½åœ¨å„ä¸ªæ–‡ä»¶ä¸­çš„Moduleå±‚é™æ€é¡¹åŠ è½½ */
 SR_DECLARE(Application2, SR_Level_Application, 2,
-           Application2Loading, &Application2Parameter, NULL);
+           Application2Loading,  &Application2Parameter, NULL);
 SR_DECLARE(Application1, SR_Level_Application, 1,
-           Application1Loading, &Application1Parameter, NULL);
+           Application1Loading,  &Application1Parameter, NULL);
 /* Application */
 
 /* Module */
@@ -33,11 +33,11 @@ bool Module1Loading(const void *Parameter)
 {
     printf("%s:%x\n", __func__, *(uint8_t *)Parameter);
 }
-/* É¢ÂäÔÚ¸÷¸öÎÄ¼þÖÐµÄModule²ã¾²Ì¬Ïî¼ÓÔØ */
+/* æ•£è½åœ¨å„ä¸ªæ–‡ä»¶ä¸­çš„Moduleå±‚é™æ€é¡¹åŠ è½½ */
 SR_DECLARE(Module2, SR_Level_Module, 2,
-           Module2Loading, &Module2Parameter, NULL);
+           Module2Loading,  &Module2Parameter, NULL);
 SR_DECLARE(Module1, SR_Level_Module, 1,
-           Module1Loading, &Module1Parameter, NULL);
+           Module1Loading,  &Module1Parameter, NULL);
 /* Module */
 
 /* System */
@@ -51,11 +51,11 @@ bool System1Loading(const void *Parameter)
 {
     printf("%s:%x\n", __func__, *(uint8_t *)Parameter);
 }
-/* É¢ÂäÔÚ¸÷¸öÎÄ¼þÖÐµÄSystem²ã¾²Ì¬Ïî¼ÓÔØ */
+/* æ•£è½åœ¨å„ä¸ªæ–‡ä»¶ä¸­çš„Systemå±‚é™æ€é¡¹åŠ è½½ */
 SR_DECLARE(System2, SR_Level_System, 2,
-           System2Loading, &System2Parameter, NULL);
+           System2Loading,  &System2Parameter, NULL);
 SR_DECLARE(System1, SR_Level_System, 1,
-           System1Loading, &System1Parameter, NULL);
+           System1Loading,  &System1Parameter, NULL);
 /* System */
 
 
@@ -64,14 +64,14 @@ int main(int argc, char *argv[])
 {
     SR_EntryLoading();
     
-    /* ¼ì²é¸÷¸öÏî,¿ÉÒÔ·¢ÏÖÁ´½Ó½Å±¾ÒÑ¾­½«ËüÃÇ°´ÓÅÏÈ¼¶ÅÅÐòÁË */
-    printf("\n\n");
+    /* æ£€æŸ¥å„ä¸ªé¡¹,å¯ä»¥å‘çŽ°é“¾æŽ¥è„šæœ¬å·²ç»å°†å®ƒä»¬æŒ‰ä¼˜å…ˆçº§æŽ’åºäº† */
+    printf("SR_Entry Size:%lu Occupy:%lu\n\n", sizeof(SR_Entry), SR_EntryOccupy);
     SR_EntryIterator(Entry) {
-        // printf("Entry:%p\n",                Entry);
-        // printf("Entry->Name:%s\n",          Entry->Name);
-        // printf("Entry->Function:%p\n",      Entry->Function);
-        // printf("Entry->Parameter:%p\n",     Entry->Parameter);
-        // printf("Entry->Resource:%p\n",      Entry->Resource);
+        printf("Entry:%p\n",                Entry);
+        printf("Entry->Name:%s\n",          Entry->Name);
+        printf("Entry->Function:%p\n",      Entry->Function);
+        printf("Entry->Parameter:%p\n",     Entry->Parameter);
+        printf("Entry->Resource:%p\n",      Entry->Resource);
     }
     
 	return 0;
