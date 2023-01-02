@@ -1,19 +1,21 @@
-//C std lib
-#include <stdint.h>
+#ifndef STRUCT_PARSE_H
+#define STRUCT_PARSE_H
 
-//struct define
-typedef struct test_body
-{
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+typedef struct {
 	uint8_t        	argument1;               //comment1
 	uint16_t       	argument2;               //comment2
 	uint32_t       	argument3;               //comment3
 	uint64_t       	argument4;               //comment4
 	float          	argument5;               //comment5
 	double         	argument6;               //comment6
-
 } test;
 
-//set method
+/* set method */
+
 static inline void test_set_argument1(test *instance, uint8_t argument1)
 {
 	instance->argument1 = argument1;
@@ -43,7 +45,9 @@ static inline void test_set_argument6(test *instance, double argument6)
 {
 	instance->argument6 = argument6;
 }
-//get method
+
+/* set method */
+
 static inline uint8_t test_get_argument1(test *instance)
 {
 	return instance->argument1;
@@ -73,3 +77,5 @@ static inline double test_get_argument6(test *instance)
 {
 	return instance->argument6;
 }
+
+#endif

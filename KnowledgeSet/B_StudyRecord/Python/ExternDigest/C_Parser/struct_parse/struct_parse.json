@@ -1,10 +1,9 @@
 
 {
-    "name"          : "test_body",
     "typedef"       : "test",
     "type_width"    : 15,
     "name_width"    : 25,
-    "property"      :
+    "member"        :
     [
         {
             "type"      : "uint8_t",
