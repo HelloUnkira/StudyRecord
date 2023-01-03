@@ -1,11 +1,9 @@
 #ifndef APP_THREAD_ADAPTOR_ZEPHYR_H
 #define APP_THREAD_ADAPTOR_ZEPHYR_H
 
-#include "app_os_adaptor.h"
 #include "app_thread_master.h"
 #include "app_thread_mix_irq.h"
 #include "app_thread_mix_custom.h"
-#include "app_thread_all.h"
 
 /* @线程体栈信息<Start> */
 

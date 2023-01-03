@@ -2,14 +2,20 @@
 #include <stdio.h>
 #include "app_thread_interface.h"
 
-static void misc_work_routine(void *parameter)
+static uint8_t app_thread_mix_work_arg = 0;
+static void app_thread_mix_work_routine(void *parameter)
 {
-    printf("misc_work_routine exec\n");
+    (*(uint8_t *)parameter)++;
+    printf("misc_work_routine exec:%d\n", *(uint8_t *)parameter);
 }
 
-app_thread_mix_custom_work_t misc_work = {
-    .routine   = misc_work_routine,
-    .parameter = NULL,
+app_thread_mix_custom_work_t app_thread_mix_custom_work_entry = {
+    .routine   =  app_thread_mix_work_routine,
+    .parameter = &app_thread_mix_work_arg,
+};
+app_thread_mix_irq_work_t app_thread_mix_irq_work_entry = {
+    .routine   =  app_thread_mix_work_routine,
+    .parameter = &app_thread_mix_work_arg,
 };
 
 #if 0
@@ -30,37 +36,38 @@ static void software_timer_handler(int signal)
             app_package_t package = {
                 .send_tid = app_thread_id_unknown,
                 .recv_tid = app_thread_id_mix_custom,
-                .module   = 1,
+                .module   = app_thread_mix_custom_clock,
+                .event    = app_thread_mix_custom_clock_timestamp_update,
                 .size     = 0,
                 .data     = NULL,
             };
             app_thread_package_notify(&package);
         }
-        /* package */
-        if (count % 3000 == 0) {
+        /* package... */
+        #if 0
+        if (count % 1000 == 0) {
             app_package_t package = {
                 .send_tid = app_thread_id_unknown,
                 .recv_tid = app_thread_id_mix_custom,
                 .module   = app_thread_mix_custom_work,
+                .event    = 0,
                 .size     = sizeof(app_thread_mix_custom_work_t),
-                .data     = &misc_work,
+                .data     = &app_thread_mix_custom_work_entry,
             };
             app_thread_package_notify(&package);
         }
-        /* package */
-        if (count % 2000 == 0) {
+        if (count % 1000 == 0) {
             app_package_t package = {
                 .send_tid = app_thread_id_unknown,
-                .recv_tid = app_thread_id_mix_irq,
-                .module = 1,
-                .size   = 0,
-                .data   = NULL,
+                .recv_tid = app_thread_id_mix_custom,
+                .module   = app_thread_mix_irq_work,
+                .event    = 0,
+                .size     = sizeof(app_thread_mix_irq_work_t),
+                .data     = &app_thread_mix_irq_work_entry,
             };
             app_thread_package_notify(&package);
         }
-        
-        
-        /* package... */
+        #endif
     }
 }
 
@@ -103,6 +110,8 @@ void software_timer_ready(void)
 
 #elif APP_OS_IS_ZEPHYR
 #error "arch os not adaptor yet"
+#elif APP_OS_IS_FREERTOS
+#error "arch os not adaptor yet"
 #else
 #error "unknown os"
 #endif
@@ -110,7 +119,7 @@ void software_timer_ready(void)
 int main(int argc, char *argv[])
 {
     /* 启动APP调度策略 */
-    app_thread_work();
+    app_thread_set_work_now();
     
     /* 测试中我们在主线程使用软件定时器信号量发送包裹 */
     #if 0

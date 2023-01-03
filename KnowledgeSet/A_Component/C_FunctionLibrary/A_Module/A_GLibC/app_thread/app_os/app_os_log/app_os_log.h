@@ -1,9 +1,6 @@
 #ifndef APP_OS_LOG_H
 #define APP_OS_LOG_H
 
-#include <stdint.h>
-#include <stdbool.h>
-
 /* 全局宏控开关及其等级 */
 #define LOG_GLOBAL_STATUS       1   /* 1:ENABLE,0:DISABLE */
 

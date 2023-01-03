@@ -1,20 +1,16 @@
-/*
- *实现目标:
+/*实现目标:
  *    一个用于线程间数据交互的管道
  *    它需要保证完成数据的基本交互
- *    注意:加入中断临界区的主要原因
- *         中断服务例程向管道投递资源包可能导致错误
+ *    注意:加入中断临界区的主要原因是防止
+ *         中断打断正在线程环境执行的敏感操作及其
+ *         中断打断正在中断环境执行的敏感操作
+ *         导致错误管道资源包管理错误
  *         我们在设计上极可能减少资源包内容
  *         使得在临界区的时间尽可能缩短
  *         将更多的明细交付到线程环境解析
  */
 
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include "app_os_adaptor.h"
-#include "app_sys_pipe.h"
+#include "app_sys_interface.h"
 
 /*@brief        获取管道资源包数量
  *@param[in]    pipe 管道实例
@@ -46,11 +42,11 @@ void app_sys_pipe_give(app_pipe_t *pipe, app_package_t *package)
     app_package_t *package_new = NULL;
     /* 生成资源包, 转储消息资源资源 */
     package_new = app_mem_alloc(sizeof(app_package_t));
-    memset(package_new, 0, sizeof(app_package_t));
     package_new->near     = NULL;
     package_new->send_tid = package->send_tid;
     package_new->recv_tid = package->recv_tid;
     package_new->module   = package->module;
+    package_new->event    = package->event;
     package_new->size     = package->size;
     package_new->data     = package->data;
     /* 入界 */
@@ -102,6 +98,7 @@ void app_sys_pipe_take(app_pipe_t *pipe, app_package_t *package)
     package->send_tid = package_new->send_tid;
     package->recv_tid = package_new->recv_tid;
     package->module   = package_new->module;
+    package->event    = package_new->event;
     package->size     = package_new->size;
     package->data     = package_new->data;
     app_mem_free(package_new);

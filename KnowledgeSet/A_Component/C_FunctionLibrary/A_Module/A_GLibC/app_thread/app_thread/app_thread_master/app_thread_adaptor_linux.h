@@ -1,11 +1,9 @@
 #ifndef APP_THREAD_ADAPTOR_LINUX_H
 #define APP_THREAD_ADAPTOR_LINUX_H
 
-#include "app_os_adaptor.h"
 #include "app_thread_master.h"
 #include "app_thread_mix_irq.h"
 #include "app_thread_mix_custom.h"
-#include "app_thread_all.h"
 
 /* @服务例程适配<Start> */
 

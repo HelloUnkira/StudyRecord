@@ -1,7 +1,7 @@
 #ifndef APP_OS_ADAPTOR_H
 #define APP_OS_ADAPTOR_H
 
-/* APP OS Adaptor: */
+/* APP OS adaptor: */
 
 #define APP_OS_IS_LINUX     1
 #define APP_OS_IS_ZEPHYR    0

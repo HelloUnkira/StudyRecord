@@ -3,10 +3,7 @@
  *    按文件裁剪的打印宏
  */
 
-#include <stdarg.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "app_os_adaptor.h"
+#include "app_os_interface.h"
 
 void app_os_log1(char *format, ...);
 void app_os_log2(char *format, va_list list);
@@ -34,8 +31,6 @@ void app_os_log(bool status, char *file, uint32_t line, char *flag, char *format
 
 #if 0
 #elif APP_OS_IS_LINUX
-
-#include <stdio.h>
 
 void app_os_log1(char *format, ...)
 {

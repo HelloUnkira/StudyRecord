@@ -6,11 +6,6 @@
 /* 同时APP会在一个专门的地点和时刻准备这些资源 */
 /* 所以仅需要对所有平台做一个全通配的最低配置 */
 
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>

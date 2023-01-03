@@ -1,16 +1,12 @@
 #ifndef APP_SYS_PIPE_H
 #define APP_SYS_PIPE_H
 
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "app_os_adaptor.h"
-
 typedef struct {
     void    *near;          /* 管道是队列 */
     uint32_t send_tid;      /* 发送者线程ID */
     uint32_t recv_tid;      /* 接收者线程ID */
     uint32_t module;        /* 接收者线程模组ID */
+    uint32_t event;         /* 接收者线程模组事件 */
     uint32_t size;          /* 协议数据流大小 */
     void    *data;          /* 协议数据流(浅拷贝) */
 } app_package_t;
