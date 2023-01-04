@@ -1,8 +1,6 @@
 #ifndef APP_MODULE_CLOCK_H
 #define APP_MODULE_CLOCK_H
 
-#include "app_thread_interface.h"
-
 typedef struct {
     uint64_t utc;       /* 协调世界时UTC */
     uint16_t year;      /* 年 */

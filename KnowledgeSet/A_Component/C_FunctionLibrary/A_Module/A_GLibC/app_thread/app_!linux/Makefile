@@ -9,9 +9,9 @@ app_system = -lpthread
 app_header = -I ../                                     \
              -I ../app_os/                              \
              -I ../app_os/app_os_adaptor                \
-             -I ../app_os/app_os_log                    \
              -I ../app_sys/                             \
              -I ../app_sys/app_sys_pipe                 \
+             -I ../app_sys/app_sys_ring_buffer          \
              -I ../app_thread/                          \
              -I ../app_thread/app_thread_master         \
              -I ../app_thread/app_thread_mix_custom     \
@@ -20,9 +20,9 @@ app_header = -I ../                                     \
 app_source = ./*.c                                      \
              ../app_os/*.c                              \
              ../app_os/app_os_adaptor/*.c               \
-             ../app_os/app_os_log/*.c                   \
              ../app_sys/*.c                             \
              ../app_sys/app_sys_pipe/*.c                \
+             ../app_sys/app_sys_ring_buffer/*.c         \
              ../app_thread/*.c                          \
              ../app_thread/app_thread_master/*.c        \
              ../app_thread/app_thread_mix_custom/*.c    \

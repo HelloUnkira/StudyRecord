@@ -89,20 +89,22 @@ static inline void app_mutex_process(app_mutex_t *mutex)
     k_mutex_init(&mutex->mutex);
 }
 
-/*@brief        抢占一个互斥锁
+/*@brief        抢占一个互斥锁(中断环境不可调用)
  *@param[in]    mutex 静态实例
  */
 static inline void app_mutex_take(app_mutex_t *mutex)
 {
-    k_mutex_lock(&mutex->mutex, K_FOREVER);
+    if (app_os_not_in_irq())
+        k_mutex_lock(&mutex->mutex, K_FOREVER);
 }
 
-/*@brief        释放一个互斥锁
+/*@brief        释放一个互斥锁(中断环境不可调用)
  *@param[in]    mutex 静态实例
  */
 static inline void app_mutex_give(app_mutex_t *mutex)
 {
-    k_mutex_unlock(&mutex->mutex);
+    if (app_os_not_in_irq())
+        k_mutex_unlock(&mutex->mutex);
 }
 
 /*@brief        内存分配

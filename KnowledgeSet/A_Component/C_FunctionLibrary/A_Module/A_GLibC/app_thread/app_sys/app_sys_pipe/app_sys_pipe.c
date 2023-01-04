@@ -8,6 +8,7 @@
  *         我们在设计上极可能减少资源包内容
  *         使得在临界区的时间尽可能缩短
  *         将更多的明细交付到线程环境解析
+ *    此外:管道是线程专用容器,其他模组不得独自使用
  */
 
 #include "app_sys_interface.h"
@@ -20,15 +21,13 @@ uint32_t app_sys_pipe_package_num(app_pipe_t *pipe)
 {
     uint32_t number = 0;
     /* 入界 */
-    if (app_os_not_in_irq())
-        app_mutex_take(&pipe->mutex);
+    app_mutex_take(&pipe->mutex);
     app_critical_enter();
     /* 资源检查 */
     number = pipe->number;
     /* 出界 */
     app_critical_exit();
-    if (app_os_not_in_irq())
-        app_mutex_give(&pipe->mutex);
+    app_mutex_give(&pipe->mutex);
     /* 通报 */
     return number;
 }
@@ -47,11 +46,11 @@ void app_sys_pipe_give(app_pipe_t *pipe, app_package_t *package)
     package_new->recv_tid = package->recv_tid;
     package_new->module   = package->module;
     package_new->event    = package->event;
+    package_new->dynamic  = package->dynamic;
     package_new->size     = package->size;
     package_new->data     = package->data;
     /* 入界 */
-    if (app_os_not_in_irq())
-        app_mutex_take(&pipe->mutex);
+    app_mutex_take(&pipe->mutex);
     app_critical_enter();
     /* 资源包加入到管道 */
     if (pipe->number == 0) {
@@ -64,8 +63,7 @@ void app_sys_pipe_give(app_pipe_t *pipe, app_package_t *package)
     pipe->number++;
     /* 出界 */
     app_critical_exit();
-    if (app_os_not_in_irq())
-        app_mutex_give(&pipe->mutex);
+    app_mutex_give(&pipe->mutex);
 }
 
 /*@brief        从管道提取一个包
@@ -76,8 +74,7 @@ void app_sys_pipe_take(app_pipe_t *pipe, app_package_t *package)
 {
     app_package_t *package_new = NULL;
     /* 入界 */
-    if (app_os_not_in_irq())
-        app_mutex_take(&pipe->mutex);
+    app_mutex_take(&pipe->mutex);
     app_critical_enter();
     /* 资源包提取出管道 */
     if (pipe->number != 0) {
@@ -91,14 +88,14 @@ void app_sys_pipe_take(app_pipe_t *pipe, app_package_t *package)
     }
     /* 出界 */
     app_critical_exit();
-    if (app_os_not_in_irq())
-        app_mutex_give(&pipe->mutex);
+    app_mutex_give(&pipe->mutex);
     /* 转储消息资源资源, 销毁资源包 */
     package->near     = NULL;
     package->send_tid = package_new->send_tid;
     package->recv_tid = package_new->recv_tid;
     package->module   = package_new->module;
     package->event    = package_new->event;
+    package->dynamic  = package_new->dynamic;
     package->size     = package_new->size;
     package->data     = package_new->data;
     app_mem_free(package_new);

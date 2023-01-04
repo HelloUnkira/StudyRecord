@@ -66,7 +66,8 @@ static inline void app_sem_process(app_sem_t *sem)
  */
 static inline void app_sem_take(app_sem_t *sem)
 {
-    sem_post(&sem->sem);
+    if (app_os_not_in_irq())
+        sem_post(&sem->sem);
 }
 
 /*@brief        发布一个信号量
@@ -74,7 +75,8 @@ static inline void app_sem_take(app_sem_t *sem)
  */
 static inline void app_sem_give(app_sem_t *sem)
 {
-    sem_wait(&sem->sem);
+    if (app_os_not_in_irq())
+        sem_wait(&sem->sem);
 }
 
 /* app mutex */
@@ -90,7 +92,7 @@ static inline void app_mutex_process(app_mutex_t *mutex)
     pthread_mutex_init(&mutex->mutex, NULL);
 }
 
-/*@brief        抢占一个互斥锁
+/*@brief        抢占一个互斥锁(中断环境不可调用)
  *@param[in]    mutex 静态实例
  */
 static inline void app_mutex_take(app_mutex_t *mutex)
@@ -98,7 +100,7 @@ static inline void app_mutex_take(app_mutex_t *mutex)
     pthread_mutex_lock(&mutex->mutex);
 }
 
-/*@brief        释放一个互斥锁
+/*@brief        释放一个互斥锁(中断环境不可调用)
  *@param[in]    mutex 静态实例
  */
 static inline void app_mutex_give(app_mutex_t *mutex)

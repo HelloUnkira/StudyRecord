@@ -13,23 +13,20 @@
  */
 
 /* 函数声明及其引用(注意:不要导入头文件,直接提供函数名即可): */
-/* extern void xxxx(app_module_clock_t *clock); */
+extern void app_module_clock_cb1_empty(app_module_clock_t *clock);
+extern void app_module_alarm_group_update(app_module_clock_t *clock);
 
-static void app_module_clock_cb1_empty(app_module_clock_t *clock)
-{
-    APP_OS_PRINT("app_module_clock_cb1_empty\n");
-}
+/* 函数声明及其引用(注意:不要导入头文件,直接提供函数名即可): */
+void app_module_clock_cb2_empty(app_module_clock_t *last_clock,
+                                app_module_clock_t *curr_clock, uint32_t event);
 
-static void app_module_clock_cb2_empty(app_module_clock_t *last_clock,
-                                       app_module_clock_t *curr_clock, uint32_t event)
-{
-    APP_OS_PRINT("app_module_clock_cb2_empty\n");
-}
+/* 时钟回调组集合: */
 
 /* 秒回调 */
 const app_module_clock_cb1 app_module_clock_second_cb[] = {
     app_module_clock_cb1_empty,
     /* 补充中...... */
+    app_module_alarm_group_update,  /* 每秒闹钟更新 */
 };
 
 /* 分回调 */

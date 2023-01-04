@@ -2,6 +2,9 @@
  *    一些和时钟运算相关的功能组件
  */
 
+#define APP_OS_LOG_LOCAL_STATUS     1
+#define APP_OS_LOG_LOCAL_LEVEL      3   /* 0:DEBUG,1:INFO,2:WARN,3:ERROR,4:NONE */
+
 #include "app_thread_interface.h"
 #include "app_module_clock.h"
 #define   APP_MODULE_CLOCK_CB_H
@@ -244,6 +247,7 @@ void app_module_clock_set_system_clock(app_module_clock_t *clock)
         .recv_tid = app_thread_id_mix_custom,
         .module   = app_thread_mix_custom_clock,
         .event    = app_thread_mix_custom_clock_event_update,
+        .dynamic  = false,
         .size     = 0,
         .data     = NULL,
     };
@@ -303,13 +307,16 @@ void app_module_clock_timestamp_update(uint64_t utc_new)
         app_module_clock_cb1_respond(app_module_clock_flag_hour,   &clock_new);
     if (clock_old.day    != clock_new.day)
         app_module_clock_cb1_respond(app_module_clock_flag_day,    &clock_new);
-    /* 系统时钟检查 */
-    APP_OS_PRINT("utc=%lu, %u-%u-%u, %u:%u:%u\n",
-                 clock_old.utc,clock_old.year,clock_old.month,clock_old.day,
-                 clock_old.hour,clock_old.minute,clock_old.second);
-    APP_OS_PRINT("utc=%lu, %u-%u-%u, %u:%u:%u\n",
-                 clock_new.utc,clock_new.year,clock_new.month,clock_new.day,
-                 clock_new.hour,clock_new.minute,clock_new.second);
+    #if APP_MODULE_CHECK
+    APP_OS_LOG_INFO("clock_old: utc=%lu,%u, %u-%u-%u, %u:%u:%u\n",
+                    clock_old.utc,clock_old.week,
+                    clock_old.year,clock_old.month,clock_old.day,
+                    clock_old.hour,clock_old.minute,clock_old.second);
+    APP_OS_LOG_INFO("clock_new: utc=%lu,%u, %u-%u-%u, %u:%u:%u\n",
+                    clock_new.utc,clock_new.week,
+                    clock_new.year,clock_new.month,clock_new.day,
+                    clock_new.hour,clock_new.minute,clock_new.second);
+    #endif
 }
 
 /*@brief 系统时钟模组初始化
@@ -320,4 +327,21 @@ void app_module_clock_ready(void)
     app_module_clock_to_dtime(&app_module_clock_curr);
     app_module_clock_to_week(&app_module_clock_curr);
     app_mutex_process(&app_module_clock_mutex);
+}
+
+/*@brief     一类时钟空回调
+ *@param[in] clock 时钟实例
+ */
+void app_module_clock_cb1_empty(app_module_clock_t *clock)
+{
+}
+
+/*@brief     一类时钟空回调
+ *@param[in] last_clock 时钟实例
+ *@param[in] last_clock 时钟实例
+ *@param[in] event      时钟事件
+ */
+void app_module_clock_cb2_empty(app_module_clock_t *last_clock,
+                                app_module_clock_t *curr_clock, uint32_t event)
+{
 }

@@ -13,6 +13,9 @@
  *    最基本的容器居然更能高效的完成指定的工作
  */
 
+#define APP_OS_LOG_LOCAL_STATUS     1
+#define APP_OS_LOG_LOCAL_LEVEL      2   /* 0:DEBUG,1:INFO,2:WARN,3:ERROR,4:NONE */
+
 #include "app_thread_interface.h"
 #include "app_thread_adaptor.h"
 
@@ -54,6 +57,11 @@ void app_thread_master_routine(void)
     /* 主流程 */
     while (true) {
         app_sem_take(send_sem);
+        #if APP_THREAD_CHECK
+        if (app_sys_pipe_package_num(send_pipe) >= APP_THREAD_PACKAGE_MAX)
+            APP_OS_LOG_WARN("thread masther recv too much package:%u\n",
+                            app_sys_pipe_package_num(send_pipe));
+        #endif
         while (app_sys_pipe_package_num(send_pipe)) {
             app_sys_pipe_take(send_pipe, &package);
             app_thread_get_sync_by_id(package.recv_tid, &recv_sem);

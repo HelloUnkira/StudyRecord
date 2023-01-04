@@ -25,6 +25,9 @@ typedef enum {
     app_thread_id_num,          /* 占位符:子线程组数量 */
 } app_thread_id_set;
 
+/* 线程组线程包裹接收最大警告线(警告) */
+#define APP_THREAD_PACKAGE_MAX  20
+
 /*@brief 初始化所有线程及其附属资源
  *       启动所有线程
  */

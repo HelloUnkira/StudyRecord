@@ -2,6 +2,18 @@
 #include <stdio.h>
 #include "app_thread_interface.h"
 
+/* 闹钟组测试开始 */
+void app_module_alarm_test(void)
+{
+
+}
+
+
+
+/* 闹钟组测试结束 */
+
+
+
 static uint8_t app_thread_mix_work_arg = 0;
 static void app_thread_mix_work_routine(void *parameter)
 {
@@ -31,6 +43,22 @@ static void software_timer_handler(int signal)
     //SIGPROF:      以该进程在用户态下和内核态下所费的时间来计算
     static uint32_t count = 0;count++;
     if (signal == SIGALRM && (count % 1000 == 0)) {
+        /* test alarm group */
+        if (count == 1000) {
+            static app_module_alarm_t array[5] = {0};
+            uint32_t alarm_group_id = app_module_alarm_group_register(array, 5);
+            app_module_alarm_t alarm1 = {.clock_base.utc = 2, .onoff = 1, .snooze = 1,
+                                         .field_month = 0b00000000100, .field_week = 0b1000000,};
+            app_module_alarm_t alarm2 = {.clock_base.utc = 10, .onoff = 1, .snooze = 1,
+                                         .field_month = 0b00000000100, .field_week = 0b1000000,};
+            app_module_clock_to_dtime(&alarm1.clock_base);
+            app_module_clock_to_dtime(&alarm2.clock_base);
+            app_module_clock_to_week(&alarm1.clock_base);
+            app_module_clock_to_week(&alarm2.clock_base);
+
+            app_module_alarm_add(alarm_group_id, &alarm1);
+            app_module_alarm_add(alarm_group_id, &alarm2);
+        }
         /* package */
         if (count % 1000 == 0) {
             app_package_t package = {
@@ -38,6 +66,7 @@ static void software_timer_handler(int signal)
                 .recv_tid = app_thread_id_mix_custom,
                 .module   = app_thread_mix_custom_clock,
                 .event    = app_thread_mix_custom_clock_timestamp_update,
+                .dynamic  = false,
                 .size     = 0,
                 .data     = NULL,
             };
@@ -51,6 +80,7 @@ static void software_timer_handler(int signal)
                 .recv_tid = app_thread_id_mix_custom,
                 .module   = app_thread_mix_custom_work,
                 .event    = 0,
+                .dynamic  = false,
                 .size     = sizeof(app_thread_mix_custom_work_t),
                 .data     = &app_thread_mix_custom_work_entry,
             };
@@ -62,6 +92,7 @@ static void software_timer_handler(int signal)
                 .recv_tid = app_thread_id_mix_custom,
                 .module   = app_thread_mix_irq_work,
                 .event    = 0,
+                .dynamic  = false,
                 .size     = sizeof(app_thread_mix_irq_work_t),
                 .data     = &app_thread_mix_irq_work_entry,
             };

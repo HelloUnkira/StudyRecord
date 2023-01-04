@@ -7,6 +7,7 @@ typedef struct {
     uint32_t recv_tid;      /* 接收者线程ID */
     uint32_t module;        /* 接收者线程模组ID */
     uint32_t event;         /* 接收者线程模组事件 */
+    uint32_t dynamic;       /* 本次传输包裹状态 */
     uint32_t size;          /* 协议数据流大小 */
     void    *data;          /* 协议数据流(浅拷贝) */
 } app_package_t;
