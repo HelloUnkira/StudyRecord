@@ -156,6 +156,12 @@ static inline void app_delay_us(uint32_t us)
     k_usleep(us);
 }
 
+/*@brief 重启
+ */
+static inline void app_os_reset(void)
+{
+}
+
 /*@brief 打印输出转接宏
  */
 #define APP_OS_PRINT

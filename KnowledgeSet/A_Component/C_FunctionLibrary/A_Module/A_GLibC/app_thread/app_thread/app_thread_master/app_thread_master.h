@@ -9,11 +9,12 @@
 void app_thread_get_sync_by_id(uint32_t thread_id, app_sem_t  **sem);
 void app_thread_get_pipe_by_id(uint32_t thread_id, app_pipe_t **pipe);
 
-/*@brief        主线程接收一个事件包裹并派发
+/*@brief        线程组接收一个事件包
  *@param[in]    thread_id 线程ID
- *@param[in]    package   事件包裹
+ *@param[in]    package   事件包
+ #@retval       失败表明线程组中止,不接收新的事件包
  */
-void app_thread_package_notify(app_package_t *package);
+bool app_thread_package_notify(app_package_t *package);
 
 /*@brief 线程组编号
  */
@@ -32,5 +33,13 @@ typedef enum {
  *       启动所有线程
  */
 void app_thread_set_work_now(void);
+
+/*@brief 中止线程组工作
+ */
+void app_thread_set_abort(void);
+
+/*@brief 恢复线程组工作
+ */
+void app_thread_set_resume(void);
 
 #endif

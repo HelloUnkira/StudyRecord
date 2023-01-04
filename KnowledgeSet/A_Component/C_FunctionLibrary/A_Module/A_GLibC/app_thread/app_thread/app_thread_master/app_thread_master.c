@@ -25,6 +25,9 @@ static app_sem_t  app_thread_sem_src = {0};
 static app_pipe_t app_thread_pipe_src = {0};
 static app_sem_t  app_thread_sem_dst[app_thread_id_num]  = {0};
 static app_pipe_t app_thread_pipe_dst[app_thread_id_num] = {0};
+/* 互斥锁,开关主从线程组 */
+static bool        app_thread_run = true;
+static app_mutex_t app_thread_mutex = {0};
 
 /*@brief        通过从线程ID获得与主线程的交互管道
  *@param[in]    thread_id 线程ID
@@ -50,9 +53,11 @@ void app_thread_get_sync_by_id(uint32_t thread_id, app_sem_t **sem)
 /*@brief 主线程服务例程
  */
 void app_thread_master_routine(void)
-{
-    app_sem_t  *send_sem  = &app_thread_sem_src,  *recv_sem  = NULL;
-    app_pipe_t *send_pipe = &app_thread_pipe_src, *recv_pipe = NULL;
+{  
+    app_sem_t  *recv_sem  = NULL;
+    app_pipe_t *recv_pipe = NULL;
+    app_sem_t  *send_sem  = &app_thread_sem_src;
+    app_pipe_t *send_pipe = &app_thread_pipe_src;
     app_package_t package = {0};
     /* 主流程 */
     while (true) {
@@ -62,6 +67,13 @@ void app_thread_master_routine(void)
             APP_OS_LOG_WARN("thread masther recv too much package:%u\n",
                             app_sys_pipe_package_num(send_pipe));
         #endif
+        /* 线程组不再派发事件包(如果系统中止) */
+        app_mutex_take(&app_thread_mutex);
+        bool run = app_thread_run;
+        app_mutex_give(&app_thread_mutex);
+        if (!run)
+            continue;
+        /* 主线程派发包到指定子线程 */
         while (app_sys_pipe_package_num(send_pipe)) {
             app_sys_pipe_take(send_pipe, &package);
             app_thread_get_sync_by_id(package.recv_tid, &recv_sem);
@@ -72,22 +84,32 @@ void app_thread_master_routine(void)
     }
 }
 
-/*@brief        线程组接收一个事件包裹
+/*@brief        线程组接收一个事件包
  *@param[in]    thread_id 线程ID
- *@param[in]    package   事件包裹
+ *@param[in]    package   事件包
+ #@retval       失败表明线程组中止,不接收新的事件包
  */
-void app_thread_package_notify(app_package_t *package)
+bool app_thread_package_notify(app_package_t *package)
 {
+    /* 线程组不接收新包(如果系统中止) */
+    app_mutex_take(&app_thread_mutex);
+    bool run = app_thread_run;
+    app_mutex_give(&app_thread_mutex);
+    if (!run)
+        return false;
+    /* 线程组接收新包 */
     app_sem_t  *send_sem  = &app_thread_sem_src;
     app_pipe_t *send_pipe = &app_thread_pipe_src;
     app_sys_pipe_give(send_pipe, package);
     app_sem_give(send_sem);
+    return true;
 }
 
 /*@brief 准备并启动所有线程及其附属资源
  */
 void app_thread_set_work_now(void)
 {
+    app_mutex_process(&app_thread_mutex);
     /* 就绪管道和同步资源 */
     for (uint32_t idx = 0; idx < app_thread_id_num; idx++)
         app_sys_pipe_ready(&app_thread_pipe_dst[idx]);
@@ -99,4 +121,25 @@ void app_thread_set_work_now(void)
     app_thread_process(&app_thread_master);
     app_thread_process(&app_thread_mix_irq);
     app_thread_process(&app_thread_mix_custom);
+}
+
+/*@brief 中止线程组工作
+ */
+void app_thread_set_abort(void)
+{
+    app_mutex_take(&app_thread_mutex);
+    app_thread_run = false;
+    app_mutex_give(&app_thread_mutex);
+}
+
+/*@brief 恢复线程组工作
+ */
+void app_thread_set_resume(void)
+{
+    app_mutex_take(&app_thread_mutex);
+    app_thread_run = true;
+    app_mutex_give(&app_thread_mutex);
+    /* 因为之前丢弃的信号可能会导致有些事件的堆积 */
+    app_sem_t *send_sem = &app_thread_sem_src;
+    app_sem_give(send_sem);
 }
