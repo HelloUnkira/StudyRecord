@@ -29,12 +29,13 @@ typedef enum {  /* 时钟模组事件 */
 } app_thread_mix_custom_clock_event;
 
 typedef enum {  /* 闹钟模组事件 */
+    /* 基础闹钟事件 */
     app_thread_mix_custom_alarm_expired,
-    app_thread_mix_custom_alarm_expired_snooze,
+    /* 常规式闹钟事件 */
     app_thread_mix_custom_alarm_month,
-    app_thread_mix_custom_alarm_month_snooze,
     app_thread_mix_custom_alarm_week,
-    app_thread_mix_custom_alarm_week_snooze,
+    /* 提醒式闹钟事件 */
+    app_thread_mix_custom_alarm_repeat,
 } app_thread_mix_custom_alarm_event;
 
 typedef enum {  /* 秒表模组事件 */

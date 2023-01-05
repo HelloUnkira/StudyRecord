@@ -65,11 +65,11 @@ void app_thread_mix_custom_routine(void)
                 app_module_alarm_t *alarm = package.data;
                 /* 根据实际的情况处理或者转发事件包到特定的线程特定的模组 */
                 if (package.event == app_thread_mix_custom_alarm_expired);
-                if (package.event == app_thread_mix_custom_alarm_expired_snooze);
+                /* 常规式闹钟事件 */
                 if (package.event == app_thread_mix_custom_alarm_month);
-                if (package.event == app_thread_mix_custom_alarm_month_snooze);
                 if (package.event == app_thread_mix_custom_alarm_week);
-                if (package.event == app_thread_mix_custom_alarm_week_snooze);
+                /* 提醒式闹钟事件 */
+                if (package.event == app_thread_mix_custom_alarm_repeat);
                 break;
             }
             case app_thread_mix_custom_stopwatch: {

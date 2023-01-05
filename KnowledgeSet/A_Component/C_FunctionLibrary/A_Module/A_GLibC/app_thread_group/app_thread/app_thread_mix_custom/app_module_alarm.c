@@ -18,82 +18,66 @@ void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *cloc
     if (!alarm->valid)
         return;
     uint32_t event = ~0;
-    /* 初次更新策略,闹钟设置时 */
-    if (clock->utc == alarm->clock_base.utc)
-        event  = app_thread_mix_custom_alarm_expired;
-    if (clock->utc == alarm->clock_base.utc + alarm->snooze * 60)
-        event  = app_thread_mix_custom_alarm_expired_snooze;
-    /* 初次更新时,初始化一次策略,将其同步到一个时间线 */
-    if (event == app_thread_mix_custom_alarm_expired) {
-        alarm->clock_month = alarm->clock_base;
-        alarm->clock_week  = alarm->clock_base;
-        app_module_clock_to_week(&alarm->clock_month);
-        app_module_clock_to_week(&alarm->clock_week);
-    }
-    /* 再次更新时,以先前时间线计算下一个提醒时间点 */
-    app_module_clock_t clock_month = alarm->clock_month;
-    app_module_clock_t clock_week  = alarm->clock_week;
-    /* 再次更新策略,月迭代更新 */
-    if (alarm->field_month != 0) {
-        for (uint8_t idx = 0; idx < 12; idx++) {
-             uint8_t off = 1 << ((idx + clock_month.month) % 12);
-            if ((alarm->field_month & off) != 0)
-                break;
-            if ((clock_month.month += 1) > 12) {
-                 clock_month.month -= 12;
-                 clock_month.year++;
+    switch (alarm->type) {
+    case app_module_alarm_custom: {
+        /* 初次更新策略,闹钟设置时 */
+        if (clock->utc == alarm->clock_base.utc) {
+            event = app_thread_mix_custom_alarm_expired;
+            alarm->clock_month = alarm->clock_base;
+            alarm->clock_week  = alarm->clock_base;
+            app_module_clock_to_week(&alarm->clock_month);
+            app_module_clock_to_week(&alarm->clock_week);
+        }
+        /* 再次更新时,以当前时间线计算下一个提醒时间点 */
+        app_module_clock_t clock_month = alarm->clock_month;
+        app_module_clock_t clock_week  = alarm->clock_week;
+        /* 再次更新策略,月迭代更新 */
+        if (alarm->field_month != 0) {
+            for (uint8_t idx = 0; idx < 12; idx++) {
+                 uint8_t off = 1 << ((idx + clock_month.month) % 12);
+                if ((alarm->field_month & off) != 0)
+                    break;
+                if ((clock_month.month += 1) > 12) {
+                     clock_month.month -= 12;
+                     clock_month.year++;
+                }
+            }
+                if ((clock_month.month += 1) > 12) {
+                     clock_month.month -= 12;
+                     clock_month.year++;
+                }
+            app_module_clock_to_utc(&clock_month);
+            app_module_clock_to_week(&clock_month);
+            /* 再次更新策略,月迭代更新 */
+            if (clock->utc == clock_month.utc) {
+                event = app_thread_mix_custom_alarm_month;
+                alarm->clock_month = clock_month;
             }
         }
-            if ((clock_month.month += 1) > 12) {
-                 clock_month.month -= 12;
-                 clock_month.year++;
+        /* 再次更新策略,周迭代更新 */
+        if (alarm->field_week != 0) {
+            for (uint8_t idx = 0; idx < 7; idx++) {
+                 uint8_t off = 1 << ((idx + clock_week.week + 1) % 7);
+                if ((alarm->field_week & off) != 0)
+                    break;
+                clock_week.utc += 24 * 60 * 60;
             }
-        app_module_clock_to_utc(&clock_month);
-        app_module_clock_to_week(&clock_month);
-    }
-    /* 再次更新策略,周迭代更新 */
-    if (alarm->field_week != 0) {
-        for (uint8_t idx = 0; idx < 7; idx++) {
-             uint8_t off = 1 << ((idx + clock_week.week + 1) % 7);
-            if ((alarm->field_week & off) != 0)
-                break;
-            clock_week.utc += 24 * 60 * 60;
+                clock_week.utc += 24 * 60 * 60;
+            app_module_clock_to_dtime(&clock_week);
+            app_module_clock_to_week(&clock_week);
+            /* 再次更新策略,周迭代更新 */
+            if (clock->utc == clock_week.utc) {
+                event = app_thread_mix_custom_alarm_week;
+                alarm->clock_week = clock_week;
+            }
         }
-            clock_week.utc += 24 * 60 * 60;
-        app_module_clock_to_dtime(&clock_week);
-        app_module_clock_to_week(&clock_week);
-    }
-    /* 再次更新策略,月迭代更新 */
-    if (clock->utc == clock_month.utc) {
-        event  = app_thread_mix_custom_alarm_month;
-        alarm->clock_month = clock_month;
-    }
-    if (clock->utc == alarm->clock_month.utc + alarm->snooze * 60)
-        event = app_thread_mix_custom_alarm_month_snooze;
-    /* 再次更新策略,周迭代更新 */
-    if (clock->utc == clock_week.utc) {
-        event = app_thread_mix_custom_alarm_week;
-        alarm->clock_week = clock_week;
-    }
-    if (clock->utc == alarm->clock_week.utc + alarm->snooze * 60)
-        event = app_thread_mix_custom_alarm_week_snooze;
-    /* 只要闹钟是合法的,即使它是关闭状态也需要继续更新 */
-    if (!alarm->onoff)
-        return;
-    /* 发送闹钟事件 */
-    if (event != ~0) {
-        app_package_t package = {
-            .send_tid = app_thread_id_mix_custom,
-            .recv_tid = app_thread_id_mix_custom,
-            .module   = app_thread_mix_custom_alarm,
-            .event    = event,
-            .dynamic  = false,
-            .size     = sizeof(app_module_alarm_t),
-            .data     = alarm,
-        };
-        app_thread_package_notify(&package);
+        /* 只要闹钟是合法的 */
+        /* 即使它是关闭状态也需要继续更新 */
+        if (!alarm->onoff || event == ~0)
+            break;
         #if APP_MODULE_CHECK
         app_module_clock_t *clock_now = NULL;
+        APP_OS_LOG_INFO("event:%u\n", event);
         APP_OS_LOG_INFO("clock:\n");
         clock_now = clock;
         APP_OS_LOG_INFO("utc=%lu,%u, %u-%u-%u, %u:%u:%u\n",
@@ -106,6 +90,7 @@ void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *cloc
                         clock_now->utc,clock_now->week,
                         clock_now->year,clock_now->month,clock_now->day,
                         clock_now->hour,clock_now->minute,clock_now->second);
+        APP_OS_LOG_INFO("clock_month:\n");
         clock_now = &clock_month;
         APP_OS_LOG_INFO("utc=%lu,%u, %u-%u-%u, %u:%u:%u\n",
                         clock_now->utc,clock_now->week,
@@ -117,14 +102,79 @@ void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *cloc
                         clock_now->utc,clock_now->week,
                         clock_now->year,clock_now->month,clock_now->day,
                         clock_now->hour,clock_now->minute,clock_now->second);
-        APP_OS_LOG_INFO("snooze:%u\n",         alarm->snooze);
-        APP_OS_LOG_INFO("field_month:%x\n",    alarm->field_month);
-        APP_OS_LOG_INFO("field_week:%x\n",     alarm->field_week);
-        APP_OS_LOG_INFO("valid:%u\n",          alarm->valid);
-        APP_OS_LOG_INFO("onoff:%u\n",          alarm->onoff);
-        APP_OS_LOG_INFO("silence:%u\n",        alarm->silence);
-        APP_OS_LOG_INFO("clock_month:\n");
+        APP_OS_LOG_INFO("field_month:%x\n", alarm->field_month);
+        APP_OS_LOG_INFO("field_week:%x\n",  alarm->field_week);
+        APP_OS_LOG_INFO("valid:%u\n",       alarm->valid);
+        APP_OS_LOG_INFO("onoff:%u\n",       alarm->onoff);
         #endif
+        break;
+    }
+    case app_module_alarm_repeat: {
+        /* 初次更新策略,闹钟设置时 */
+        if (clock->utc == alarm->clock_base.utc) {
+            event = app_thread_mix_custom_alarm_expired;
+            alarm->clock_repeat = alarm->clock_base;
+            app_module_clock_to_week(&alarm->clock_repeat);
+        }
+        /* 初次更新时,初始化一次策略,将其同步到一个时间线 */
+        app_module_clock_t clock_repeat = alarm->clock_repeat;
+        /* 再次更新时,轮转迭代更新 */
+        if (alarm->repeat) {
+            clock_repeat.utc += alarm->repeat;
+            app_module_clock_to_dtime(&clock_repeat);
+            app_module_clock_to_week(&clock_repeat);
+            /* 再次更新策略,轮转迭代更新 */
+            if (clock->utc == clock_repeat.utc) {
+                event = app_thread_mix_custom_alarm_repeat;
+                alarm->clock_repeat = clock_repeat;
+            }
+        }
+        /* 只要闹钟是合法的 */
+        /* 即使它是关闭状态也需要继续更新 */
+        if (!alarm->onoff || event == ~0)
+            break;
+        #if APP_MODULE_CHECK
+        app_module_clock_t *clock_now = NULL;
+        APP_OS_LOG_INFO("event:%u\n", event);
+        APP_OS_LOG_INFO("clock:\n");
+        clock_now = clock;
+        APP_OS_LOG_INFO("utc=%lu,%u, %u-%u-%u, %u:%u:%u\n",
+                        clock_now->utc,clock_now->week,
+                        clock_now->year,clock_now->month,clock_now->day,
+                        clock_now->hour,clock_now->minute,clock_now->second);
+        APP_OS_LOG_INFO("clock_base:\n");
+        clock_now = &alarm->clock_base;
+        APP_OS_LOG_INFO("utc=%lu,%u, %u-%u-%u, %u:%u:%u\n",
+                        clock_now->utc,clock_now->week,
+                        clock_now->year,clock_now->month,clock_now->day,
+                        clock_now->hour,clock_now->minute,clock_now->second);
+        APP_OS_LOG_INFO("clock_repeat:\n");
+        clock_now = &clock_repeat;
+        APP_OS_LOG_INFO("utc=%lu,%u, %u-%u-%u, %u:%u:%u\n",
+                        clock_now->utc,clock_now->week,
+                        clock_now->year,clock_now->month,clock_now->day,
+                        clock_now->hour,clock_now->minute,clock_now->second);
+        APP_OS_LOG_INFO("repeat:%u\n",  alarm->repeat);
+        APP_OS_LOG_INFO("valid:%u\n",   alarm->valid);
+        APP_OS_LOG_INFO("onoff:%u\n",   alarm->onoff);
+        #endif
+        break;
+    }
+    default:
+        break;
+    }
+    /* 发送闹钟事件 */
+    if (event != ~0) {
+        app_package_t package = {
+            .send_tid = app_thread_id_mix_custom,
+            .recv_tid = app_thread_id_mix_custom,
+            .module   = app_thread_mix_custom_alarm,
+            .event    = event,
+            .dynamic  = false,
+            .size     = sizeof(app_module_alarm_t),
+            .data     = alarm,
+        };
+        app_thread_package_notify(&package);
     }
 }
 

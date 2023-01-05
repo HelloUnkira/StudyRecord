@@ -2,17 +2,7 @@
 #include <stdio.h>
 #include "app_thread_interface.h"
 
-/* 闹钟组测试开始 */
-void app_module_alarm_test(void)
-{
-
-}
-
-
-
-/* 闹钟组测试结束 */
-
-
+/* 工作队列测试<start> */
 
 static uint8_t app_thread_mix_work_arg = 0;
 static void app_thread_mix_work_routine(void *parameter)
@@ -29,6 +19,8 @@ app_thread_mix_irq_work_t app_thread_mix_irq_work_entry = {
     .routine   =  app_thread_mix_work_routine,
     .parameter = &app_thread_mix_work_arg,
 };
+
+/* 工作队列测试<end> */
 
 #if 0
 #elif APP_OS_IS_LINUX
@@ -60,17 +52,39 @@ static void software_timer_handler(int signal)
         if (count == 1000) {
             static app_module_alarm_t array[5] = {0};
             uint32_t alarm_group_id = app_module_alarm_group_register(array, 5);
-            app_module_alarm_t alarm1 = {.clock_base.utc = 2, .onoff = 1, .snooze = 1,
-                                         .field_month = 0b00000000100, .field_week = 0b1000000,};
-            app_module_alarm_t alarm2 = {.clock_base.utc = 10, .onoff = 1, .snooze = 1,
-                                         .field_month = 0b00000000100, .field_week = 0b1000000,};
-            app_module_clock_to_dtime(&alarm1.clock_base);
-            app_module_clock_to_dtime(&alarm2.clock_base);
+            app_module_alarm_t alarm1 = {.clock_base.year   = 2023,
+                                         .clock_base.month  = 1,
+                                         .clock_base.day    = 1,
+                                         .clock_base.second = 2,
+                                         .onoff = 1,
+                                         .field_month = 0b00000001000,
+                                         .field_week = 0b0000100,
+                                         .type = app_module_alarm_custom,};
+            app_module_alarm_t alarm2 = {.clock_base.year   = 2023,
+                                         .clock_base.month  = 1,
+                                         .clock_base.day    = 1,
+                                         .clock_base.second = 4,
+                                         .onoff = 1,
+                                         .field_month = 0b00000001000,
+                                         .field_week = 0b0000100,
+                                         .type = app_module_alarm_custom,};
+            app_module_alarm_t alarm3 = {.clock_base.year   = 2023,
+                                         .clock_base.month  = 1,
+                                         .clock_base.day    = 1,
+                                         .clock_base.second = 5,
+                                         .onoff = 1,
+                                         .repeat = 3,
+                                         .type = app_module_alarm_repeat,};
+            app_module_clock_to_utc(&alarm1.clock_base);
+            app_module_clock_to_utc(&alarm2.clock_base);
+            app_module_clock_to_utc(&alarm3.clock_base);
             app_module_clock_to_week(&alarm1.clock_base);
             app_module_clock_to_week(&alarm2.clock_base);
+            app_module_clock_to_week(&alarm3.clock_base);
 
             app_module_alarm_add(alarm_group_id, &alarm1);
             app_module_alarm_add(alarm_group_id, &alarm2);
+            app_module_alarm_add(alarm_group_id, &alarm3);
         }
         /* test stopwatch */
         if (count % APP_MODULE_STOPWATCH_MSEC == 0) {
@@ -187,8 +201,13 @@ int main(int argc, char *argv[])
 {
     /* 启动APP调度策略 */
     app_thread_set_work_now();
+    /* 设置系统时钟 */
+    app_module_clock_t clock = {.year = 2023, .month = 1, .day = 1};
+    app_module_clock_to_utc(&clock);
+    app_module_clock_set_system_clock(&clock);
     
     /* 测试中我们在主线程使用软件定时器信号量发送包裹 */
+    /* 以达到模拟事件源的生成 */
     #if 0
     #elif APP_OS_IS_LINUX
     software_timer_ready();

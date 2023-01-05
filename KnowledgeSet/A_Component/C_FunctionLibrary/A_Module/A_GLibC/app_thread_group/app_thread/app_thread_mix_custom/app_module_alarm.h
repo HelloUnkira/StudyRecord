@@ -3,18 +3,42 @@
 
 typedef struct {
     app_module_clock_t clock_base;  /* 设置时的时钟 */
-    app_module_clock_t clock_month; /* 月更新提醒时钟(内部维护) */
-    app_module_clock_t clock_week;  /* 周更新提醒时钟(内部维护) */
-    uint32_t snooze:6;              /* 贪睡时长(分钟), 0为不贪睡 */
-    uint16_t field_month:12;        /* 一月到十二月 */
-    uint8_t  field_week:7;          /* 日一二三四五六 */
-    uint8_t  valid:1;               /* 有效性 */
-    uint8_t  onoff:1;               /* 启停状态 */
+    union {
+        struct {    /* 常规式闹钟 */
+            app_module_clock_t clock_month;     /* 月更新提醒时钟(内部维护) */
+            app_module_clock_t clock_week;      /* 周更新提醒时钟(内部维护) */
+            uint32_t field_month:12;            /* 一月到十二月 */
+            uint32_t field_week:7;              /* 日一二三四五六 */
+        };
+        struct {    /* 轮转式闹钟 */
+            app_module_clock_t clock_repeat;    /* 轮转更新提醒时钟(内部维护) */
+            uint32_t repeat;                    /* 轮转时间(秒),0为不轮转 */
+        };
+    };
+    uint8_t type:3;                 /* 闹钟模式 */
+    uint8_t valid:1;                /* 有效性 */
+    uint8_t onoff:1;                /* 启停状态 */
     /* 使用者自行维护字段 */
-    uint8_t  silence:1;             /* 静默提醒 */
-    char    *data;                  /* 相关数据包 */
-                                    /* 例:闹钟,日程提醒,事项提醒,等 */
+    uint8_t *data;                  /* 扩充数据包 */
+    uint32_t size;                  /* 扩充数据包长度 */
+                                    /* 例如:日程提醒,事项提醒, */
+                                    /*      闹钟名字等信息时使用到 */
 } app_module_alarm_t;
+
+/*扩充设计:
+ *    因为闹钟提供闹钟组功能
+ *    如果需要实现更为复杂的如:
+ *    贪睡闹钟,提前或延后提醒功能
+ *    只需要组合多个闹钟生成闹钟组即可
+ *    开辟一个新闹钟临时的完成该功能即可,完成后直接丢弃
+ *    因为这些功能的策略变动性随外界影响过大
+ *    故它不应该加入到基础闹钟结构中
+ */
+
+typedef enum {
+    app_module_alarm_custom,
+    app_module_alarm_repeat,
+} app_module_alarm_type_t;
 
 typedef struct {
     app_module_alarm_t *array;      /* 闹钟数组 */
