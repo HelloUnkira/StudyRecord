@@ -10,7 +10,7 @@
 static app_module_alarm_group_t app_module_alarm_group[APP_MODULE_ALARM_GROUP_MAX] = {0};
 
 /*@brief        更新闹钟
- *@param[in]    group 闹钟实例
+ *@param[in]    alarm 闹钟实例
  *@param[in]    clock 时钟实例
  */
 void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *clock)
@@ -83,7 +83,7 @@ void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *cloc
     /* 发送闹钟事件 */
     if (event != ~0) {
         app_package_t package = {
-            .send_tid = app_thread_id_unknown,
+            .send_tid = app_thread_id_mix_custom,
             .recv_tid = app_thread_id_mix_custom,
             .module   = app_thread_mix_custom_alarm,
             .event    = event,
@@ -132,7 +132,7 @@ void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *cloc
 /*@brief        更新闹钟组
  *@param[in]    clock 时钟实例
  */
-void app_module_alarm_group_update(app_module_clock_t *clock)
+void app_module_alarm_group_update(app_module_clock_t clock[1])
 {
     for (uint32_t idx = 0; idx < APP_MODULE_ALARM_GROUP_MAX; idx++) {
         app_mutex_take(&app_module_alarm_group[idx].mutex);
@@ -201,6 +201,28 @@ uint32_t app_module_alarm_add(uint32_t alarm_group_id, app_module_alarm_t *alarm
     return alarm_id;
 }
 
+/*@brief        闹钟组启动闹钟
+ *@param[in]    alarm_group_id 闹钟组id
+ *@param[in]    alarm          闹钟实例
+ */
+void app_module_alarm_start(uint32_t alarm_group_id, uint32_t alarm_id)
+{
+    app_mutex_take(&app_module_alarm_group[alarm_group_id].mutex);
+    app_module_alarm_group[alarm_group_id].array[alarm_id].onoff = true;
+    app_mutex_give(&app_module_alarm_group[alarm_group_id].mutex);
+}
+
+/*@brief        闹钟组停止闹钟
+ *@param[in]    alarm_group_id 闹钟组id
+ *@param[in]    alarm          闹钟实例
+ */
+void app_module_alarm_stop(uint32_t alarm_group_id, uint32_t alarm_id)
+{
+    app_mutex_take(&app_module_alarm_group[alarm_group_id].mutex);
+    app_module_alarm_group[alarm_group_id].array[alarm_id].onoff = false;
+    app_mutex_give(&app_module_alarm_group[alarm_group_id].mutex);
+}
+
 /*@brief        闹钟组移除闹钟
  *@param[in]    alarm_group_id 闹钟组id
  *@param[in]    alarm_id       闹钟id
@@ -216,7 +238,7 @@ void app_module_alarm_del(uint32_t alarm_group_id, uint32_t alarm_id)
 /*@brief        设置闹钟组中的闹钟实例
  *@param[in]    alarm_group_id 闹钟组id
  *@param[in]    alarm_id       闹钟id
- *@param[in]    alarm          闹钟实例
+ *@param[out]   alarm          闹钟实例
  */
 void app_module_alarm_set(uint32_t alarm_group_id, uint32_t alarm_id, app_module_alarm_t *alarm)
 {
@@ -228,7 +250,7 @@ void app_module_alarm_set(uint32_t alarm_group_id, uint32_t alarm_id, app_module
 /*@brief        获得闹钟组中的闹钟实例
  *@param[in]    alarm_group_id 闹钟组id
  *@param[in]    alarm_id       闹钟id
- *@param[in]    alarm          闹钟实例
+ *@param[out]   alarm          闹钟实例
  */
 void app_module_alarm_get(uint32_t alarm_group_id, uint32_t alarm_id, app_module_alarm_t *alarm)
 {

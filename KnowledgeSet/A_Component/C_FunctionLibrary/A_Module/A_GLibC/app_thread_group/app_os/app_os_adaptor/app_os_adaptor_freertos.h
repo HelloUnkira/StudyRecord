@@ -39,6 +39,7 @@ static inline void app_thread_process(app_thread_t *thread)
  */
 static inline bool app_os_not_in_irq(void)
 {
+#if 0
     uint32_t interrupt;
     
     /* 获取当前正在执行的中断数 */
@@ -48,6 +49,12 @@ static inline bool app_os_not_in_irq(void)
         return true;
     else
         return false;
+#else
+    if (pdTRUE == xPortIsInsideInterrupt())
+        return false;
+    else
+        return true;
+#endif
 }
 
 /* app semaphone */

@@ -20,6 +20,8 @@ void app_thread_mix_custom_routine(void)
     /* 模组初始化 */
     app_module_clock_ready();
     app_module_alarm_group_ready();
+    app_module_stopwatch_ready();
+    app_module_countdown_ready();
     /* 主流程 */
     while (true) {
         app_sem_take(sem);
@@ -39,6 +41,11 @@ void app_thread_mix_custom_routine(void)
                     void  *parameter                 = ((void **)package.data)[1];
                     routine(parameter);
                 }
+                break;
+            }
+            case app_thread_mix_custom_dump: {
+                /* 将系统敏感的资源转储到外存 */
+                app_module_dump_mem_to_storage();
                 break;
             }
             case app_thread_mix_custom_clock: {
@@ -63,6 +70,18 @@ void app_thread_mix_custom_routine(void)
                 if (package.event == app_thread_mix_custom_alarm_month_snooze);
                 if (package.event == app_thread_mix_custom_alarm_week);
                 if (package.event == app_thread_mix_custom_alarm_week_snooze);
+                break;
+            }
+            case app_thread_mix_custom_stopwatch: {
+                if (package.event == app_thread_mix_custom_stopwatch_msec_update)
+                    app_module_stopwatch_msec_update();
+                break;
+            }
+            case app_thread_mix_custom_countdown: {
+                if (package.event == app_thread_mix_custom_countdown_msec_update)
+                    app_module_countdown_msec_update();
+                /* 根据实际的情况处理或者转发事件包到特定的线程特定的模组 */
+                if (package.event == app_thread_mix_custom_countdown_expired);
                 break;
             }
             default: {

@@ -42,7 +42,20 @@ static void software_timer_handler(int signal)
     //SIGVTALRM:    以该进程在用户态下花费的时间来计算
     //SIGPROF:      以该进程在用户态下和内核态下所费的时间来计算
     static uint32_t count = 0;count++;
-    if (signal == SIGALRM && (count % 1000 == 0)) {
+    if (signal == SIGALRM) {
+        /* test clock */
+        if (count % 1000 == 0) {
+            app_package_t package = {
+                .send_tid = app_thread_id_unknown,
+                .recv_tid = app_thread_id_mix_custom,
+                .module   = app_thread_mix_custom_clock,
+                .event    = app_thread_mix_custom_clock_timestamp_update,
+                .dynamic  = false,
+                .size     = 0,
+                .data     = NULL,
+            };
+            app_thread_package_notify(&package);
+        }
         /* test alarm group */
         if (count == 1000) {
             static app_module_alarm_t array[5] = {0};
@@ -59,18 +72,41 @@ static void software_timer_handler(int signal)
             app_module_alarm_add(alarm_group_id, &alarm1);
             app_module_alarm_add(alarm_group_id, &alarm2);
         }
-        /* package */
-        if (count % 1000 == 0) {
+        /* test stopwatch */
+        if (count % APP_MODULE_STOPWATCH_MSEC == 0) {
             app_package_t package = {
                 .send_tid = app_thread_id_unknown,
                 .recv_tid = app_thread_id_mix_custom,
-                .module   = app_thread_mix_custom_clock,
-                .event    = app_thread_mix_custom_clock_timestamp_update,
+                .module   = app_thread_mix_custom_stopwatch,
+                .event    = app_thread_mix_custom_stopwatch_msec_update,
                 .dynamic  = false,
                 .size     = 0,
                 .data     = NULL,
             };
             app_thread_package_notify(&package);
+        }
+        if (count == 1000) {
+            app_module_stopwatch_reset();
+            app_module_stopwatch_start();
+        }
+        /* test countdown */
+        if (count % APP_MODULE_STOPWATCH_MSEC == 0) {
+            app_package_t package = {
+                .send_tid = app_thread_id_unknown,
+                .recv_tid = app_thread_id_mix_custom,
+                .module   = app_thread_mix_custom_countdown,
+                .event    = app_thread_mix_custom_countdown_msec_update,
+                .dynamic  = false,
+                .size     = 0,
+                .data     = NULL,
+            };
+            app_thread_package_notify(&package);
+        }
+        if (count == 1000) {
+            app_module_countdown_reset();
+            app_module_countdown_t countdown = {.hour = 0, .minute = 0, .second = 17};
+            app_module_countdown_set(&countdown);
+            app_module_countdown_start();
         }
         /* package... */
         #if 0

@@ -10,7 +10,8 @@ typedef struct {
     uint8_t  minute;    /* 分 */
     uint8_t  second;    /* 秒 */
     uint8_t  week;      /* 日一二三四五六:[0, 6] */
-    int32_t  zone;      /* 时区偏移,秒数(将它补充到utc上转化成本地时间) */
+    /* 将它补充到utc上转化成本地时间,反之亦可 */
+    int32_t  zone;      /* 时区偏移,秒数 */
 } app_module_clock_t;
 
 /*@brief        闰年判断
@@ -46,11 +47,13 @@ uint32_t app_module_clock_how_many_days(app_module_clock_t *clock1, app_module_c
 
 /*@brief        星期转化(蔡勒公式)
  *@param[in]    clock 时钟实例{.year,.month,.day,}
+ *@param[out]   clock 时钟实例{.week,}
  */
 void app_module_clock_to_week(app_module_clock_t *clock);
 
 /*@brief        日期转化为utc
  *@param[in]    clock 时钟实例{.year,.month,.day,.hour,.minute,.second,}
+ *@param[out]   clock 时钟实例{.utc,}
  */
 void app_module_clock_to_utc(app_module_clock_t *clock);
 
@@ -68,10 +71,9 @@ typedef enum {
 } app_module_clock_update_event;
 
 /* 本地时钟触发回调 */
-typedef void (*app_module_clock_cb1)(app_module_clock_t *clock);
+typedef void (*app_module_clock_cb1)(app_module_clock_t clock[1]);
 /* 本地时钟更新回调 */
-typedef void (*app_module_clock_cb2)(app_module_clock_t *last_clock,
-                                     app_module_clock_t *curr_clock, uint32_t event);
+typedef void (*app_module_clock_cb2)(app_module_clock_t clock[2], uint32_t event);
 
 /*@brief     获得系统时间(中断环境下不可调用)
  *@param[in] clock 时钟实例

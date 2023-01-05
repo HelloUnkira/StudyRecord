@@ -59,6 +59,10 @@ void app_thread_master_routine(void)
     app_sem_t  *send_sem  = &app_thread_sem_src;
     app_pipe_t *send_pipe = &app_thread_pipe_src;
     app_package_t package = {0};
+    /* 编译时间输出 */
+    app_os_build_time();
+    /* 模组初始化 */
+    app_module_system();
     /* 主流程 */
     while (true) {
         app_sem_take(send_sem);

@@ -10,15 +10,16 @@ typedef struct {
     uint8_t  field_week:7;          /* 日一二三四五六 */
     uint8_t  valid:1;               /* 有效性 */
     uint8_t  onoff:1;               /* 启停状态 */
+    /* 使用者自行维护字段 */
     uint8_t  silence:1;             /* 静默提醒 */
     char    *name;                  /* 闹钟名字 */
 } app_module_alarm_t;
 
 typedef struct {
-    app_module_alarm_t *array;  /* 闹钟数组 */
-    uint32_t            number; /* 闹钟总数量 */
-    uint32_t            used;   /* 闹钟使用数量 */
-    app_mutex_t         mutex;  /* 闹钟组资源保护 */
+    app_module_alarm_t *array;      /* 闹钟数组 */
+    uint32_t            number;     /* 闹钟总数量 */
+    uint32_t            used;       /* 闹钟使用数量 */
+    app_mutex_t         mutex;      /* 闹钟组资源保护 */
 } app_module_alarm_group_t;
 
 /* 本地闹钟组限制 */
@@ -42,6 +43,18 @@ uint32_t app_module_alarm_group_register(app_module_alarm_t *array, uint32_t num
  */
 uint32_t app_module_alarm_add(uint32_t alarm_group_id, app_module_alarm_t *alarm);
 
+/*@brief        闹钟组启动闹钟
+ *@param[in]    alarm_group_id 闹钟组id
+ *@param[in]    alarm          闹钟实例
+ */
+void app_module_alarm_start(uint32_t alarm_group_id, uint32_t alarm_id);
+
+/*@brief        闹钟组停止闹钟
+ *@param[in]    alarm_group_id 闹钟组id
+ *@param[in]    alarm          闹钟实例
+ */
+void app_module_alarm_stop(uint32_t alarm_group_id, uint32_t alarm_id);
+
 /*@brief        闹钟组移除闹钟
  *@param[in]    alarm_group_id 闹钟组id
  *@param[in]    alarm_id       闹钟实例
@@ -51,14 +64,14 @@ void app_module_alarm_del(uint32_t alarm_group_id, uint32_t alarm_id);
 /*@brief        设置闹钟组中的闹钟实例
  *@param[in]    alarm_group_id 闹钟组id
  *@param[in]    alarm_id       闹钟id
- *@param[in]    alarm          闹钟实例
+ *@param[out]   alarm          闹钟实例
  */
 void app_module_alarm_set(uint32_t alarm_group_id, uint32_t alarm_id, app_module_alarm_t *alarm);
 
 /*@brief        获得闹钟组中的闹钟实例
  *@param[in]    alarm_group_id 闹钟组id
  *@param[in]    alarm_id       闹钟id
- *@param[in]    alarm          闹钟实例
+ *@param[out]   alarm          闹钟实例
  */
 void app_module_alarm_get(uint32_t alarm_group_id, uint32_t alarm_id, app_module_alarm_t *alarm);
 

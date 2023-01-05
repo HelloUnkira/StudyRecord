@@ -3,7 +3,7 @@
  */
 
 #define APP_OS_LOG_LOCAL_STATUS     1
-#define APP_OS_LOG_LOCAL_LEVEL      3   /* 0:DEBUG,1:INFO,2:WARN,3:ERROR,4:NONE */
+#define APP_OS_LOG_LOCAL_LEVEL      2   /* 0:DEBUG,1:INFO,2:WARN,3:ERROR,4:NONE */
 
 #include "app_thread_interface.h"
 #include "app_module_clock.h"
@@ -86,6 +86,7 @@ uint32_t app_module_clock_how_many_days(app_module_clock_t *clock1, app_module_c
 
 /*@brief        星期转化(蔡勒公式)
  *@param[in]    clock 时钟实例{.year,.month,.day,}
+ *@param[out]   clock 时钟实例{.week,}
  */
 void app_module_clock_to_week(app_module_clock_t *clock)
 {
@@ -175,7 +176,11 @@ typedef enum {
     app_module_clock_flag_update,   /* 更新回调事件标记 */
 } app_module_clock_cb_flag;
 
-static inline void app_module_clock_cb1_respond(uint32_t flag, app_module_clock_t *clock)
+/*@brief        一类时钟回调集响应
+ *@param[in]    flag 一类时钟回调事件
+ *@param[out]   clock 时钟实例
+ */
+void app_module_clock_cb1_respond(uint32_t flag, app_module_clock_t clock[1])
 {
     switch (flag) {
     case app_module_clock_flag_second:
@@ -199,22 +204,24 @@ static inline void app_module_clock_cb1_respond(uint32_t flag, app_module_clock_
     }
 }
 
-static inline void app_module_clock_cb2_respond(uint32_t flag,  app_module_clock_t *last_clock,
-                                                uint32_t event, app_module_clock_t *curr_clock)
+/*@brief        二类时钟回调集响应
+ *@param[in]    flag 二类时钟回调事件
+ *@param[out]   clock 时钟实例
+ */
+void app_module_clock_cb2_respond(uint32_t flag, app_module_clock_t clock[2], uint32_t event)
 {
     switch (flag) {
     case app_module_clock_flag_update:
         for (uint32_t idx = 0; idx < app_module_clock_update_cb_size; idx++)
-            app_module_clock_update_cb[idx](last_clock, curr_clock, event);
+            app_module_clock_update_cb[idx](clock, event);
         break;
     default:
         break;
     }
 }
 
-static app_mutex_t        app_module_clock_mutex = {0};
-static app_module_clock_t app_module_clock_last  = {0};
-static app_module_clock_t app_module_clock_curr  = {0};
+static app_mutex_t app_module_clock_mutex = {0};
+static app_module_clock_t app_module_clock[2] = {0};
 
 /*@brief     获得系统时间(中断环境下不可调用)
  *@param[in] clock 时钟实例
@@ -224,7 +231,7 @@ void app_module_clock_get_system_clock(app_module_clock_t *clock)
     /* 入界 */
     app_mutex_take(&app_module_clock_mutex);
     /* 获得时钟 */
-    *clock = app_module_clock_curr;
+    *clock = app_module_clock[1];
     /* 出界 */
     app_mutex_give(&app_module_clock_mutex);
 }
@@ -237,8 +244,8 @@ void app_module_clock_set_system_clock(app_module_clock_t *clock)
     /* 入界 */
     app_mutex_take(&app_module_clock_mutex);
     /* 获得时钟更新 */
-    app_module_clock_last = app_module_clock_curr;
-    app_module_clock_curr = *clock;
+    app_module_clock[0] = app_module_clock[1];
+    app_module_clock[1] = *clock;
     /* 出界 */
     app_mutex_give(&app_module_clock_mutex);
     /* 向线程发送时钟更新事件 */
@@ -263,8 +270,9 @@ void app_module_clock_event_update(void)
     /* 入界 */
     app_mutex_take(&app_module_clock_mutex);
     /* 获得时钟更新 */
-    app_module_clock_t clock_last = app_module_clock_last;
-    app_module_clock_t clock_curr = app_module_clock_curr;
+    app_module_clock_t clock[2] = {0};
+    clock[0] = app_module_clock[0];
+    clock[1] = app_module_clock[1];
     /* 出界 */
     app_mutex_give(&app_module_clock_mutex);
     /* 它只有一个调用者,所以无需保护 */
@@ -275,8 +283,7 @@ void app_module_clock_event_update(void)
     if (!clock_is_sync)
          clock_is_sync = true;
     /* 执行更新事件 */
-    app_module_clock_cb2_respond(app_module_clock_flag_update,
-                                 &clock_last, update_event, &clock_curr);
+    app_module_clock_cb2_respond(app_module_clock_flag_update, clock, update_event);
 }
 
 /*@brief     系统时间戳更新回调
@@ -288,14 +295,14 @@ void app_module_clock_timestamp_update(uint64_t utc_new)
     /* 入界 */
     app_mutex_take(&app_module_clock_mutex);
     /* 获得时钟更新 */
-    app_module_clock_t clock_old = app_module_clock_curr;
+    app_module_clock_t clock_old = app_module_clock[1];
     if (utc_new != 0)
-        app_module_clock_curr.utc = utc_new;
+        app_module_clock[1].utc = utc_new;
     if (utc_new == 0)
-        app_module_clock_curr.utc++;
-    app_module_clock_to_dtime(&app_module_clock_curr);
-    app_module_clock_to_week(&app_module_clock_curr);
-    app_module_clock_t clock_new = app_module_clock_curr;
+        app_module_clock[1].utc++;
+    app_module_clock_to_dtime(&app_module_clock[1]);
+    app_module_clock_to_week(&app_module_clock[1]);
+    app_module_clock_t clock_new = app_module_clock[1];
     /* 出界 */
     app_mutex_give(&app_module_clock_mutex);
     /* 回调更新 */
@@ -324,15 +331,15 @@ void app_module_clock_timestamp_update(uint64_t utc_new)
  */
 void app_module_clock_ready(void)
 {
-    app_module_clock_to_dtime(&app_module_clock_curr);
-    app_module_clock_to_week(&app_module_clock_curr);
+    app_module_clock_to_dtime(&app_module_clock[1]);
+    app_module_clock_to_week(&app_module_clock[1]);
     app_mutex_process(&app_module_clock_mutex);
 }
 
 /*@brief     一类时钟空回调
  *@param[in] clock 时钟实例
  */
-void app_module_clock_cb1_empty(app_module_clock_t *clock)
+void app_module_clock_cb1_empty(app_module_clock_t clock[1])
 {
 }
 
@@ -341,7 +348,6 @@ void app_module_clock_cb1_empty(app_module_clock_t *clock)
  *@param[in] last_clock 时钟实例
  *@param[in] event      时钟事件
  */
-void app_module_clock_cb2_empty(app_module_clock_t *last_clock,
-                                app_module_clock_t *curr_clock, uint32_t event)
+void app_module_clock_cb2_empty(app_module_clock_t clock[2], uint32_t event)
 {
 }
