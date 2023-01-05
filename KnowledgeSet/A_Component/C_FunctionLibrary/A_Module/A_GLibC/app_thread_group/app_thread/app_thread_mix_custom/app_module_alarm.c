@@ -123,7 +123,6 @@ void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *cloc
         APP_OS_LOG_INFO("valid:%u\n",          alarm->valid);
         APP_OS_LOG_INFO("onoff:%u\n",          alarm->onoff);
         APP_OS_LOG_INFO("silence:%u\n",        alarm->silence);
-        APP_OS_LOG_INFO("name:%s\n",           alarm->name);
         APP_OS_LOG_INFO("clock_month:\n");
         #endif
     }

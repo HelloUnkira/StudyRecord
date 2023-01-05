@@ -12,7 +12,8 @@ typedef struct {
     uint8_t  onoff:1;               /* 启停状态 */
     /* 使用者自行维护字段 */
     uint8_t  silence:1;             /* 静默提醒 */
-    char    *name;                  /* 闹钟名字 */
+    char    *data;                  /* 相关数据包 */
+                                    /* 例:闹钟,日程提醒,事项提醒,等 */
 } app_module_alarm_t;
 
 typedef struct {

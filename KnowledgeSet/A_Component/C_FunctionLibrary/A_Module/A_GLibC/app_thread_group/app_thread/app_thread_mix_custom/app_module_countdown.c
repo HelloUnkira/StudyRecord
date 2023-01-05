@@ -23,7 +23,7 @@ void app_module_countdown_set(app_module_countdown_t *countdown)
     app_mutex_give(&app_module_countdown_mutex);
 }
 
-/*@brief        设置倒计时
+/*@brief        获取倒计时
  *@param[out]   countdown 倒计时实例
  */
 void app_module_countdown_get(app_module_countdown_t *countdown)

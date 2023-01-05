@@ -7,6 +7,7 @@
 #include "app_module_alarm.h"
 #include "app_module_stopwatch.h"
 #include "app_module_countdown.h"
+#include "app_module_world_time.h"
 
 typedef enum {  /* 线程模组 */
     app_thread_mix_custom_work,         /* 工作队列模组 */

@@ -1,5 +1,5 @@
-#ifdef APP_MODULE_CLOCK_CB_H
 #ifdef APP_MODULE_CLOCK_H
+#ifdef APP_MODULE_CLOCK_CB_H
 
 /*实现目标:
  *一个代替动态注册的,静态本地导入的时钟秒时分天回调集
@@ -23,33 +23,33 @@ void app_module_clock_cb2_empty(app_module_clock_t clock[2], uint32_t event);
 /* 时钟回调组集合: */
 
 /* 秒回调 */
-const app_module_clock_cb1 app_module_clock_second_cb[] = {
+static const app_module_clock_cb1 app_module_clock_second_cb[] = {
     app_module_clock_cb1_empty,
     /* 补充中...... */
-    app_module_system_ctrl_check,   /* 每秒系统控制更新检查 */
-    app_module_alarm_group_update,  /* 每秒闹钟更新 */
+    app_module_system_ctrl_check,   /* 系统控制更新检查 */
+    app_module_alarm_group_update,  /* 闹钟更新 */
 };
 
 /* 分回调 */
-const app_module_clock_cb1 app_module_clock_minute_cb[] = {
+static const app_module_clock_cb1 app_module_clock_minute_cb[] = {
     app_module_clock_cb1_empty,
     /* 补充中...... */
 };
 
 /* 时回调 */
-const app_module_clock_cb1 app_module_clock_hour_cb[] = {
+static const app_module_clock_cb1 app_module_clock_hour_cb[] = {
     app_module_clock_cb1_empty,
     /* 补充中...... */
 };
 
 /* 天回调 */
-const app_module_clock_cb1 app_module_clock_day_cb[] = {
+static const app_module_clock_cb1 app_module_clock_day_cb[] = {
     app_module_clock_cb1_empty,
     /* 补充中...... */
 };
 
 /* 更新回调 */
-const app_module_clock_cb2 app_module_clock_update_cb[] = {
+static const app_module_clock_cb2 app_module_clock_update_cb[] = {
     app_module_clock_cb2_empty,
     /* 补充中...... */
 };

@@ -10,8 +10,6 @@ typedef struct {
     uint8_t  minute;    /* 分 */
     uint8_t  second;    /* 秒 */
     uint8_t  week;      /* 日一二三四五六:[0, 6] */
-    /* 将它补充到utc上转化成本地时间,反之亦可 */
-    int32_t  zone;      /* 时区偏移,秒数 */
 } app_module_clock_t;
 
 /*@brief        闰年判断
