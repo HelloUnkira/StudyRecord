@@ -8,6 +8,17 @@
 
 #include "app_thread_interface.h"
 
+/*@brief 混合事件线程模组初始化
+ */
+void app_thread_mix_custom_ready(void)
+{
+    /* 模组初始化 */
+    app_module_clock_ready();
+    app_module_alarm_group_ready();
+    app_module_stopwatch_ready();
+    app_module_countdown_ready();
+}
+
 /*@brief 混合事件线程服务例程
  */
 void app_thread_mix_custom_routine(void)
@@ -17,11 +28,8 @@ void app_thread_mix_custom_routine(void)
     app_package_t package = {0};
     app_thread_get_sync_by_id(app_thread_id_mix_custom, &sem);
     app_thread_get_pipe_by_id(app_thread_id_mix_custom, &pipe);
-    /* 模组初始化 */
-    app_module_clock_ready();
-    app_module_alarm_group_ready();
-    app_module_stopwatch_ready();
-    app_module_countdown_ready();
+    /* 资源转储到内存 */
+    app_module_dump_storage_to_mem();
     /* 主流程 */
     while (true) {
         app_sem_take(sem);

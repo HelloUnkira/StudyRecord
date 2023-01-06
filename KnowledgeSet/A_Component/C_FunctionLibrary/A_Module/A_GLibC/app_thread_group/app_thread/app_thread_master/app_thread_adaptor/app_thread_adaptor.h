@@ -12,6 +12,10 @@
  *     它的唯一使用者为app_thread_master.c
  */
 
+/* 线程组模组初始化 */
+void app_thread_master_ready(void);
+void app_thread_mix_irq_ready(void);
+void app_thread_mix_custom_ready(void);
 /* 线程组服务例程 */
 void app_thread_master_routine(void);
 void app_thread_mix_irq_routine(void);

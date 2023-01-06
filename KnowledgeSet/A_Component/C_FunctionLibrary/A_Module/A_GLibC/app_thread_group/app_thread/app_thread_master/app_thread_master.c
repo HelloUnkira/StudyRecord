@@ -50,19 +50,26 @@ void app_thread_get_sync_by_id(uint32_t thread_id, app_sem_t **sem)
         *sem = &app_thread_sem_dst[thread_id];
 }
 
+/*@brief 主线程模组初始化
+ */
+void app_thread_master_ready(void)
+{
+    /* 编译时间输出 */
+    app_os_build_time();
+    /* 模组初始化 */
+    app_module_system();
+    app_module_ext_mem_ready();
+}
+
 /*@brief 主线程服务例程
  */
 void app_thread_master_routine(void)
-{  
+{
     app_sem_t  *recv_sem  = NULL;
     app_pipe_t *recv_pipe = NULL;
     app_sem_t  *send_sem  = &app_thread_sem_src;
     app_pipe_t *send_pipe = &app_thread_pipe_src;
     app_package_t package = {0};
-    /* 编译时间输出 */
-    app_os_build_time();
-    /* 模组初始化 */
-    app_module_system();
     /* 主流程 */
     while (true) {
         app_sem_take(send_sem);
@@ -121,6 +128,10 @@ void app_thread_set_work_now(void)
     for (uint32_t idx = 0; idx < app_thread_id_num; idx++)
         app_sem_process(&app_thread_sem_dst[idx]);
         app_sem_process(&app_thread_sem_src);
+    /* 就绪线程子模组 */
+    app_thread_master_ready();
+    app_thread_mix_irq_ready();
+    app_thread_mix_custom_ready();
     /* 就绪和启用线程组 */
     app_thread_process(&app_thread_master);
     app_thread_process(&app_thread_mix_irq);

@@ -19,6 +19,13 @@
 
 #include "app_thread_interface.h"
 
+
+/*@brief 混合中断线程模组初始化
+ */
+void app_thread_mix_irq_ready(void)
+{
+}
+
 /*@brief 混合中断线程服务例程
  */
 void app_thread_mix_irq_routine(void)

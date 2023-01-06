@@ -35,6 +35,38 @@ static void software_timer_handler(int signal)
     //SIGPROF:      以该进程在用户态下和内核态下所费的时间来计算
     static uint32_t count = 0;count++;
     if (signal == SIGALRM) {
+        /* test ext mem */
+        if (count == 100) {
+            /* 外存chunk测试 */
+            const app_module_ext_mem_t *chunk0 = app_module_ext_mem_find_by_name("thread_master");
+            const app_module_ext_mem_t *chunk1 = app_module_ext_mem_find_by_name("thread_mix_irq");
+            const app_module_ext_mem_t *chunk2 = app_module_ext_mem_find_by_name("thread_mix_custom");
+            
+            char c0[50] = "hello thread_master";
+            char c1[50] = "hello thread_mix_irq";
+            char c2[50] = "hello thread_mix_custom";
+            
+            char c_0[50] = {0};
+            char c_1[50] = {0};
+            char c_2[50] = {0};
+            
+            app_module_ext_mem_read(chunk0, 0, c_0, sizeof(c_0));
+            app_module_ext_mem_read(chunk1, 0, c_1, sizeof(c_1));
+            app_module_ext_mem_read(chunk2, 0, c_2, sizeof(c_2));
+            APP_OS_PRINT("\nsingle read:%s\n", c_0);
+            APP_OS_PRINT("\nsingle read:%s\n", c_1);
+            APP_OS_PRINT("\nsingle read:%s\n", c_2);
+            app_module_ext_mem_write(chunk0, 0, c0, sizeof(c0));
+            app_module_ext_mem_write(chunk1, 0, c1, sizeof(c1));
+            app_module_ext_mem_write(chunk2, 0, c2, sizeof(c2));
+            app_module_ext_mem_read(chunk0, 0, c_0, sizeof(c_0));
+            app_module_ext_mem_read(chunk1, 0, c_1, sizeof(c_1));
+            app_module_ext_mem_read(chunk2, 0, c_2, sizeof(c_2));
+            APP_OS_PRINT("\nwrite read:%s\n", c_0);
+            APP_OS_PRINT("\nwrite read:%s\n", c_1);
+            APP_OS_PRINT("\nwrite read:%s\n", c_2);
+        }
+        
         /* test clock */
         if (count % 1000 == 0) {
             app_package_t package = {
@@ -201,10 +233,6 @@ int main(int argc, char *argv[])
 {
     /* 启动APP调度策略 */
     app_thread_set_work_now();
-    /* 设置系统时钟 */
-    app_module_clock_t clock = {.year = 2023, .month = 1, .day = 1};
-    app_module_clock_to_utc(&clock);
-    app_module_clock_set_system_clock(&clock);
     
     /* 测试中我们在主线程使用软件定时器信号量发送包裹 */
     /* 以达到模拟事件源的生成 */
