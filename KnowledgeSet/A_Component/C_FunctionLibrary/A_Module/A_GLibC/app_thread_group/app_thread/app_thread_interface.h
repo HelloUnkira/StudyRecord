@@ -1,6 +1,7 @@
 #ifndef APP_THREAD_INTERFACE_H
 #define APP_THREAD_INTERFACE_H
 
+#include "app_arch_interface.h"
 #include "app_os_interface.h"
 #include "app_sys_interface.h"
 /* 导出外部接口补充...... */

@@ -2,7 +2,6 @@
 #define APP_OS_ADAPTOR_H
 
 /* APP OS adaptor: */
-
 #define APP_OS_IS_LINUX     1
 #define APP_OS_IS_ZEPHYR    0
 #define APP_OS_IS_FREERTOS  0
