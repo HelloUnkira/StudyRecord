@@ -7,18 +7,6 @@ typedef struct {
     ssize_t   chunk_size;   /* chunk大小 */
 } app_module_ext_mem_t;
 
-/*@brief     通过名字索引chunk静态实例
- *@param[in] name 名字
- *@retval    chunk静态实例
- */
-const app_module_ext_mem_t * app_module_ext_mem_find_by_name(char *name);
-
-/*@brief     通过地址索引chunk静态实例
- *@param[in] addr 地址
- *@retval    chunk静态实例
- */
-const app_module_ext_mem_t * app_module_ext_mem_find_by_addr(uintptr_t addr);
-
 /*@brief             读取数据从指定的文件中
  *@param[in] ext_mem chunk静态实例
  *@param[in] offset  数据偏移

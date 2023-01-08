@@ -132,7 +132,7 @@ int32_t app_sys_ring_buffer_gets(app_sys_ring_buffer *ring_buffer, void *data, u
     ring_buffer->head += length;
     if (result == 0)
     app_sys_ring_buffer_rewind_index(ring_buffer);
-    if (result == 0)
+    if (result == 0 || result == -2)
     app_mutex_give(&ring_buffer->mutex);
     
     return result;
@@ -216,7 +216,7 @@ int32_t app_sys_ring_buffer_puts(app_sys_ring_buffer *ring_buffer, void *data, u
     ring_buffer->tail += length;
     if (result == 0)
     app_sys_ring_buffer_rewind_index(ring_buffer);
-    if (result == 0)
+    if (result == 0 || result == -2)
     app_mutex_give(&ring_buffer->mutex);
     
     return result;

@@ -4,6 +4,9 @@
 /* 主线程下辖的系统功能模组 */
 #include "app_module_system.h"
 #include "app_module_ext_mem.h"
+#include "app_module_ext_mem_table.h"
+#include "app_module_source.h"
+#include "app_module_source_table.h"
 
 /*@brief        通过从线程ID获得与主线程的同步资源或交互管道
  *@param[in]    thread_id 线程ID
