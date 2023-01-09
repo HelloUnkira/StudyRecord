@@ -228,11 +228,8 @@ static app_module_clock_t app_module_clock[2] = {0};
  */
 void app_module_clock_get_system_clock(app_module_clock_t *clock)
 {
-    /* 入界 */
     app_mutex_take(&app_module_clock_mutex);
-    /* 获得时钟 */
     *clock = app_module_clock[1];
-    /* 出界 */
     app_mutex_give(&app_module_clock_mutex);
 }
 
@@ -241,12 +238,9 @@ void app_module_clock_get_system_clock(app_module_clock_t *clock)
  */
 void app_module_clock_set_system_clock(app_module_clock_t *clock)
 {
-    /* 入界 */
     app_mutex_take(&app_module_clock_mutex);
-    /* 获得时钟更新 */
     app_module_clock[0] = app_module_clock[1];
     app_module_clock[1] = *clock;
-    /* 出界 */
     app_mutex_give(&app_module_clock_mutex);
     /* 向线程发送时钟更新事件 */
     app_package_t package = {
@@ -266,16 +260,14 @@ void app_module_clock_set_system_clock(app_module_clock_t *clock)
  */
 void app_module_clock_event_update(void)
 {
-    static bool clock_is_sync = false;
-    /* 入界 */
-    app_mutex_take(&app_module_clock_mutex);
     /* 获得时钟更新 */
+    app_mutex_take(&app_module_clock_mutex);
     app_module_clock_t clock[2] = {0};
     clock[0] = app_module_clock[0];
     clock[1] = app_module_clock[1];
-    /* 出界 */
     app_mutex_give(&app_module_clock_mutex);
     /* 它只有一个调用者,所以无需保护 */
+    static bool clock_is_sync = false;
     /* 检查是否第一次更新时钟 */
     uint32_t update_event = clock_is_sync ?
              app_module_clock_update_default :
@@ -334,6 +326,45 @@ void app_module_clock_ready(void)
     app_module_clock_to_dtime(&app_module_clock[1]);
     app_module_clock_to_week(&app_module_clock[1]);
     app_mutex_process(&app_module_clock_mutex);
+}
+
+/*@brief 系统时钟转储到外存
+ */
+void app_module_clock_dump(void)
+{
+    union {
+        uint8_t buffer[0];
+        struct {
+            app_module_clock_t clock;
+            uint32_t checksum32;
+            uint32_t crc32;
+        };
+    } clock_data = {};
+    
+    app_module_clock_get_system_clock(&clock_data.clock);
+    clock_data.crc32 = app_sys_crc32(clock_data.buffer, sizeof(app_module_clock_t));
+    clock_data.checksum32 = app_sys_checksum32(clock_data.buffer, sizeof(app_module_clock_t));
+    app_module_source_write("mix_thread", "system clock", clock_data.buffer, sizeof(clock_data));
+}
+
+/*@brief 系统时钟加载到内存
+ */
+void app_module_clock_load(void)
+{
+    union {
+        uint8_t buffer[0];
+        struct {
+            app_module_clock_t clock;
+            uint32_t checksum32;
+            uint32_t crc32;
+        };
+    } clock_data = {};
+    
+    app_module_source_read("mix_thread", "system clock", clock_data.buffer, sizeof(clock_data));
+    uint32_t checksum32 = app_sys_checksum32(clock_data.buffer, sizeof(app_module_clock_t));
+    uint32_t crc32 = app_sys_crc32(clock_data.buffer, sizeof(app_module_clock_t));
+    if (checksum32 == clock_data.checksum32 && crc32 == clock_data.crc32)
+        app_module_clock_set_system_clock(&clock_data.clock);
 }
 
 /*@brief     一类时钟空回调

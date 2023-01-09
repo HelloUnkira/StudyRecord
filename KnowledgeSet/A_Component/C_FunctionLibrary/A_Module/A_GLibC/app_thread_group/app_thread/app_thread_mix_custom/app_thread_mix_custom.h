@@ -3,6 +3,7 @@
 
 /* 本线程管理的功能模组 */
 #include "app_module_dump.h"
+#include "app_module_load.h"
 #include "app_module_clock.h"
 #include "app_module_alarm.h"
 #include "app_module_stopwatch.h"
@@ -12,6 +13,7 @@
 typedef enum {  /* 线程模组 */
     app_thread_mix_custom_work,         /* 工作队列模组 */
     app_thread_mix_custom_dump,         /* 资源转储模组 */
+    app_thread_mix_custom_load,         /* 资源加载模组 */
     app_thread_mix_custom_clock,        /* 时钟模组 */
     app_thread_mix_custom_alarm,        /* 闹钟模组 */
     app_thread_mix_custom_stopwatch,    /* 秒表模组 */

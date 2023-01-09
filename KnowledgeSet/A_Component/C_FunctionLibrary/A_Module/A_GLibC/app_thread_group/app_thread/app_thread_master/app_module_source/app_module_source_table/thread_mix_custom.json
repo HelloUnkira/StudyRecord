@@ -4,6 +4,11 @@
     "data_group" :
     [
         {
+            "data_brief" : "system clock + crc32 + checksum32",
+            "data_name"  : "system clock",
+            "data_size"  : "20 + 4 + 4"
+        },
+        {
             "data_brief" : "unknown",
             "data_name"  : "unknown",
             "data_size"  : "20 * 10"

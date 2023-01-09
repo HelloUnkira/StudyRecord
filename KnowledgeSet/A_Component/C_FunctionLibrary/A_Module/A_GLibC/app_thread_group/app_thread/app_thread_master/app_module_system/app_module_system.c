@@ -57,16 +57,32 @@ uint8_t app_module_system_status_get(void)
  */
 void app_module_system_ctrl_check(app_module_clock_t clock[1])
 {
+    static bool not_dump_yet = true;
+    static bool not_load_yet = true;
     app_mutex_take(&app_module_system_mutex);
     bool      dump = app_module_system_dump;
     uint8_t  delay = app_module_system_delay;
     uint8_t status = app_module_system_status;
     bool  is_valid = app_module_system_status == app_module_system_valid;
     app_mutex_give(&app_module_system_mutex);
+    /* 执行加载 */
+    if (not_load_yet) {
+        not_load_yet = false;
+        /* 向线程发送加载事件 */
+        app_package_t package = {
+            .send_tid = app_thread_id_unknown,
+            .recv_tid = app_thread_id_mix_custom,
+            .module   = app_thread_mix_custom_load,
+            .event    = 0,
+            .dynamic  = false,
+            .size     = 0,
+            .data     = NULL,
+        };
+        app_thread_package_notify(&package);
+    }
     if (is_valid)
         return;
     /* 执行转储 */
-    static bool not_dump_yet = true;
     if (not_dump_yet) {
         not_dump_yet = false;
         /* 向线程发送转储事件 */

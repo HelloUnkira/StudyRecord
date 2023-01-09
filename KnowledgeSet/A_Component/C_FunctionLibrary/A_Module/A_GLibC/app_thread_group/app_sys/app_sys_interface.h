@@ -6,5 +6,7 @@
 /* 导出外部接口补充...... */
 #include "app_sys_pipe.h"
 #include "app_sys_ring_buffer.h"
+#include "app_sys_checksum32.h"
+#include "app_sys_crc32.h"
 
 #endif

@@ -13,6 +13,16 @@
 static app_mutex_t app_module_stopwatch_mutex = {0};
 static app_module_stopwatch_t app_module_stopwatch = {0};
 
+/*@brief        设置秒表
+ *@param[out]   stopwatch 秒表实例
+ */
+void app_module_stopwatch_set(app_module_stopwatch_t *stopwatch)
+{
+    app_mutex_take(&app_module_stopwatch_mutex);
+    app_module_stopwatch = *stopwatch;
+    app_mutex_give(&app_module_stopwatch_mutex);
+}
+
 /*@brief        获取秒表
  *@param[out]   stopwatch 秒表实例
  */
@@ -60,6 +70,45 @@ void app_module_stopwatch_stop(void)
 void app_module_stopwatch_ready(void)
 {
     app_mutex_process(&app_module_stopwatch_mutex);
+}
+
+/*@brief 系统时钟转储到外存
+ */
+void app_module_stopwatch_dump(void)
+{
+    union {
+        uint8_t buffer[0];
+        struct {
+            app_module_stopwatch_t stopwatch;
+            uint32_t checksum32;
+            uint32_t crc32;
+        };
+    } stopwatch_data = {};
+    
+    app_module_stopwatch_get(&stopwatch_data.stopwatch);
+    stopwatch_data.crc32 = app_sys_crc32(stopwatch_data.buffer, sizeof(app_module_stopwatch_t));
+    stopwatch_data.checksum32 = app_sys_checksum32(stopwatch_data.buffer, sizeof(app_module_stopwatch_t));
+    app_module_source_write("mix_thread", "system stopwatch", stopwatch_data.buffer, sizeof(stopwatch_data));
+}
+
+/*@brief 系统时钟加载到内存
+ */
+void app_module_stopwatch_load(void)
+{
+    union {
+        uint8_t buffer[0];
+        struct {
+            app_module_stopwatch_t stopwatch;
+            uint32_t checksum32;
+            uint32_t crc32;
+        };
+    } stopwatch_data = {};
+    
+    app_module_source_read("mix_thread", "system stopwatch", stopwatch_data.buffer, sizeof(stopwatch_data));
+    uint32_t checksum32 = app_sys_checksum32(stopwatch_data.buffer, sizeof(app_module_stopwatch_t));
+    uint32_t crc32 = app_sys_crc32(stopwatch_data.buffer, sizeof(app_module_stopwatch_t));
+    if (checksum32 == stopwatch_data.checksum32 && crc32 == stopwatch_data.crc32)
+        app_module_stopwatch_set(&stopwatch_data.stopwatch);
 }
 
 /*@brief 更新秒表

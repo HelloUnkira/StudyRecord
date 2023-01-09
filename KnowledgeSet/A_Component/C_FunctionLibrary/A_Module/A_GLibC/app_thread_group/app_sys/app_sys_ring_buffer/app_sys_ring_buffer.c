@@ -22,6 +22,53 @@ static inline void app_sys_ring_buffer_rewind_index(app_sys_ring_buffer *ring_bu
     }
 }
 
+/*@brief        环形队列重置(中断环境下不可调用)
+ *@param[in]    ring_buffer 实例
+ */
+void app_sys_ring_buffer_reset(app_sys_ring_buffer *ring_buffer)
+{
+    app_mutex_take(&ring_buffer->mutex);
+    ring_buffer->head = 0;
+    ring_buffer->tail = 0;
+    app_mutex_give(&ring_buffer->mutex);
+}
+
+/*@brief        环形队列为空判断(中断环境下不可调用)
+ *@param[in]    ring_buffer 实例
+ *@retval       是否为空
+ */
+bool app_sys_ring_buffer_is_empty(app_sys_ring_buffer *ring_buffer)
+{
+    app_mutex_take(&ring_buffer->mutex);
+    bool result = (ring_buffer->head == ring_buffer->tail) ? true : false;
+    app_mutex_give(&ring_buffer->mutex);
+    return result;
+}
+
+/*@brief        获取环形队列已有条目(中断环境下不可调用)
+ *@param[in]    ring_buffer 实例
+ *@retval       占用条目数量
+ */
+uint32_t app_sys_ring_buffer_get_item(app_sys_ring_buffer *ring_buffer)
+{
+    app_mutex_take(&ring_buffer->mutex);
+    uint32_t item = ring_buffer->tail - ring_buffer->head;
+    app_mutex_give(&ring_buffer->mutex);
+    return item;
+}
+
+/*@brief        获取环形队列空闲条目(中断环境下不可调用)
+ *@param[in]    ring_buffer 实例
+ *@retval       空闲条目数量
+ */
+uint32_t app_sys_ring_buffer_get_space(app_sys_ring_buffer *ring_buffer)
+{
+    app_mutex_take(&ring_buffer->mutex);
+    uint32_t space = ring_buffer->size - (ring_buffer->tail - ring_buffer->head);
+    app_mutex_give(&ring_buffer->mutex);
+    return space;
+}
+
 /*@brief        就绪环形队列(无参数检查)
  *              当满足buffer为字节对齐且size为2的次方达到最大效率
  *@param[in]    ring_buffer 实例
@@ -29,8 +76,8 @@ static inline void app_sys_ring_buffer_rewind_index(app_sys_ring_buffer *ring_bu
  *@param[in]    buffer      指定的缓冲区,为对齐的字流(不是字节流)(如下)
  *@param[in]    size        对齐字流的长度
  */
-static inline void app_sys_ring_buffer_ready(app_sys_ring_buffer *ring_buffer, uint8_t type,
-                                             void *buffer, uint32_t size)
+void app_sys_ring_buffer_ready(app_sys_ring_buffer *ring_buffer, uint8_t type,
+                               void *buffer, uint32_t size)
 {
     /* 简要的字节对齐修正 */
     /* 地址截断,通过最后几位确定是否字节对齐 */

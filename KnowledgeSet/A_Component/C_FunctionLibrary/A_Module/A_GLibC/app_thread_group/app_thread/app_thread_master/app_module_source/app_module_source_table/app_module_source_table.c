@@ -22,10 +22,16 @@ static const app_module_source_t app_module_source_thread_master_table[] = {
 
 static const app_module_source_t app_module_source_thread_mix_custom_table[] = {
 	{
+		/* system clock + crc32 + checksum32 */
+		.data_name = "system clock",
+		.data_size = 20 + 4 + 4,
+		.data_base = 0x0,
+	},
+	{
 		/* unknown */
 		.data_name = "unknown",
 		.data_size = 20 * 10,
-		.data_base = 0x0,
+		.data_base = 0x1c,
 	},
 };
 

@@ -72,6 +72,45 @@ void app_module_countdown_ready(void)
     app_mutex_process(&app_module_countdown_mutex);
 }
 
+/*@brief 系统时钟转储到外存
+ */
+void app_module_countdown_dump(void)
+{
+    union {
+        uint8_t buffer[0];
+        struct {
+            app_module_countdown_t countdown;
+            uint32_t checksum32;
+            uint32_t crc32;
+        };
+    } countdown_data = {};
+    
+    app_module_countdown_get(&countdown_data.countdown);
+    countdown_data.crc32 = app_sys_crc32(countdown_data.buffer, sizeof(app_module_countdown_t));
+    countdown_data.checksum32 = app_sys_checksum32(countdown_data.buffer, sizeof(app_module_countdown_t));
+    app_module_source_write("mix_thread", "system countdown", countdown_data.buffer, sizeof(countdown_data));
+}
+
+/*@brief 系统时钟加载到内存
+ */
+void app_module_countdown_load(void)
+{
+    union {
+        uint8_t buffer[0];
+        struct {
+            app_module_countdown_t countdown;
+            uint32_t checksum32;
+            uint32_t crc32;
+        };
+    } countdown_data = {};
+    
+    app_module_source_read("mix_thread", "system countdown", countdown_data.buffer, sizeof(countdown_data));
+    uint32_t checksum32 = app_sys_checksum32(countdown_data.buffer, sizeof(app_module_countdown_t));
+    uint32_t crc32 = app_sys_crc32(countdown_data.buffer, sizeof(app_module_countdown_t));
+    if (checksum32 == countdown_data.checksum32 && crc32 == countdown_data.crc32)
+        app_module_countdown_set(&countdown_data.countdown);
+}
+
 /*@brief 更新倒计时
  *       内部使用: 被mix custom线程使用
  */

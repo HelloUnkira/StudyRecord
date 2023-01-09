@@ -11,6 +11,11 @@ typedef struct {
 
 #define APP_MODULE_STOPWATCH_MSEC   99
 
+/*@brief        设置秒表
+ *@param[out]   stopwatch 秒表实例
+ */
+void app_module_stopwatch_set(app_module_stopwatch_t *stopwatch);
+
 /*@brief        获取秒表
  *@param[out]   stopwatch 秒表实例
  */
@@ -31,6 +36,14 @@ void app_module_stopwatch_stop(void);
 /*@brief 秒表模组初始化
  */
 void app_module_stopwatch_ready(void);
+
+/*@brief 系统时钟转储到外存
+ */
+void app_module_stopwatch_dump(void);
+
+/*@brief 系统时钟加载到内存
+ */
+void app_module_stopwatch_load(void);
 
 /*@brief 更新秒表
  *       内部使用: 被mix custom线程使用

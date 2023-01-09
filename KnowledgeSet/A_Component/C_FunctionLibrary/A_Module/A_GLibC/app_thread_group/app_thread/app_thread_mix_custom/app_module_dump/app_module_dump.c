@@ -9,22 +9,14 @@
 
 /*@brief 资源数据从内存转储到外存
  */
-void app_module_dump_mem_to_storage(void)
+void app_module_dump(void)
 {
-    APP_OS_LOG_WARN("\napp_module_dump_mem_to_storage\n");
+    APP_OS_LOG_WARN("\napp_module_dump...\n");
+    /* 转储系统时钟 */
+    app_module_clock_dump();
     /* ... */
-    app_module_system_dump_over();
-}
-
-/*@brief 资源数据从外存转储到内存
- */
-void app_module_dump_storage_to_mem(void)
-{
-    /* 设置系统时钟 */
-    app_module_clock_t clock = {.year = 2023, .month = 1, .day = 1};
-    app_module_clock_to_utc(&clock);
-    app_module_clock_set_system_clock(&clock);
-    /* 继续添加...... */
-    APP_OS_LOG_WARN("\napp_module_dump_storage_to_mem\n");
-    /* ... */
+    
+    /* 如果是系统要求的资源转储 */
+    if (app_module_system_status_get() != app_module_system_valid)
+        app_module_system_dump_over();
 }

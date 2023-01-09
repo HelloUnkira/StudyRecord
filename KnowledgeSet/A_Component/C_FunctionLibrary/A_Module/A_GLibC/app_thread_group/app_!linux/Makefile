@@ -16,6 +16,7 @@ app_header = -I ../     \
              -I ../app_sys/                     \
              -I ../app_sys/app_sys_pipe         \
              -I ../app_sys/app_sys_ring_buffer  \
+             -I ../app_sys/app_sys_util         \
              -I ../app_thread/                                                                  \
              -I ../app_thread/app_thread_master                                                 \
              -I ../app_thread/app_thread_master/app_thread_adaptor                              \
@@ -25,10 +26,11 @@ app_header = -I ../     \
              -I ../app_thread/app_thread_master/app_module_source/app_module_source_table       \
              -I ../app_thread/app_thread_master/app_module_system                               \
              -I ../app_thread/app_thread_mix_custom                         \
+             -I ../app_thread/app_thread_mix_custom/app_module_dump         \
+             -I ../app_thread/app_thread_mix_custom/app_module_load         \
              -I ../app_thread/app_thread_mix_custom/app_module_alarm        \
              -I ../app_thread/app_thread_mix_custom/app_module_clock        \
              -I ../app_thread/app_thread_mix_custom/app_module_countdown    \
-             -I ../app_thread/app_thread_mix_custom/app_module_dump         \
              -I ../app_thread/app_thread_mix_custom/app_module_stopwatch    \
              -I ../app_thread/app_thread_mix_custom/app_module_world_time   \
              -I ../app_thread/app_thread_mix_irq                            \
@@ -43,6 +45,7 @@ app_source = ./*.c  \
              ../app_sys/*.c                         \
              ../app_sys/app_sys_pipe/*.c            \
              ../app_sys/app_sys_ring_buffer/*.c     \
+             ../app_sys/app_sys_util/*.c            \
              ../app_thread/*.c                                                                  \
              ../app_thread/app_thread_master/*.c                                                \
              ../app_thread/app_thread_master/app_thread_adaptor/*.c                             \
@@ -52,10 +55,11 @@ app_source = ./*.c  \
              ../app_thread/app_thread_master/app_module_source/app_module_source_table/*.c      \
              ../app_thread/app_thread_master/app_module_system/*.c                              \
              ../app_thread/app_thread_mix_custom/*.c                        \
+             ../app_thread/app_thread_mix_custom/app_module_dump/*.c        \
+             ../app_thread/app_thread_mix_custom/app_module_load/*.c        \
              ../app_thread/app_thread_mix_custom/app_module_alarm/*.c       \
              ../app_thread/app_thread_mix_custom/app_module_clock/*.c       \
              ../app_thread/app_thread_mix_custom/app_module_countdown/*.c   \
-             ../app_thread/app_thread_mix_custom/app_module_dump/*.c        \
              ../app_thread/app_thread_mix_custom/app_module_stopwatch/*.c   \
              ../app_thread/app_thread_mix_custom/app_module_world_time/*.c  \
              ../app_thread/app_thread_mix_irq/*.c                           \

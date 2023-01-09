@@ -37,7 +37,9 @@ static void * ptask_exec(void *args)
         }
         /* scene 1: if task queue is empty and thread pool is not over, wait condition variable */
         if (pool->curr == 0 && pool->shutdown == 0) {
+            pthread_mutex_unlock(&pool->lock);
             pthread_cond_wait(&pool->cond, &pool->lock);
+            continue;
         }
         /* scene 2: if task queue is not empty, take task from task queue and execute */
         if (pool->curr != 0) {
@@ -49,6 +51,7 @@ static void * ptask_exec(void *args)
             pthread_mutex_unlock(&pool->lock);
             task->exec(task->args);
             free(task);
+            continue;
         }
         /* scene 3: if task queue is empty and thread pool is over, close current thread */
         if (pool->curr == 0 && pool->shutdown == 1) {

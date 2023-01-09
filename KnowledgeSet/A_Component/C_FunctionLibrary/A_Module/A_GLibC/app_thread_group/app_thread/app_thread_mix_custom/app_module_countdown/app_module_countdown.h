@@ -37,6 +37,14 @@ void app_module_countdown_stop(void);
  */
 void app_module_countdown_ready(void);
 
+/*@brief 系统时钟转储到外存
+ */
+void app_module_countdown_dump(void);
+
+/*@brief 系统时钟加载到内存
+ */
+void app_module_countdown_load(void);
+
 /*@brief 更新倒计时
  *       内部使用: 被mix custom线程使用
  */

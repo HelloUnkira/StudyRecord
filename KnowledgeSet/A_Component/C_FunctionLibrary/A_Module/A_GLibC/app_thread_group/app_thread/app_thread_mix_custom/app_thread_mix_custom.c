@@ -28,8 +28,6 @@ void app_thread_mix_custom_routine(void)
     app_package_t package = {0};
     app_thread_get_sync_by_id(app_thread_id_mix_custom, &sem);
     app_thread_get_pipe_by_id(app_thread_id_mix_custom, &pipe);
-    /* 资源转储到内存 */
-    app_module_dump_storage_to_mem();
     /* 主流程 */
     while (true) {
         app_sem_take(sem);
@@ -53,7 +51,12 @@ void app_thread_mix_custom_routine(void)
             }
             case app_thread_mix_custom_dump: {
                 /* 将系统敏感的资源转储到外存 */
-                app_module_dump_mem_to_storage();
+                app_module_dump();
+                break;
+            }
+            case app_thread_mix_custom_load: {
+                /* 将系统敏感的资源加载到内存 */
+                app_module_load();
                 break;
             }
             case app_thread_mix_custom_clock: {

@@ -13,6 +13,17 @@
 
 #include "app_sys_interface.h"
 
+/*@brief        初始化管道
+ *@param[in]    pipe 管道实例
+ */
+void app_sys_pipe_ready(app_pipe_t *pipe)
+{
+    pipe->head = NULL;
+    pipe->tail = NULL;
+    pipe->number = 0;
+    app_mutex_process(&pipe->mutex);
+}
+
 /*@brief        获取管道资源包数量
  *@param[in]    pipe 管道实例
  *@retval       管道资源包数量
