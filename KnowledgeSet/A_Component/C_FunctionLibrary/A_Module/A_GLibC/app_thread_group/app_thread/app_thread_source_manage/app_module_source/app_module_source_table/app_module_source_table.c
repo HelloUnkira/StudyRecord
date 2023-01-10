@@ -28,10 +28,22 @@ static const app_module_source_t app_module_source_thread_mix_custom_table[] = {
 		.data_base = 0x0,
 	},
 	{
+		/* system stopwatch + crc32 + checksum32 */
+		.data_name = "system stopwatch",
+		.data_size = 30 + 4 + 4,
+		.data_base = 0x1c,
+	},
+	{
+		/* system countdown + crc32 + checksum32 */
+		.data_name = "system countdown",
+		.data_size = 30 + 4 + 4,
+		.data_base = 0x42,
+	},
+	{
 		/* unknown */
 		.data_name = "unknown",
 		.data_size = 20 * 10,
-		.data_base = 0x1c,
+		.data_base = 0x68,
 	},
 };
 

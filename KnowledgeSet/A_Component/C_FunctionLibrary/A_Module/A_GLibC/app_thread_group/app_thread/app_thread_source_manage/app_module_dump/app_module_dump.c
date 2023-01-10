@@ -14,9 +14,11 @@ void app_module_dump(void)
     APP_OS_LOG_WARN("\napp_module_dump...\n");
     /* 转储系统时钟 */
     app_module_clock_dump();
+    app_module_stopwatch_dump();
+    app_module_countdown_dump();
     /* ... */
     
     /* 如果是系统要求的资源转储 */
     if (app_module_system_status_get() != app_module_system_valid)
-        app_module_system_dump_over();
+        app_module_system_dump_set(true);
 }

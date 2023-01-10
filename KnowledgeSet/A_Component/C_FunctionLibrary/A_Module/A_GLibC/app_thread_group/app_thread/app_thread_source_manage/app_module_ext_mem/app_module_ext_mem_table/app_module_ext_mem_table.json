@@ -19,6 +19,11 @@
             "chunk_brief" : "chunk2",
             "chunk_name"  : "thread_mix_custom",
             "chunk_size"  : "4096 * 30"
+        },
+        {
+            "chunk_brief" : "chunk2",
+            "chunk_name"  : "thread_source_manage",
+            "chunk_size"  : "4096 * 30"
         }
     ]
 }

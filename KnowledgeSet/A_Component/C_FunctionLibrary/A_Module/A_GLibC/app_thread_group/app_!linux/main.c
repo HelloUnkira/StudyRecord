@@ -1,26 +1,7 @@
 
 #include <stdio.h>
 #include "app_thread_interface.h"
-
-/* 工作队列测试<start> */
-
-static uint8_t app_thread_mix_work_arg = 0;
-static void app_thread_mix_work_routine(void *parameter)
-{
-    (*(uint8_t *)parameter)++;
-    printf("misc_work_routine exec:%d\n", *(uint8_t *)parameter);
-}
-
-app_thread_mix_custom_work_t app_thread_mix_custom_work_entry = {
-    .routine   =  app_thread_mix_work_routine,
-    .parameter = &app_thread_mix_work_arg,
-};
-app_thread_mix_irq_work_t app_thread_mix_irq_work_entry = {
-    .routine   =  app_thread_mix_work_routine,
-    .parameter = &app_thread_mix_work_arg,
-};
-
-/* 工作队列测试<end> */
+#include "app_function_test.h"
 
 #if 0
 #elif APP_OS_IS_LINUX
@@ -34,152 +15,51 @@ static void software_timer_handler(int signal)
     //SIGVTALRM:    以该进程在用户态下花费的时间来计算
     //SIGPROF:      以该进程在用户态下和内核态下所费的时间来计算
     static uint32_t count = 0;count++;
+    #if 1
+    if (signal == SIGALRM)
+        if (count % 1000 == 0)
+            printf("linux singal SIGALRM 1 second\n");
+    #endif
     if (signal == SIGALRM) {
-        /* test ext mem */
-        if (count == 100) {
-            /* 外存chunk测试 */
-            const app_module_ext_mem_t *chunk0 = app_module_ext_mem_find_by_name("thread_master");
-            const app_module_ext_mem_t *chunk1 = app_module_ext_mem_find_by_name("thread_mix_irq");
-            const app_module_ext_mem_t *chunk2 = app_module_ext_mem_find_by_name("thread_mix_custom");
-            
-            char c0[50] = "hello thread_master";
-            char c1[50] = "hello thread_mix_irq";
-            char c2[50] = "hello thread_mix_custom";
-            
-            char c_0[50] = {0};
-            char c_1[50] = {0};
-            char c_2[50] = {0};
-            
-            app_module_ext_mem_read(chunk0, 0, c_0, sizeof(c_0));
-            app_module_ext_mem_read(chunk1, 0, c_1, sizeof(c_1));
-            app_module_ext_mem_read(chunk2, 0, c_2, sizeof(c_2));
-            APP_OS_PRINT("\nsingle read:%s\n", c_0);
-            APP_OS_PRINT("\nsingle read:%s\n", c_1);
-            APP_OS_PRINT("\nsingle read:%s\n", c_2);
-            app_module_ext_mem_write(chunk0, 0, c0, sizeof(c0));
-            app_module_ext_mem_write(chunk1, 0, c1, sizeof(c1));
-            app_module_ext_mem_write(chunk2, 0, c2, sizeof(c2));
-            app_module_ext_mem_read(chunk0, 0, c_0, sizeof(c_0));
-            app_module_ext_mem_read(chunk1, 0, c_1, sizeof(c_1));
-            app_module_ext_mem_read(chunk2, 0, c_2, sizeof(c_2));
-            APP_OS_PRINT("\nwrite read:%s\n", c_0);
-            APP_OS_PRINT("\nwrite read:%s\n", c_1);
-            APP_OS_PRINT("\nwrite read:%s\n", c_2);
-        }
-        
         /* test clock */
-        if (count % 1000 == 0) {
-            app_package_t package = {
-                .send_tid = app_thread_id_unknown,
-                .recv_tid = app_thread_id_mix_custom,
-                .module   = app_thread_mix_custom_clock,
-                .event    = app_thread_mix_custom_clock_timestamp_update,
-                .dynamic  = false,
-                .size     = 0,
-                .data     = NULL,
-            };
-            app_thread_package_notify(&package);
+        if (count % 1000 == 0)
+            app_module_clock_test();
+        /* test reset load and dump */
+        #if 1
+        if (count % 5000 == 0) {
+            app_module_system_delay_set(2);
+            app_module_system_status_set(app_module_system_reset);
         }
+        #endif
         /* test alarm group */
-        if (count == 1000) {
-            static app_module_alarm_t array[5] = {0};
-            uint32_t alarm_group_id = app_module_alarm_group_register(array, 5);
-            app_module_alarm_t alarm1 = {.clock_base.year   = 2023,
-                                         .clock_base.month  = 1,
-                                         .clock_base.day    = 1,
-                                         .clock_base.second = 2,
-                                         .onoff = 1,
-                                         .field_month = 0b00000001000,
-                                         .field_week = 0b0000100,
-                                         .type = app_module_alarm_custom,};
-            app_module_alarm_t alarm2 = {.clock_base.year   = 2023,
-                                         .clock_base.month  = 1,
-                                         .clock_base.day    = 1,
-                                         .clock_base.second = 4,
-                                         .onoff = 1,
-                                         .field_month = 0b00000001000,
-                                         .field_week = 0b0000100,
-                                         .type = app_module_alarm_custom,};
-            app_module_alarm_t alarm3 = {.clock_base.year   = 2023,
-                                         .clock_base.month  = 1,
-                                         .clock_base.day    = 1,
-                                         .clock_base.second = 5,
-                                         .onoff = 1,
-                                         .repeat = 3,
-                                         .type = app_module_alarm_repeat,};
-            app_module_clock_to_utc(&alarm1.clock_base);
-            app_module_clock_to_utc(&alarm2.clock_base);
-            app_module_clock_to_utc(&alarm3.clock_base);
-            app_module_clock_to_week(&alarm1.clock_base);
-            app_module_clock_to_week(&alarm2.clock_base);
-            app_module_clock_to_week(&alarm3.clock_base);
-
-            app_module_alarm_add(alarm_group_id, &alarm1);
-            app_module_alarm_add(alarm_group_id, &alarm2);
-            app_module_alarm_add(alarm_group_id, &alarm3);
-        }
+        #if 0
+        if (count == 1000)
+            app_module_alarm_test();
+        #endif
         /* test stopwatch */
-        if (count % APP_MODULE_STOPWATCH_MSEC == 0) {
-            app_package_t package = {
-                .send_tid = app_thread_id_unknown,
-                .recv_tid = app_thread_id_mix_custom,
-                .module   = app_thread_mix_custom_stopwatch,
-                .event    = app_thread_mix_custom_stopwatch_msec_update,
-                .dynamic  = false,
-                .size     = 0,
-                .data     = NULL,
-            };
-            app_thread_package_notify(&package);
-        }
+        #if 0
+        if (count % APP_MODULE_STOPWATCH_MSEC == 0)
+            app_module_stopwatch_test();
         if (count == 1000) {
             app_module_stopwatch_reset();
             app_module_stopwatch_start();
         }
+        #endif
         /* test countdown */
-        if (count % APP_MODULE_STOPWATCH_MSEC == 0) {
-            app_package_t package = {
-                .send_tid = app_thread_id_unknown,
-                .recv_tid = app_thread_id_mix_custom,
-                .module   = app_thread_mix_custom_countdown,
-                .event    = app_thread_mix_custom_countdown_msec_update,
-                .dynamic  = false,
-                .size     = 0,
-                .data     = NULL,
-            };
-            app_thread_package_notify(&package);
-        }
+        #if 0
+        if (count % APP_MODULE_COUNTDOWN_MSEC == 0)
+            app_module_countdown_test;
         if (count == 1000) {
             app_module_countdown_reset();
             app_module_countdown_t countdown = {.hour = 0, .minute = 0, .second = 17};
             app_module_countdown_set(&countdown);
             app_module_countdown_start();
         }
-        /* package... */
+        #endif
+        /* test package... */
         #if 0
-        if (count % 1000 == 0) {
-            app_package_t package = {
-                .send_tid = app_thread_id_unknown,
-                .recv_tid = app_thread_id_mix_custom,
-                .module   = app_thread_mix_custom_work,
-                .event    = 0,
-                .dynamic  = false,
-                .size     = sizeof(app_thread_mix_custom_work_t),
-                .data     = &app_thread_mix_custom_work_entry,
-            };
-            app_thread_package_notify(&package);
-        }
-        if (count % 1000 == 0) {
-            app_package_t package = {
-                .send_tid = app_thread_id_unknown,
-                .recv_tid = app_thread_id_mix_custom,
-                .module   = app_thread_mix_irq_work,
-                .event    = 0,
-                .dynamic  = false,
-                .size     = sizeof(app_thread_mix_irq_work_t),
-                .data     = &app_thread_mix_irq_work_entry,
-            };
-            app_thread_package_notify(&package);
-        }
+        if (count % 1000 == 0)
+            app_thread_workqueue_test();
         #endif
     }
 }
@@ -211,7 +91,7 @@ void software_timer_ready(void)
     struct itimerval old_value = {0};
     struct itimerval new_value = {0};
     //将信号关联指定的回调
-    signal(SIGALRM, software_timer_handler);
+    signal(SIGALRM,   software_timer_handler);
     //设置间隔触发时间
     new_value.it_interval.tv_sec = 0;
     new_value.it_interval.tv_usec = 1000;//1ms
@@ -231,22 +111,19 @@ void software_timer_ready(void)
 
 int main(int argc, char *argv[])
 {
+    #if 1
     /* 启动APP调度策略 */
     app_thread_set_work_now();
-    
-    /* 测试中我们在主线程使用软件定时器信号量发送包裹 */
-    /* 以达到模拟事件源的生成 */
-    #if 0
-    #elif APP_OS_IS_LINUX
+    /* 测试中我们在主线程使用软件定时器信号量发送包裹,以达到模拟事件源的生成 */
+    #if 1
     software_timer_ready();
-    #elif APP_OS_IS_ZEPHYR
-    #error "arch os not adaptor yet"
-    #else
-    #error "unknown os"
     #endif
-    
+    /* 主线程滚动阻塞 */
     while (true)
         sleep(1);
-    
+    #else
+    /* chunk刷新,将其都刷为0 */
+    app_module_ext_mem_chunk_reflush();
+    #endif
     return 0;
 }

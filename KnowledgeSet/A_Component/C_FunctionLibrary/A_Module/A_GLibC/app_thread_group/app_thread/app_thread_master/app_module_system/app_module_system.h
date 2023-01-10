@@ -8,8 +8,9 @@ typedef enum {
 } app_module_system_status_t;
 
 /*@brief 设置系统转储成功标记
+ *@param[in] over 系统转储结束
  */
-void app_module_system_dump_over(void);
+void app_module_system_dump_set(bool over);
 
 /*@brief     设置系统延时
  *@param[in] delay 系统延时秒数
@@ -40,7 +41,5 @@ void app_module_assert(char *file, uint32_t line, bool cond);
 /* 断言:条件为真继续执行,为假时中断系统 */
 #define APP_MODULE_ASSERT(cond)    \
         app_module_assert(__FILE__, __LINE__, cond)
-
-
 
 #endif

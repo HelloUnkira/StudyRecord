@@ -31,7 +31,7 @@ ssize_t app_os_ext_mem_read(const app_os_ext_mem_t *ext_mem, uintptr_t offset, u
  */
 ssize_t app_os_ext_mem_write(const app_os_ext_mem_t *ext_mem, uintptr_t offset, uint8_t *buffer, size_t size)
 {
-    FILE *file = fopen(ext_mem->chunk_name, "wb+");
+    FILE *file = fopen(ext_mem->chunk_name, "rb+");
     fseek(file, offset, SEEK_SET);
     ssize_t ret = fwrite(buffer, size, 1, file);
     fclose(file);

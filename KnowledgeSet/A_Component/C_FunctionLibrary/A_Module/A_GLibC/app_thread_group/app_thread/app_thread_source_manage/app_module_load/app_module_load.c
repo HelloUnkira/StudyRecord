@@ -13,6 +13,8 @@ void app_module_load(void)
 {
     /* 加载系统时钟 */
     app_module_clock_load();
+    app_module_stopwatch_load();
+    app_module_countdown_load();
     /* 继续添加...... */
     APP_OS_LOG_WARN("\napp_module_load...\n");
     /* ... */

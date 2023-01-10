@@ -328,45 +328,6 @@ void app_module_clock_ready(void)
     app_mutex_process(&app_module_clock_mutex);
 }
 
-/*@brief 系统时钟转储到外存
- */
-void app_module_clock_dump(void)
-{
-    union {
-        uint8_t buffer[0];
-        struct {
-            app_module_clock_t clock;
-            uint32_t checksum32;
-            uint32_t crc32;
-        };
-    } clock_data = {};
-    
-    app_module_clock_get_system_clock(&clock_data.clock);
-    clock_data.crc32 = app_sys_crc32(clock_data.buffer, sizeof(app_module_clock_t));
-    clock_data.checksum32 = app_sys_checksum32(clock_data.buffer, sizeof(app_module_clock_t));
-    app_module_source_write("mix_thread", "system clock", clock_data.buffer, sizeof(clock_data));
-}
-
-/*@brief 系统时钟加载到内存
- */
-void app_module_clock_load(void)
-{
-    union {
-        uint8_t buffer[0];
-        struct {
-            app_module_clock_t clock;
-            uint32_t checksum32;
-            uint32_t crc32;
-        };
-    } clock_data = {};
-    
-    app_module_source_read("mix_thread", "system clock", clock_data.buffer, sizeof(clock_data));
-    uint32_t checksum32 = app_sys_checksum32(clock_data.buffer, sizeof(app_module_clock_t));
-    uint32_t crc32 = app_sys_crc32(clock_data.buffer, sizeof(app_module_clock_t));
-    if (checksum32 == clock_data.checksum32 && crc32 == clock_data.crc32)
-        app_module_clock_set_system_clock(&clock_data.clock);
-}
-
 /*@brief     一类时钟空回调
  *@param[in] clock 时钟实例
  */

@@ -14,10 +14,10 @@ static app_mutex_t app_module_system_mutex = {0};
 
 /*@brief 设置系统转储成功标记
  */
-void app_module_system_dump_over(void)
+void app_module_system_dump_set(bool over)
 {
     app_mutex_take(&app_module_system_mutex);
-    app_module_system_dump = true;
+    app_module_system_dump = over;
     app_mutex_give(&app_module_system_mutex);
 }
 
@@ -71,8 +71,8 @@ void app_module_system_ctrl_check(app_module_clock_t clock[1])
         /* 向线程发送加载事件 */
         app_package_t package = {
             .send_tid = app_thread_id_unknown,
-            .recv_tid = app_thread_id_mix_custom,
-            .module   = app_thread_mix_custom_load,
+            .recv_tid = app_thread_id_source_manage,
+            .module   = app_thread_source_manage_load,
             .event    = 0,
             .dynamic  = false,
             .size     = 0,
@@ -88,8 +88,8 @@ void app_module_system_ctrl_check(app_module_clock_t clock[1])
         /* 向线程发送转储事件 */
         app_package_t package = {
             .send_tid = app_thread_id_unknown,
-            .recv_tid = app_thread_id_mix_custom,
-            .module   = app_thread_mix_custom_dump,
+            .recv_tid = app_thread_id_source_manage,
+            .module   = app_thread_source_manage_dump,
             .event    = 0,
             .dynamic  = false,
             .size     = 0,
@@ -98,8 +98,10 @@ void app_module_system_ctrl_check(app_module_clock_t clock[1])
         app_thread_package_notify(&package);
     }
     /* 延时到期,数据转储结束,重启系统 */
-    if (!delay && dump)
+    if (!delay && dump) {
         app_os_reset();
+        app_module_system_dump_set(false);
+    }
     /* 保证数据转储成功后再进行重启 */
     if (!delay)
         return;

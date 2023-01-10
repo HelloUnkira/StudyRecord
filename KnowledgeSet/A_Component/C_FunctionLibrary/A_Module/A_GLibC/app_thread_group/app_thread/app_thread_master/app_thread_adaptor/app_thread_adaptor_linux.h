@@ -1,9 +1,7 @@
 #ifndef APP_THREAD_ADAPTOR_LINUX_H
 #define APP_THREAD_ADAPTOR_LINUX_H
 
-#include "app_thread_master.h"
-#include "app_thread_mix_irq.h"
-#include "app_thread_mix_custom.h"
+#if APP_OS_IS_LINUX
 
 /* @服务例程适配<Start> */
 
@@ -20,6 +18,11 @@ void * app_thread_mix_irq_routine_adaptor(void *args)
 void * app_thread_mix_custom_routine_adaptor(void *args)
 {
     app_thread_mix_custom_routine();
+}
+
+void * app_thread_source_manage_routine_adaptor(void *args)
+{
+    app_thread_source_manage_routine();
 }
 
 /* @服务例程适配<End> */
@@ -44,6 +47,14 @@ app_thread_t app_thread_mix_custom = {
    .args     = NULL,
 };
 
+app_thread_t app_thread_source_manage = {
+   .priority = 3,
+   .routine  = app_thread_source_manage_routine_adaptor,
+   .args     = NULL,
+};
+
 /* @线程体<End> */
+
+#endif
 
 #endif

@@ -139,6 +139,8 @@ void app_delay_us(uint32_t us)
  */
 void app_os_reset(void)
 {
+    APP_OS_PRINT("\napp_os_reset\n");
+    system("./reset.sh");
 }
 
 #endif

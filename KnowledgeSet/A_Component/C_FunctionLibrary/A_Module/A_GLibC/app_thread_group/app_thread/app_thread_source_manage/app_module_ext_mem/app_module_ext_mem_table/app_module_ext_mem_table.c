@@ -24,6 +24,12 @@ static const app_module_ext_mem_t app_module_ext_mem_table[] = {
 		.chunk_size = 4096 * 30,
 		.chunk_base = 0x1e000,
 	},
+	{
+		/* chunk2 */
+		.chunk_name = "thread_source_manage",
+		.chunk_size = 4096 * 30,
+		.chunk_base = 0x3c000,
+	},
 };
 
 static const uint32_t app_module_ext_mem_table_size =
@@ -34,7 +40,7 @@ static const uint32_t app_module_ext_mem_table_size =
  *@param[in] name名字
  *@retval    chunk静态实例
  */
-const app_module_ext_mem_t * app_module_ext_mem_find_by_name(const char * name)
+const app_module_ext_mem_t * app_module_ext_mem_find_by_name(const char *name)
 {
 	for (uint32_t idx = 0; idx < app_module_ext_mem_table_size; idx++)
 		if (!strcmp(app_module_ext_mem_table[idx].chunk_name, name))

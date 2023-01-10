@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=00000000a0000000000000000
-UnitCount=11
+UnitCount=5
 
 [VersionInfo]
 Major=1
@@ -51,17 +51,7 @@ AutoIncBuildNr=0
 SyncProduct=1
 
 [Unit1]
-FileName=..\Library\DoubleList.c
-CompileCpp=0
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit2]
-FileName=..\Library\DoubleList.h
+FileName=..\Source\main.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -71,7 +61,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit3]
-FileName=..\Library\HashTable.c
+FileName=..\Source\TimorMisc.h
 CompileCpp=0
 Folder=
 Compile=1
@@ -81,7 +71,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit4]
-FileName=..\Library\HashTable.h
+FileName=..\Source\TimorChapter1.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -91,17 +81,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit5]
-FileName=..\Library\Queue.h
-CompileCpp=0
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit6]
-FileName=..\Library\RedBlackTree.c
+FileName=..\Source\TimorChapter1.h
 CompileCpp=0
 Folder=
 Compile=1
@@ -152,6 +132,16 @@ BuildCmd=
 
 [Unit11]
 FileName=..\Source\Timor_Misc.h
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit2]
+FileName=..\Source\TimorMisc.c
 CompileCpp=0
 Folder=
 Compile=1

@@ -49,16 +49,6 @@ void app_thread_mix_custom_routine(void)
                 }
                 break;
             }
-            case app_thread_mix_custom_dump: {
-                /* 将系统敏感的资源转储到外存 */
-                app_module_dump();
-                break;
-            }
-            case app_thread_mix_custom_load: {
-                /* 将系统敏感的资源加载到内存 */
-                app_module_load();
-                break;
-            }
             case app_thread_mix_custom_clock: {
                 if (package.event == app_thread_mix_custom_clock_event_update)
                     app_module_clock_event_update();

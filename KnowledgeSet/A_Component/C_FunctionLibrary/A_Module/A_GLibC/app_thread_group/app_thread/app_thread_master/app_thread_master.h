@@ -3,10 +3,6 @@
 
 /* 主线程下辖的系统功能模组 */
 #include "app_module_system.h"
-#include "app_module_ext_mem.h"
-#include "app_module_ext_mem_table.h"
-#include "app_module_source.h"
-#include "app_module_source_table.h"
 
 /*@brief        通过从线程ID获得与主线程的同步资源或交互管道
  *@param[in]    thread_id 线程ID
@@ -28,8 +24,9 @@ bool app_thread_package_notify(app_package_t *package);
 
 /* 线程组编号 */
 typedef enum {
-    app_thread_id_mix_irq,      /* 混合中断线程(priority:2) */
-    app_thread_id_mix_custom,   /* 混合常规线程(priority:3) */
+    app_thread_id_mix_irq,          /* 混合中断线程(priority:2) */
+    app_thread_id_mix_custom,       /* 混合常规线程(priority:3) */
+    app_thread_id_source_manage,    /* 数据管理线程(priority:3) */
     /* 继续添加其他线程 */
     app_thread_id_unknown,      /* 占位符:未知来源者或未知去处 */
     app_thread_id_num,          /* 占位符:子线程组数量 */

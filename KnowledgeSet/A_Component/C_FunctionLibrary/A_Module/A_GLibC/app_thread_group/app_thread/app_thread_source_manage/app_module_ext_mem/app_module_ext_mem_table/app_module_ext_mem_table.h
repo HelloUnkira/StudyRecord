@@ -10,6 +10,6 @@
  *@param[in] name名字
  *@retval    chunk静态实例
  */
-const app_module_ext_mem_t * app_module_ext_mem_find_by_name(const char * name);
+const app_module_ext_mem_t * app_module_ext_mem_find_by_name(const char *name);
 
 #endif
