@@ -1,6 +1,14 @@
 #ifndef APP_SYS_EVENT_H
 #define APP_SYS_EVENT_H
 
+/*app_sys_event.h:
+ *通过app_sys_event.py生成
+ *参考app_sys_event.json中的模式生成源
+ *它通常可以作为一个简易的桥梁
+ *搭建不同线程中不同子模块的连接
+ *但是要注意实际执行环境
+ */
+
 #include <stdint.h>
 
 typedef struct {

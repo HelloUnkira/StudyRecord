@@ -7,9 +7,13 @@ import json
 # 编写集成化源文件
 def encode_app_sys_event_c(file, dir_list):
     # 写点简要的说明
-    file.write('/*\n *外部引用,显式引用\n')
-    file.write(' *因为依赖是脚本提供的\n')
-    file.write(' *所以不采用引入头文件的方式\n */\n')
+    file.write('/*app_sys_event.c:\n')
+    file.write(' *通过app_sys_event.py生成\n')
+    file.write(' *参考app_sys_event.json中的模式生成源\n')
+    file.write(' *它通常可以作为一个简易的桥梁\n')
+    file.write(' *搭建不同线程中不同子模块的连接\n')
+    file.write(' *但是要注意实际执行环境\n')
+    file.write(' */\n\n')
     file.write('#include "app_sys_event.h"\n\n')
     # 提取所有外源依赖
     for items in dir_list:          # 列表中是字典
@@ -50,6 +54,14 @@ def encode_app_sys_event_c(file, dir_list):
 def encode_app_sys_event_h(file, dir_list):
     file.write('#ifndef APP_SYS_EVENT_H\n')
     file.write('#define APP_SYS_EVENT_H\n\n')
+    # 写点简要的说明
+    file.write('/*app_sys_event.h:\n')
+    file.write(' *通过app_sys_event.py生成\n')
+    file.write(' *参考app_sys_event.json中的模式生成源\n')
+    file.write(' *它通常可以作为一个简易的桥梁\n')
+    file.write(' *搭建不同线程中不同子模块的连接\n')
+    file.write(' *但是要注意实际执行环境\n')
+    file.write(' */\n\n')
     file.write('#include <stdint.h>\n\n')
     file.write('typedef struct {\n\t')
     file.write('/* 数据交换取决于双方约定俗成 */\n\t')

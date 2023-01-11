@@ -50,14 +50,12 @@ app_thread_h = \
     -I ../app_thread/app_thread_mix_custom/app_module_countdown     \
     -I ../app_thread/app_thread_mix_custom/app_module_stopwatch     \
     -I ../app_thread/app_thread_mix_custom/app_module_world_time    \
-    -I ../app_thread/app_thread_source_manage                                               \
-    -I ../app_thread/app_thread_source_manage/app_module_ext_mem                            \
-    -I ../app_thread/app_thread_source_manage/app_module_ext_mem/app_module_ext_mem_table   \
-    -I ../app_thread/app_thread_source_manage/app_module_source                             \
-    -I ../app_thread/app_thread_source_manage/app_module_source/app_module_source_table     \
-    -I ../app_thread/app_thread_source_manage/app_module_dump                               \
-    -I ../app_thread/app_thread_source_manage/app_module_load                               \
-    -I ../app_thread/app_thread_source_manage/app_module_source_mix                         \
+    -I ../app_thread/app_thread_source_manage                           \
+    -I ../app_thread/app_thread_source_manage/app_module_ext_mem        \
+    -I ../app_thread/app_thread_source_manage/app_module_source         \
+    -I ../app_thread/app_thread_source_manage/app_module_dump           \
+    -I ../app_thread/app_thread_source_manage/app_module_load           \
+    -I ../app_thread/app_thread_source_manage/app_module_source_mix     \
 
 app_thread_c = \
     ../app_thread/*.c                                       \
@@ -79,23 +77,25 @@ app_thread_mix_custom_c = \
     ../app_thread/app_thread_mix_custom/app_module_world_time/*.c   \
 
 app_thread_source_manage_c = \
-    ../app_thread/app_thread_source_manage/*.c                                              \
-    ../app_thread/app_thread_source_manage/app_module_ext_mem/*.c                           \
-    ../app_thread/app_thread_source_manage/app_module_ext_mem/app_module_ext_mem_table/*.c  \
-    ../app_thread/app_thread_source_manage/app_module_source/*.c                            \
-    ../app_thread/app_thread_source_manage/app_module_source/app_module_source_table/*.c    \
-    ../app_thread/app_thread_source_manage/app_module_dump/*.c                              \
-    ../app_thread/app_thread_source_manage/app_module_load/*.c                              \
-    ../app_thread/app_thread_source_manage/app_module_source_mix/*.c                        \
+    ../app_thread/app_thread_source_manage/*.c                          \
+    ../app_thread/app_thread_source_manage/app_module_ext_mem/*.c       \
+    ../app_thread/app_thread_source_manage/app_module_source/*.c        \
+    ../app_thread/app_thread_source_manage/app_module_dump/*.c          \
+    ../app_thread/app_thread_source_manage/app_module_load/*.c          \
+    ../app_thread/app_thread_source_manage/app_module_source_mix/*.c    \
 
 app_main_h = \
-    -I ./
+    -I ../app_!linux    \
+    -I ..               \
 
 app_main_c = \
-    ./*.c   \
+    ../app_!linux/*.c   \
+    ../*.c  \
 
 main: app_arch.o app_os.o app_sys.o app_thread.o app_main.o
 	gcc $(app_dbg) -o main ./*.o $(app_system)
+	mv -f ./*.o  make_bin
+	mv -f ./main make_exe
 
 app_arch.o:
 	@gcc -c $(app_std) $(app_arch_c) $(app_arch_h)
@@ -124,6 +124,3 @@ app_thread.o:
 app_main.o:
 	@gcc -c $(app_std) $(app_main_c) $(app_arch_h) $(app_os_h) $(app_sys_h) $(app_thread_h) $(app_main_h)
 	@echo app_main
-
-clean:
-	@rm ./*.o ./main

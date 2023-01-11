@@ -20,3 +20,22 @@
       在该线程单提一个子模块处理该类事件集合
     3.(3~...)其余处理线程
       定向的封装模组,例如:传感器线程,GUI线程,传输协议线程等
+
+
+
+工程编译:
+
+cmake:
+    mkdir app_!cmake
+    cd    app_!cmake
+    cmake ..
+    make
+    cd    cmake_exe(附带拷贝资源app_!linux/source)
+
+make:
+    mkdir app_!make
+    mkdir app_!make/make_bin
+    mkdir app_!make/make_exe
+    cd    app_!make
+    make
+    cd    make_exe(附带拷贝资源app_!linux/source)

@@ -1,6 +1,6 @@
 
 {
-    "typedef"       : "test",
+    "typedef"       : "app_sys_test",
     "type_width"    : 15,
     "name_width"    : 25,
     "member"        :
