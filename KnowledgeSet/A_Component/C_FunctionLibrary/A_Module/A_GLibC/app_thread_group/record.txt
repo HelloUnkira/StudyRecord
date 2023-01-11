@@ -30,7 +30,7 @@ cmake:
     cd    app_!cmake
     cmake ..
     make
-    cd    cmake_exe(附带拷贝资源app_!linux/source)
+    cd    cmake_exe(附带拷贝资源app_!linux/source到本地)
 
 make:
     mkdir app_!make
@@ -38,4 +38,4 @@ make:
     mkdir app_!make/make_exe
     cd    app_!make
     make
-    cd    make_exe(附带拷贝资源app_!linux/source)
+    cd    make_exe(附带拷贝资源app_!linux/source到本地)

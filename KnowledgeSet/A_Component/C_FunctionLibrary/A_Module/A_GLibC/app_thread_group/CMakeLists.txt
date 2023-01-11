@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.10.1)
 project(app_main C)
 # 生成文件路径
 set(app_arch_path

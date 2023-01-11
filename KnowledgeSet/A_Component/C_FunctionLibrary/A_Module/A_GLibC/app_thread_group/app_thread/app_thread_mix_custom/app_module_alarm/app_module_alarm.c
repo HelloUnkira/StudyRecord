@@ -32,7 +32,7 @@ void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *cloc
         app_module_clock_t clock_month = alarm->clock_month;
         app_module_clock_t clock_week  = alarm->clock_week;
         /* 再次更新策略,月迭代更新 */
-        if (alarm->field_month != 0) {
+        while (alarm->field_month != 0) {
             for (uint8_t idx = 0; idx < 12; idx++) {
                  uint8_t off = 1 << ((idx + clock_month.month) % 12);
                 if ((alarm->field_month & off) != 0)
@@ -53,9 +53,14 @@ void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *cloc
                 event = app_thread_mix_custom_alarm_month;
                 alarm->clock_month = clock_month;
             }
+            /* 这里需要额外考虑,如果设备长期未启用 */
+            /* 第一次同步时间时 */
+            if (clock->utc <= clock_month.utc)
+                break;
+            alarm->clock_month = clock_month;
         }
         /* 再次更新策略,周迭代更新 */
-        if (alarm->field_week != 0) {
+        while (alarm->field_week != 0) {
             for (uint8_t idx = 0; idx < 7; idx++) {
                  uint8_t off = 1 << ((idx + clock_week.week + 1) % 7);
                 if ((alarm->field_week & off) != 0)
@@ -70,6 +75,11 @@ void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *cloc
                 event = app_thread_mix_custom_alarm_week;
                 alarm->clock_week = clock_week;
             }
+            /* 这里需要额外考虑,如果设备长期未启用 */
+            /* 第一次同步时间时 */
+            if (clock->utc <= clock_week.utc)
+                break;
+            alarm->clock_week = clock_week;
         }
         /* 只要闹钟是合法的 */
         /* 即使它是关闭状态也需要继续更新 */
@@ -119,7 +129,7 @@ void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *cloc
         /* 初次更新时,初始化一次策略,将其同步到一个时间线 */
         app_module_clock_t clock_repeat = alarm->clock_repeat;
         /* 再次更新时,轮转迭代更新 */
-        if (alarm->repeat) {
+        while (alarm->repeat) {
             clock_repeat.utc += alarm->repeat;
             app_module_clock_to_dtime(&clock_repeat);
             app_module_clock_to_week(&clock_repeat);
@@ -128,6 +138,11 @@ void app_module_alarm_update(app_module_alarm_t *alarm, app_module_clock_t *cloc
                 event = app_thread_mix_custom_alarm_repeat;
                 alarm->clock_repeat = clock_repeat;
             }
+            /* 这里需要额外考虑,如果设备长期未启用 */
+            /* 第一次同步时间时 */
+            if (clock->utc <= clock_repeat.utc)
+                break;
+            alarm->clock_repeat = clock_repeat;
         }
         /* 只要闹钟是合法的 */
         /* 即使它是关闭状态也需要继续更新 */
