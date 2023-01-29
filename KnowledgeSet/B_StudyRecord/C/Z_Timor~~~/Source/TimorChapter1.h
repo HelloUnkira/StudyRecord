@@ -9,11 +9,17 @@ static inline void TC1_All(void)
     void TC1_001_Function(void);
     void TC1_002_Function(void);
     void TC1_003_Function(void);
+    void TC1_004_Function(void);
+    void TC1_005_Function(void);
+    void TC1_006_Function(void);
     
     /* Function Quote */
     TC1_001_Function();
     TC1_002_Function();
     TC1_003_Function();
+    TC1_004_Function();
+    TC1_005_Function();
+    TC1_006_Function();
 }
 
 /*************************************************************************************************/

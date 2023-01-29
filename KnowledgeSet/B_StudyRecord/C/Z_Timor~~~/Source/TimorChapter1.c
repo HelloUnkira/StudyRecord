@@ -198,14 +198,277 @@ void TC1_003_Function(void)
 
 void TC1_004_ManacharPalindrome(char *Str)
 {
-    int32_t Len = strlen(Str);
-    
-    
-    
+    int32_t  StrLen = strlen(Str) * 2 + 1;
+	char    *StrNew = malloc(sizeof(char) *    StrLen);
+	int32_t *LenNew = malloc(sizeof(int32_t) * StrLen);
+    /* 填充# */
+    bool Rev = false;
+	for (int32_t Idx = 0; Idx < StrLen; Idx++) {
+        if (Rev) {
+            StrNew[Idx] = *Str++;
+            Rev = false;
+        } else {
+            StrNew[Idx] = '#';
+            Rev = true;
+        }
+		LenNew[Idx] = 1;
+    }
+    /* Manachar */
+    int32_t MaxPos = -1, MaxIdx = -1;
+    for (int32_t Idx = 0; Idx < StrLen; Idx++) {
+        #if 1
+        /* 定点 */
+        LenNew[Idx] = Idx < MaxIdx ?
+                      LenNew[2 * MaxPos - Idx] < MaxIdx - Idx ?
+                      LenNew[2 * MaxPos - Idx] : MaxIdx - Idx : 1;
+        /* 扩散 */
+        while (StrNew[Idx - LenNew[Idx]] == StrNew[Idx + LenNew[Idx]])
+               LenNew[Idx]++;
+        /* 更新 */
+        if (MaxIdx < Idx + LenNew[Idx]) {
+            MaxIdx = Idx + LenNew[Idx];
+            MaxPos = Idx;
+        }
+        #else
+        if (Idx < MaxIdx) {
+            /* Idx相对MaxPos的对称点 */
+            if ((LenNew[Idx] = LenNew[2 * MaxPos - Idx]) >= MaxIdx - Idx)
+            /* 从Idx + MaxIdx开始扩散 */
+            for (int32_t IdxT = LenNew[Idx];
+                (Idx - IdxT >= 0) && (Idx + IdxT < StrLen); IdxT++)
+                if (StrNew[Idx - IdxT] == StrNew[Idx + IdxT])
+                    LenNew[Idx]++;
+                else
+                    break;
+        } else {
+            for (int32_t IdxT = 1;
+                (Idx - IdxT >= 0) && (Idx + IdxT < StrLen); IdxT++)
+                if (StrNew[Idx - IdxT] == StrNew[Idx + IdxT])
+                    LenNew[Idx]++;
+                else
+                    break;
+        }
+        /* 更新 */
+        if (MaxIdx < Idx + LenNew[Idx]) {
+            MaxIdx = Idx + LenNew[Idx];
+            MaxPos = Idx;
+        }
+        #endif
+    }
+    /* 输出回文串: */
+    printf("\tStrNew:");
+    for (int32_t Idx = 0; Idx < StrLen; Idx++)
+        printf("%c ", StrNew[Idx]);
+	printf("\n");
+    printf("\tLenNew:");
+    for (int32_t Idx = 0; Idx < StrLen; Idx++)
+        printf("%d ", LenNew[Idx]);
+	printf("\n");
+    /*  */
+    free(StrNew);
+    free(LenNew);
 }
 
+void TC1_004_Function(void)
+{
+    printf("TC1_004:\n");
+    TC1_004_ManacharPalindrome("abacdadca");
+}
 
 /* TC1:<Timo4>End */
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* TC1:<Timo5> 装水最多的容器
+ * 分析:
+ *     不等式原理
+ *     MaxSum = (Right - Left) * Min(List[Left], List[Right])
+ */
+/* TC1:<Timo5>Start */
+
+void TC1_005_MostWater(int32_t *List, int32_t Num)
+{
+    int32_t MaxSum = 0, Sum = 0;
+    int32_t CurLeft = 0, CurRight = Num - 1;
+    int32_t MaxLeft = 0, MaxRight = Num - 1;
+    
+    while (CurLeft < CurRight) {
+        
+        Sum  = CurRight - CurLeft;
+        Sum *= List[CurLeft] < List[CurRight] ? List[CurLeft] : List[CurRight];
+        
+        if (MaxSum < Sum) {
+            MaxSum = Sum;
+            MaxLeft  = CurLeft;
+            MaxRight = CurRight;
+        }
+        
+        if (List[CurLeft] < List[CurRight])
+            CurLeft++;
+        else
+            CurRight--;
+    }
+    
+    printf("((%d, %d) : %d)", MaxLeft, MaxRight, MaxSum);
+}
+
+void TC1_005_Function(void)
+{
+	int32_t List[9] = {1,8,6,2,5,4,8,3,7};
+	printf("TC1_005:");
+    TC1_005_MostWater(List, 9);
+    printf("\n");
+}
+
+/* TC1:<Timo5>End */
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* TC1:<Timo6> 三数和最相近,三数和,四叔和
+ * 分析:
+ *     排序后滑动查找O(N^2)
+ */
+/* TC1:<Timo6>Start */
+
+int TC1_006_QSort(const void *Data1, const void *Data2)
+{
+    if (*(int32_t *)Data1 < *(int32_t *)Data2)
+        return -1;
+    if (*(int32_t *)Data1 > *(int32_t *)Data2)
+        return +1;
+    return 0;
+}
+
+void TC1_006_ThreeNumSum(int32_t *List, uint32_t Num, int32_t Target)
+{
+    /* 先排序 */
+    qsort(List, Num, sizeof(int32_t), TC1_006_QSort);
+    /* 然后一个个数剔除 */
+	for (int32_t Idx = 0; List[Idx] < Target; Idx++) {
+        /* 跳过重复数据 */
+        if (Idx - 1 >= 0 && List[Idx - 1] == List[Idx])
+            continue;
+        
+        int32_t SubTarget = Target - List[Idx];
+        int32_t CurLeft   = Idx + 1;
+        int32_t CurRight  = Num - 1;
+        
+        while (CurLeft < CurRight) {
+            if (CurLeft - 1 >= 0 && List[CurLeft - 1] == List[CurLeft])
+                CurLeft++;
+            if (CurRight + 1 < Num && List[CurRight + 1] == List[CurRight])
+                CurRight--;
+            
+            if (List[CurLeft] + List[CurRight] < SubTarget)
+                CurLeft++;
+            else
+            if (List[CurLeft] + List[CurRight] > SubTarget)
+                CurRight--;
+            else {
+                printf("(%d,%d,%d)\t", List[Idx], List[CurLeft] , List[CurRight]);
+                CurLeft++;
+                CurRight--;
+            }
+        }
+    }
+}
+
+void TC1_006_ThreeNumNear(int32_t *List, uint32_t Num, int32_t Target)
+{
+    int32_t CurSum = 0, CurLast = 0;
+    int32_t NearIdx1 = 0, NearIdx2 = 0, NearIdx3 = 0, NearSum = ~(1 << 31);
+    /* 先排序 */
+    qsort(List, Num, sizeof(int32_t), TC1_006_QSort);
+    /* 然后一个个数剔除 */
+	for (int32_t Idx = 0; Idx < Num; Idx++) {
+        /* 跳过重复数据 */
+        if (Idx - 1 >= 0 && List[Idx - 1] == List[Idx])
+            continue;
+        
+        int32_t CurLeft   = Idx + 1;
+        int32_t CurRight  = Num - 1;
+        
+        while (CurLeft < CurRight) {
+            if (CurLeft - 1 >= 0 && List[CurLeft - 1] == List[CurLeft])
+                CurLeft++;
+            if (CurRight + 1 < Num && List[CurRight + 1] == List[CurRight])
+                CurRight--;
+            
+            CurLast = CurSum;
+            CurSum  = List[Idx] + List[CurLeft] + List[CurRight];
+            
+            if (abs(Target - NearSum) > abs(Target - CurSum)) {
+                NearSum = CurSum;
+				NearIdx1 = Idx;
+				NearIdx2 = CurLeft;
+				NearIdx3 = CurRight;
+				CurLeft++;
+				CurRight--;
+            } else {
+                if (CurSum < Target)
+                    CurLeft++;
+                else
+                    CurRight--;
+            }
+        }
+    }
+    
+    printf("(%d, %d, %d)", List[NearIdx1], List[NearIdx2], List[NearIdx3]);
+}
+
+void TC1_006_FourNumSum(int32_t *List, uint32_t Num, int32_t Target)
+{
+    /* 先排序 */
+    qsort(List, Num, sizeof(int32_t), TC1_006_QSort);
+    /* 然后一个个数剔除 */
+	for (int32_t Idx1 = 0; List[Idx1] < Target; Idx1++) {
+        /* 跳过重复数据 */
+        if (Idx1 - 1 >= 0 && List[Idx1 - 1] == List[Idx1])
+            continue;
+        /* 然后一个个数剔除 */
+        for (int32_t Idx2 = Idx1; List[Idx2] < Target; Idx2++) {
+            /* 跳过重复数据 */
+            if (Idx2 - 1 >= 0 && List[Idx2 - 1] == List[Idx2])
+                continue;
+            
+            int32_t SubTarget = Target - List[Idx1] - List[Idx2];
+            int32_t CurLeft   = Idx2 + 1;
+            int32_t CurRight  = Num - 1;
+            
+            while (CurLeft < CurRight) {
+                if (CurLeft - 1 >= 0 && List[CurLeft - 1] == List[CurLeft])
+                    CurLeft++;
+                if (CurRight + 1 < Num && List[CurRight + 1] == List[CurRight])
+                    CurRight--;
+                
+                if (List[CurLeft] + List[CurRight] < SubTarget)
+                    CurLeft++;
+                else
+                if (List[CurLeft] + List[CurRight] > SubTarget)
+                    CurRight--;
+                else {
+                    printf("(%d,%d,%d,%d)\t", List[Idx1], List[Idx2], List[CurLeft] , List[CurRight]);
+                    CurLeft++;
+                    CurRight--;
+                }
+            }
+        }
+    }
+}
+
+void TC1_006_Function(void)
+{
+    int32_t List[10] = {-7, -3, -5, -6, 0, 2, 2, 3, 4, 6};
+    printf("TC1_006:\n\t");
+    TC1_006_ThreeNumNear(List, 10, 1);
+    printf("\n\t");
+    TC1_006_ThreeNumSum(List, 10, 0);
+    printf("\n\t");
+    TC1_006_FourNumSum(List, 10, 0);
+    printf("\n");
+}
+
+/* TC1:<Timo6>End */
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
