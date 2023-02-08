@@ -23,7 +23,7 @@ void ST_Node_Stop(ST_Queue *Queue, ST_Node *Timer)
     for (ST_Node *Current = Queue->Timers; Current->Near != NULL; Current = Current->Near)
         /* 如果下一等待着是目标 */
         if (Current->Near == Timer) {
-            Current->Near  = Current->Near->Near;
+            Current->Near  = Timer->Near;
             /* 如果后面还有等待者,需要将约减值累加到后面 */
             if (Current->Near != NULL)
                 Current->Near->ReduceCount += Timer->ReduceCount;
