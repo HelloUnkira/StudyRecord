@@ -36,6 +36,8 @@ void ST_Node_Stop(ST_Queue *Queue, ST_Node *Timer)
 /* 启动软件定时器 */
 bool ST_Node_Start(ST_Queue *Queue, ST_Node *Timer)
 {
+    if (Timer->ReduceCallback == NULL || Timer->Peroid == 0)
+        return false;
     /* 首项检查,不要加入俩个相同的定时器到队列中去 */
     for (ST_Node *Current = Queue->Timers; Current != NULL; Current = Current->Near)
         if (Current == Timer)
@@ -43,8 +45,6 @@ bool ST_Node_Start(ST_Queue *Queue, ST_Node *Timer)
     /* 开始前重加载定时器,我们默认0周期为错误操作 */
     Timer->Near        = NULL;
     Timer->ReduceCount = Timer->Peroid;
-    if ((Timer->ReduceCount = Timer->Peroid) == 0)
-        return false;
     /* 检查等待者队列 */
     if (Queue->Timers == NULL) {
         Queue->Timers  = Timer;
