@@ -17,7 +17,7 @@ typedef struct HashTable_Node {
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-typedef struct HashTable_Nodes {
+typedef struct HashTable_List {
     DL_List List;
 } HT_List;
 /*************************************************************************************************/
@@ -25,15 +25,18 @@ typedef struct HashTable_Nodes {
 /*************************************************************************************************/
 typedef struct HashTable_Table {
     HT_List  *Array;
-    uint32_t (*HashFunction)(HT_Node *Node);
-    bool     (*IsEqual)(HT_Node *Node1, HT_Node *Node2);
+    uint32_t (*Digest)(HT_Node *Node);
+    bool     (*Comfirm)(HT_Node *Node1, HT_Node *Node2);
     uint32_t   Length;
 } HT_Table;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-typedef uint32_t (*HT_HashFunction)(HT_Node *Node);
-typedef bool     (*HT_IsEqual)(HT_Node *Node1, HT_Node *Node2);
+typedef uint32_t (*HT_Digest)(HT_Node *Node);
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+typedef bool (*HT_Comfirm)(HT_Node *Node1, HT_Node *Node2);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -52,6 +55,14 @@ void HT_List_Reset(HT_List *Array, uint32_t Length)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+void HT_Table_Set(HT_Table *Table, HT_Digest Digest, HT_Comfirm Comfirm)
+{
+    Table->Digest  = Digest;
+    Table->Comfirm = Comfirm;
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 void HT_Table_SetZone(HT_Table *Table, HT_List *Array, uint32_t Length)
 {
     Table->Array  = Array;
@@ -60,18 +71,10 @@ void HT_Table_SetZone(HT_Table *Table, HT_List *Array, uint32_t Length)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-void HT_Table_Set(HT_Table *Table, HT_HashFunction HashFunction, HT_IsEqual IsEqual)
-{
-    Table->HashFunction = HashFunction;
-    Table->IsEqual      = IsEqual;
-}
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-void HT_Node_Add(HT_Table *Table, HT_Node *Node)
+void HT_Node_Insert(HT_Table *Table, HT_Node *Node)
 {
     /* 散列,追加 */
-    uint32_t Index = Table->HashFunction(Node) % Table->Length;
+    uint32_t Index = Table->Digest(Node) % Table->Length;
     /* 对称语义,二选其一 */
     //DL_List_InsertPrepend(&((Table->Array[Index]).List), NULL, &(Node->Node));
     DL_List_InsertAppend(&((Table->Array[Index]).List), NULL, &(Node->Node));
@@ -82,7 +85,7 @@ void HT_Node_Add(HT_Table *Table, HT_Node *Node)
 void HT_Node_Remove(HT_Table *Table, HT_Node *Node)
 {
     /* 散列,移除 */
-    uint32_t Index = Table->HashFunction(Node) % Table->Length;
+    uint32_t Index = Table->Digest(Node) % Table->Length;
     DL_List_Remove(&((Table->Array[Index]).List), &(Node->Node));
 }
 /*************************************************************************************************/
@@ -91,12 +94,12 @@ void HT_Node_Remove(HT_Table *Table, HT_Node *Node)
 HT_Node * HT_Node_Search(HT_Table *Table, HT_Node *Node)
 {
     /* 散列,遍历 */
-    uint32_t Index = Table->HashFunction(Node) % Table->Length;
+    uint32_t Index = Table->Digest(Node) % Table->Length;
     /* 对称语义,二选其一 */
     //DL_List_Traverse_Forward(&((Table->Array[Index]).List), Current)
     DL_List_Traverse_Backward(&((Table->Array[Index]).List), Current) {
         HT_Node *Target = DL_GetOwner(HT_Node, Node, Current);
-        if (Table->IsEqual(Target, Node) == true)
+        if (Table->Comfirm(Target, Node) == true)
             return Target;
     }
     return NULL;

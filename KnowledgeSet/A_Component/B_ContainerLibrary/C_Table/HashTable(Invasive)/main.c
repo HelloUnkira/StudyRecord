@@ -12,14 +12,14 @@ typedef struct HT_NodeDataStructForTest {
     
 } DataTest;
 
-uint32_t HT_HashFunction_Test(HT_Node *Target)
+uint32_t HT_Digest_Test(HT_Node *Target)
 {
     uint8_t *Data = (uint8_t *)(&((HT_GetOwner(DataTest, Node, Target))->Key));
     uint32_t Length = sizeof(uint32_t);
     return Elf_HashFunction(Data, Length);
 }
 
-bool HT_IsEqual_Test(HT_Node *Node1, HT_Node *Node2)
+bool HT_Comfirm_Test(HT_Node *Node1, HT_Node *Node2)
 {
     return ((HT_GetOwner(DataTest, Node, Node1))->Key ==
             (HT_GetOwner(DataTest, Node, Node2))->Key);
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     HT_List_Reset(Test_HT_List, TestLength);
     
     HT_Table_SetZone(&Test_HT_Table, Test_HT_List, TestLength);
-    HT_Table_Set(&Test_HT_Table, HT_HashFunction_Test, HT_IsEqual_Test);
+    HT_Table_Set(&Test_HT_Table, HT_Digest_Test, HT_Comfirm_Test);
     
     /* 随机生成100个键值对 */
     for (uint32_t Index = 0; Index < 100; Index++) {
@@ -51,10 +51,10 @@ int main(int argc, char *argv[]) {
         Data->Key  = Index;
         Data->Data = rand() % 100;
         HT_Node_Reset(&(Data->Node));
-        HT_Node_Add(&Test_HT_Table, &(Data->Node));
+        HT_Node_Insert(&Test_HT_Table, &(Data->Node));
     }
     
-    printf("\n\nHT_Node_Add:\n\n");
+    printf("\n\nHT_Node_Insert:\n\n");
     HT_TableNodeCheck(&Test_HT_Table, HT_NodeCheck_Test);
     
     /* 随机移除一半的键值对 */
