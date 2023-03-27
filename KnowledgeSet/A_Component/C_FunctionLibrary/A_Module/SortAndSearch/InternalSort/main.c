@@ -125,6 +125,10 @@ static void TestSort(void)
             InternalSort_Quick(test_data, Helper3);
             TrueOrFalse = 0;
             break;
+        case 7:
+            InternalSort_OddEven(test_data);
+            TrueOrFalse = 0;
+            break;
         default:
             TrueOrFalse = 0;
             free(Temp1);

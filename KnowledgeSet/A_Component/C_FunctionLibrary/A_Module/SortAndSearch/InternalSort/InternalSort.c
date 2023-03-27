@@ -7,7 +7,7 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-#ifdef 0
+#if 0
 #include <stdio.h>
 #define ERROR_PRINT(Target, String) if (Target) printf("%s\n",(String));
 #else
@@ -516,6 +516,41 @@ void InternalSort_Quick(void *DataSet, void *Helper)
             Temp[++Number] = CenterTemp - 1;
         }
     } while (Number != 0);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 奇偶排序O(n**2) */
+void InternalSort_OddEven(void *DataSet)
+{
+    INTERNALSORT_DATACHECK((InternalSort_Data *)DataSet);
+    INTERNALSORT_DATADEFINE((InternalSort_Data *)DataSet);
+    
+    bool Loop = true;
+    uint8_t *Index1 = NULL;
+    uint8_t *Index2 = NULL;
+    
+    do {
+        Loop = false;
+        /* 奇排序 */
+        uint32_t Idx1 = Left;
+        for (Index1 = List + Size * (Idx1),
+             Index2 = List + Size * (Idx1 + 1);
+             Idx1 + 1 <= Right; Idx1 += 2, Index1 += Size * 2, Index2 += Size * 2)
+             if (Compare(Index1, Index2) == GREATER) {
+                 InternalSort_Swap(Index1, Index2, Size);
+                 Loop = true;
+             }
+        /* 偶排序 */
+        uint32_t Idx2 = Left;
+        for (Index1 = List + Size * (Idx2 + 1),
+             Index2 = List + Size * (Idx2 + 2);
+             Idx2 + 2 <= Right; Idx2 += 2, Index1 += Size * 2, Index2 += Size * 2)
+             if (Compare(Index1, Index2) == GREATER) {
+                 InternalSort_Swap(Index1, Index2, Size);
+                 Loop = true;
+             }
+    } while (Loop);
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
