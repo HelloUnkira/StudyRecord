@@ -129,6 +129,10 @@ static void TestSort(void)
             InternalSort_OddEven(test_data);
             TrueOrFalse = 0;
             break;
+        case 8:
+            InternalSort_Bitonic(test_data);
+            TrueOrFalse = 0;
+            break;
         default:
             TrueOrFalse = 0;
             free(Temp1);

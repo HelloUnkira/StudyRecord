@@ -555,6 +555,61 @@ void InternalSort_OddEven(void *DataSet)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+/* 单次双调合并排序O(n log n) */
+static void InternalSort_BitonicMerge(uint8_t *List, uint8_t  Size,
+                                      uint32_t Left, uint32_t Right, bool Direct,
+                                      KeyCompare Compare)
+{
+    if (Left >= Right)
+        return;
+    /* 切分点 */
+    uint32_t Number = Right - Left + 1;
+    uint32_t Middle = 1;
+    while (Middle < Number)
+           Middle <<= 1;
+           Middle >>= 1;
+    /* 迭代 */
+    for (uint32_t Idx = 0; Idx < Number - Middle; Idx++) {
+        uint8_t *Index1 = List + Size * (Idx + Left);
+        uint8_t *Index2 = List + Size * (Idx + Left + Middle);
+        if ((Compare(Index1, Index2) == GREATER &&  Direct) ||
+            (Compare(Index1, Index2) != GREATER && !Direct))
+             InternalSort_Swap(Index1, Index2, Size);
+    }
+    InternalSort_BitonicMerge(List, Size, Left,  Left + Middle - 1, Direct, Compare);
+    InternalSort_BitonicMerge(List, Size, Left + Middle, Right,     Direct, Compare);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 单次双调排序O(n log n) */
+static void InternalSort_BitonicOnly(uint8_t *List, uint8_t  Size,
+                                     uint32_t Left, uint32_t Right, bool Direct,
+                                     KeyCompare Compare)
+{
+    if (Left >= Right)
+        return;
+    /* 切分点 */
+    uint32_t Number = Right - Left + 1;
+    uint32_t Middle = Number / 2;
+    InternalSort_BitonicOnly(List,  Size, Left,  Left + Middle - 1, !Direct, Compare);
+    InternalSort_BitonicOnly(List,  Size, Left + Middle, Right,      Direct, Compare);
+    InternalSort_BitonicMerge(List, Size, Left,  Right,              Direct, Compare);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 双调排序O(n log n) */
+void InternalSort_Bitonic(void *DataSet)
+{
+    INTERNALSORT_DATACHECK((InternalSort_Data *)DataSet);
+    INTERNALSORT_DATADEFINE((InternalSort_Data *)DataSet);
+    
+    InternalSort_BitonicOnly(List, Size, Left, Right, true, Compare);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////
 //计数排序:(特定使用场景,不通用,实现简单)//////////////////////////////////////
 //桶排序:(链表集,空间开销更大)/////////////////////////////////////////////////
