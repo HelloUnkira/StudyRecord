@@ -18,6 +18,11 @@
 /*************************************************************************************************/
 /* 排序数据抽象 */
 struct InternalSort_DataSet {
+    /* 命中目标: */
+    void     *List;    //通配元素集合
+    uint32_t  Size;    //通配元素字节大小
+    uint32_t  Left;    //排序起始点(相对于通配元素集合位置)
+    uint32_t  Right;   //排序结束点(相对于通配元素集合位置)
     /* 排序接口集合 */
     union {
         struct {
@@ -28,15 +33,13 @@ struct InternalSort_DataSet {
         };
         struct {
             /* 位数据归类排序 */
-            uint32_t (*BitsLength)(void);                       /* 基数排序(数据位总长) */
-            bool     (*BitsLevel)(void *Data, uint32_t Vevel);  /* 基数排序(指定数据位) */
+            bool (*BitsLevel)(void *Data, uint32_t Vevel);  /* 基数排序(指定数据位) */
+        };
+        struct {
+            /* 基数数据归类排序 */
+            uint64_t (*UInt64Value)(void *Temp);
         };
     };
-    /* 命中目标: */
-    void     *List;    //通配元素集合
-    uint32_t  Size;    //通配元素字节大小
-    uint32_t  Left;    //排序起始点(相对于通配元素集合位置)
-    uint32_t  Right;   //排序结束点(相对于通配元素集合位置)
 };
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -47,29 +50,33 @@ typedef struct InternalSort_DataSet InternalSort_Data;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 常规排序(比较函数): */
-//temp1严格小于temp2返回0
-//temp1严格等于temp2返回1
-//temp1严格大于temp2返回2
+/* 1.temp1严格小于temp2返回0 */
+/* 2.temp1严格等于temp2返回1 */
+/* 3.temp1严格大于temp2返回2 */
 typedef uint8_t (*KeyCompare)(void *Temp1, void *Temp2);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 常规排序(希尔排序扩充函数): */
-//希尔增量序列,已知序列后一项求序列前一项,直到1
+/* 希尔增量序列,已知序列后一项求序列前一项,直到1 */
 typedef uint32_t (*KeyHill)(uint32_t x);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 位数据归类排序: */
-//获得该类型的关键字位数
-typedef uint32_t (*KeyBitsLength)(void);
-//获得Temp的关键字的指定Pos位的状态
+/* 获得Temp的关键字的指定Level位的状态 */
 typedef bool (*KeyBitsLevel)(void *Temp, uint32_t Level);
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
+/* 基数数据归类排序: */
+/* 获得Temp的关键字 */
+typedef uint64_t (*KeyUInt64Value)(void *Temp);
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
 /* 结果状态记录 */
-enum {LESS = 0, EQUAL = 1, GREATER = 2} IS_CompareState;
+enum {LESS = 0, EQUAL = 1, GREATER = 2} InternalSort_CompareState;
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -169,21 +176,21 @@ static inline void InternalSort_Simplification(void)
         (DataSet)->Left    >=               \
         (DataSet)->Right)                   \
         return;                             \
-    if ((DataSet)->Compare == NULL ||       \
-       ((DataSet)->BitsLength == NULL &&    \
-        (DataSet)->BitsLevel  == NULL))     \
+    if ((DataSet)->Compare      == NULL ||  \
+        (DataSet)->BitsLevel    == NULL ||  \
+        (DataSet)->UInt64Value  == NULL)    \
         return;                             \
 
 /* 数据所需参数定义 */
-#define INTERNALSORT_DATADEFINE(DataSet)        \
-    uint8_t *List       = (DataSet)->List;      \
-    uint32_t Size       = (DataSet)->Size;      \
-    uint32_t Left       = (DataSet)->Left;      \
-    uint32_t Right      = (DataSet)->Right;     \
-    KeyCompare    Compare    = (DataSet)->Compare;      \
-    KeyHill       Hill       = (DataSet)->Hill;         \
-    KeyBitsLength BitsLength = (DataSet)->BitsLength;   \
-    KeyBitsLevel  BitsLevel  = (DataSet)->BitsLevel;    \
+#define INTERNALSORT_DATADEFINE(DataSet)    \
+    uint8_t *List       = (DataSet)->List;  \
+    uint32_t Size       = (DataSet)->Size;  \
+    uint32_t Left       = (DataSet)->Left;  \
+    uint32_t Right      = (DataSet)->Right; \
+    KeyCompare      Compare     = (DataSet)->Compare;       \
+    KeyHill         Hill        = (DataSet)->Hill;          \
+    KeyBitsLevel    BitsLevel   = (DataSet)->BitsLevel;     \
+    KeyUInt64Value  UInt64Value = (DataSet)->UInt64Value;   \
 
 #define RETURN_EMPTY(target) if (target) return;
 
@@ -522,7 +529,7 @@ void InternalSort_Quick(void *DataSet, void *Helper)
     RETURN_EMPTY(Helper == NULL);
 
     int32_t Number = 0;
-    uint32_t *Temp = (uint32_t *)Helper;
+    uint32_t *Temp = Helper;
 
     /* 首项入栈: */
     Temp[++Number] = Left;
@@ -559,11 +566,11 @@ void InternalSort_Quick(void *DataSet, void *Helper)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 基数排序O(n log n) */
-static void InternalSort_RadixOnly(uint8_t  *List,    uint8_t   Size,
-                                   uint32_t  Left,    uint32_t  Right,
-                                   uint32_t *LeftNew, uint32_t *RightNew,
-                                   uint32_t  Level,   uint32_t  BitsLength,
-                                   KeyBitsLevel BitsLevel)
+static void InternalSort_Radix1Only(uint8_t  *List,    uint8_t   Size,
+                                    uint32_t  Left,    uint32_t  Right,
+                                    uint32_t *LeftNew, uint32_t *RightNew,
+                                    uint32_t  Level,   uint32_t  BitsLength,
+                                    KeyBitsLevel BitsLevel)
 {
     if (Level == 0)
         return;
@@ -601,19 +608,18 @@ static void InternalSort_RadixOnly(uint8_t  *List,    uint8_t   Size,
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 基数排序O(n log n) */
-void InternalSort_Radix(void *DataSet, void *Helper)
+void InternalSort_Radix1(void *DataSet, void *Helper, uint32_t Level)
 {
     INTERNALSORT_DATACHECK((InternalSort_Data *)DataSet);
     INTERNALSORT_DATADEFINE((InternalSort_Data *)DataSet);
     RETURN_EMPTY(Helper == NULL);
     
-    uint32_t Length = BitsLength();
-
-    int32_t Number = 0;
-    uint32_t *Temp = (uint32_t *)Helper;
+    uint32_t *Temp     = Helper;
+    uint32_t  LevelMax = Level;
+    int32_t   Number   = 0;
 
     /* 首项入栈: */
-    Temp[++Number] = Length;
+    Temp[++Number] = LevelMax;
     Temp[++Number] = Left;
     Temp[++Number] = Right;
     
@@ -629,8 +635,8 @@ void InternalSort_Radix(void *DataSet, void *Helper)
         uint32_t LeftNew  = 0;
         uint32_t RightNew = 0;
         
-        InternalSort_RadixOnly(List, Size, Left, Right, &LeftNew, &RightNew,
-                               Level, Length, BitsLevel);
+        InternalSort_Radix1Only(List, Size, Left, Right, &LeftNew, &RightNew,
+                                Level, LevelMax, BitsLevel);
         if (Level == 0)
             continue;
         /* 右子项入栈,左子项入栈 */
@@ -645,6 +651,44 @@ void InternalSort_Radix(void *DataSet, void *Helper)
             Temp[++Number] = Right;
         }
     } while (Number != 0);
+}
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+/* 基数排序O(n log n) */
+void InternalSort_Radix2(void *DataSet, void *Helper1, void *Helper2, uint64_t Radix)
+{
+    INTERNALSORT_DATACHECK((InternalSort_Data *)DataSet);
+    INTERNALSORT_DATADEFINE((InternalSort_Data *)DataSet);
+    RETURN_EMPTY(Helper1 == NULL || Helper2 == NULL || Radix == 0);
+    
+    uint8_t  *Temp   = Helper1;
+    uint64_t *Bucket = Helper2;
+    
+    uint64_t UInt64ValueMax = 0;
+    for (uint32_t Index = Left; Index <= Right; Index++) {
+         uint64_t Value = UInt64Value(List + Size * Index);
+        if (UInt64ValueMax < Value)
+            UInt64ValueMax = Value;
+    }
+    
+    for (uint64_t Exponent = 1; Exponent <= UInt64ValueMax; Exponent *= Radix) {
+        /* 先清除计数桶 */
+        for (uint32_t Index = 0; Index < Radix; Bucket[Index] = 0, Index++);
+        /* 关键字散列计数 */
+        for (uint32_t Index = Left; Index <= Right; Index++)
+             Bucket[UInt64Value(List + Size * Index) / Exponent % Radix]++;
+        /* 散列计数重累加 */
+        for (uint32_t Index = 1; Index < Radix; Bucket[Index] += Bucket[Index - 1], Index++);
+        /* 二次映射所有数据 */
+        for (int64_t Index = Right; Index >= Left; Index--) {
+            uint32_t IndexHash = --Bucket[UInt64Value(List + Size * Index) / Exponent % Radix];
+            InternalSort_Copy(Temp + Size * IndexHash, List + Size * Index, Size);
+        }
+        /* 更新旧有数据 */
+        for (uint32_t Index = Left; Index <= Right; Index++)
+            InternalSort_Copy(List + Size * Index, Temp + Size * Index, Size);
+    }
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
@@ -772,16 +816,16 @@ void InternalSort_SetHill(void *DataSet, KeyHill Hill)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-void InternalSort_SetBitsLength(void *DataSet, KeyBitsLength BitsLength)
+void InternalSort_SetBitsLevel(void *DataSet, KeyBitsLevel BitsLevel)
 {
-    ((InternalSort_Data *)DataSet)->BitsLength = BitsLength;
+    ((InternalSort_Data *)DataSet)->BitsLevel = BitsLevel;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-void InternalSort_SetBitsLevel(void *DataSet, KeyBitsLevel BitsLevel)
+void InternalSort_SetUInt64Value(void *DataSet, KeyUInt64Value UInt64Value)
 {
-    ((InternalSort_Data *)DataSet)->BitsLevel = BitsLevel;
+    ((InternalSort_Data *)DataSet)->UInt64Value = UInt64Value;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

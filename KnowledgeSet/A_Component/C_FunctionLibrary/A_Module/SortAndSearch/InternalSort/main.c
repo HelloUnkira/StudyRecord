@@ -6,7 +6,7 @@
 #include <windows.h>
 #include "InternalSort.h"
 
-#define SIMPLE_SORT_NUMBER 30000
+#define SIMPLE_SORT_NUMBER 1000000
 #define SIMPLE_SORT_DOUBLE SIMPLE_SORT_NUMBER * 2
 #define SIMPLE_SORT_TRIPLE SIMPLE_SORT_NUMBER * 3
 #define SIMPLE_SORT_SRAND  978563412
@@ -44,14 +44,14 @@ static uint32_t Hibbard(uint32_t x)
     return   Temp <= x ? Temp : 1;
 }
 
-static uint32_t TestBitsLength(void)
-{
-    return sizeof(uint32_t) * 8;
-}
-
 static bool TestBitsLevel(void *Temp, uint32_t Level)
 {
     return ((((TestData *)Temp)->xxx) & (1 << Level)) != 0;
+}
+
+static uint64_t TestUInt64Value(void *Temp)
+{
+    return ((TestData *)Temp)->xxx;
 }
 
 static void PrintAll(TestData *Test, uint32_t TrueOrFalse)
@@ -111,23 +111,26 @@ static void TestSort(void)
         
         switch (Flag++) {
         case 0:
+            break;  /* 太慢了,测试完成直接跳过 */
             InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_Bubble(test_data);
             TrueOrFalse = 0;
             break;
         case 1:
+            break;  /* 太慢了,测试完成直接跳过 */
             InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_Selection(test_data, &Helper1);
             TrueOrFalse = 0;
             break;
         case 2:
+            break;  /* 太慢了,测试完成直接跳过 */
             InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_Insertion(test_data, &Helper1);
             TrueOrFalse = 0;
             break;
         case 3:
             InternalSort_SetCompare(test_data, TestCompare);
-            InternalSort_SetHill(test_data,    Hibbard);
+            InternalSort_SetHill(test_data, Hibbard);
             InternalSort_Shell(test_data, &Helper1);
             TrueOrFalse = 0;
             break;
@@ -138,7 +141,7 @@ static void TestSort(void)
             break;
         case 5:
             InternalSort_SetCompare(test_data, TestCompare);
-            InternalSort_Merge(test_data, (void *)Helper2);
+            InternalSort_Merge(test_data, Helper2);
             TrueOrFalse = 0;
             break;
         case 6:
@@ -147,17 +150,22 @@ static void TestSort(void)
             TrueOrFalse = 0;
             break;
         case 7:
-            InternalSort_SetBitsLength(test_data, TestBitsLength);
-            InternalSort_SetBitsLevel(test_data,  TestBitsLevel);
-            InternalSort_Radix(test_data, Helper4);
+            InternalSort_SetBitsLevel(test_data, TestBitsLevel);
+            InternalSort_Radix1(test_data, Helper4, sizeof(uint32_t) * 8);
             TrueOrFalse = 0;
             break;
         case 8:
+            InternalSort_SetUInt64Value(test_data, TestUInt64Value);
+            InternalSort_Radix2(test_data, Helper2, Helper4, 10);
+            TrueOrFalse = 0;
+            break;
+        case 9:
+            break;  /* 太慢了,测试完成直接跳过 */
             InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_OddEven(test_data);
             TrueOrFalse = 0;
             break;
-        case 9:
+        case 10:
             InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_Bitonic(test_data);
             TrueOrFalse = 0;
@@ -171,6 +179,7 @@ static void TestSort(void)
         }
         
         PrintAll(Temp2, TrueOrFalse);
+        TrueOrFalse = 0;
         printf("\n %d sort result:%d\n", Flag - 1, TestCheck(Temp2));
     }
 }
