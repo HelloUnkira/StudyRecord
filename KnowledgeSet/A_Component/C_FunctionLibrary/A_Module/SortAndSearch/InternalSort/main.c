@@ -8,6 +8,7 @@
 
 #define SIMPLE_SORT_NUMBER 30000
 #define SIMPLE_SORT_DOUBLE SIMPLE_SORT_NUMBER * 2
+#define SIMPLE_SORT_TRIPLE SIMPLE_SORT_NUMBER * 3
 #define SIMPLE_SORT_SRAND  978563412
 #include <stdio.h>
 
@@ -43,6 +44,16 @@ static uint32_t Hibbard(uint32_t x)
     return   Temp <= x ? Temp : 1;
 }
 
+static uint32_t TestBitsLength(void)
+{
+    return sizeof(uint32_t) * 8;
+}
+
+static bool TestBitsLevel(void *Temp, uint32_t Level)
+{
+    return ((((TestData *)Temp)->xxx) & (1 << Level)) != 0;
+}
+
 static void PrintAll(TestData *Test, uint32_t TrueOrFalse)
 {
     if (TrueOrFalse == 0)
@@ -75,14 +86,16 @@ static void TestSort(void)
     TestData   Helper1 = {0};
     TestData  *Helper2 = NULL;
     uint32_t  *Helper3 = NULL;
+    uint32_t  *Helper4 = NULL;
     Temp1   = (TestData *)calloc(SIMPLE_SORT_NUMBER, sizeof(TestData));
     Temp2   = (TestData *)calloc(SIMPLE_SORT_NUMBER, sizeof(TestData));
     Helper2 = (TestData *)calloc(SIMPLE_SORT_NUMBER, sizeof(TestData));
     //数据量越大log n 越小于 n,否则很接近,所以为兼容各个情况
     Helper3 = (uint32_t *)calloc(SIMPLE_SORT_DOUBLE, sizeof(uint32_t));
+    Helper4 = (uint32_t *)calloc(SIMPLE_SORT_TRIPLE, sizeof(uint32_t));
     //-------------------------------------------------------------------------
     void *test_data = malloc(sizeof(InternalSort_Data));
-    InternalSort_ContainerBytesSet(test_data, TestCompare, (void *)Temp2,
+    InternalSort_SetDataSet(test_data, (void *)Temp2,
                             sizeof(TestData), 0, SIMPLE_SORT_NUMBER - 1);
     //-------------------------------------------------------------------------
     //随机数生成器,获取随机数种子,获取随机数
@@ -90,7 +103,7 @@ static void TestSort(void)
     for (I = 0; I < SIMPLE_SORT_NUMBER; I++)
         Temp1[I].xxx = rand() % 500;
     //-------------------------------------------------------------------------
-
+    
     while (1) {
         printf("\n--------------------------------------------------------\n");
         for (I = 0; I < SIMPLE_SORT_NUMBER; I++)
@@ -98,38 +111,54 @@ static void TestSort(void)
         
         switch (Flag++) {
         case 0:
+            InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_Bubble(test_data);
             TrueOrFalse = 0;
             break;
         case 1:
+            InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_Selection(test_data, &Helper1);
             TrueOrFalse = 0;
             break;
         case 2:
+            InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_Insertion(test_data, &Helper1);
             TrueOrFalse = 0;
             break;
         case 3:
-            InternalSort_Shell(test_data, &Helper1, Hibbard);
+            InternalSort_SetCompare(test_data, TestCompare);
+            InternalSort_SetHill(test_data,    Hibbard);
+            InternalSort_Shell(test_data, &Helper1);
             TrueOrFalse = 0;
             break;
         case 4:
+            InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_Heap(test_data);
             TrueOrFalse = 0;
             break;
         case 5:
+            InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_Merge(test_data, (void *)Helper2);
             TrueOrFalse = 0;
             break;
         case 6:
+            InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_Quick(test_data, Helper3);
             TrueOrFalse = 0;
             break;
         case 7:
-            InternalSort_OddEven(test_data);
+            InternalSort_SetBitsLength(test_data, TestBitsLength);
+            InternalSort_SetBitsLevel(test_data,  TestBitsLevel);
+            InternalSort_Radix(test_data, Helper4);
             TrueOrFalse = 0;
             break;
         case 8:
+            InternalSort_SetCompare(test_data, TestCompare);
+            InternalSort_OddEven(test_data);
+            TrueOrFalse = 0;
+            break;
+        case 9:
+            InternalSort_SetCompare(test_data, TestCompare);
             InternalSort_Bitonic(test_data);
             TrueOrFalse = 0;
             break;
