@@ -371,9 +371,12 @@ static inline uint8_t CalculatorGetPriority(uint8_t Type)
     /* ()的优先级最高 */
     if (Type == I_Left || Type == I_Right)
         return 10;
-    /* 单目+-优先级仅次() */
-    if (Type == B_Plus || Type == B_Minus)
+    /* 数学符号优先级仅次(),因为它是一个整体,优先解算 */
+    if (Type == D_E || Type == D_PAI)
         return 9;
+    /* 单目+-优先级仅次数学符号 */
+    if (Type == B_Plus || Type == B_Minus)
+        return 8;
     /* +-号优先级最低 */
     if (Type == B_Add || Type == B_Subtract)
         return 3;
@@ -507,11 +510,11 @@ bool CalculatorMathExpression(char *Expression, double *Result, ErrorPrint Print
     ERROR_PRINT(FlagStack   == NULL || FlagMax   == 0,
                 "CalculatorMathExpression: FlagXxx");
     /* 后缀表达式计算 */
-    uint8_t  Type   = F_DEFAULT;  //当前状态
-    uint8_t  State  = F_DEFAULT;  //程序运行状态
-    uint32_t Index  = 0;        //索引进动情况
-    double   Data   = 0;        //数据暂存记录
-    uint8_t  Flag   = F_DEFAULT;  //符号暂存记录
+    uint8_t  Type   = F_DEFAULT;    //当前状态
+    uint8_t  State  = F_DEFAULT;    //程序运行状态
+    uint32_t Index  = 0;            //索引进动情况
+    double   Data   = 0;            //数据暂存记录
+    uint8_t  Flag   = F_DEFAULT;    //符号暂存记录
     /* 后缀表达式解析 */
     /* 先到符号栈压入一个左括号 */
     FlagStack[++FlagTop] = I_Left;
@@ -602,7 +605,6 @@ bool CalculatorMathExpression(char *Expression, double *Result, ErrorPrint Print
                     FlagStack[FlagTop] = Flag;
                     break;
                 }
-
                 /* 获取栈顶操作符,解析 */
                 uint8_t Number = CalculatorFlagNumber(FlagStack[FlagTop]);
                 /* 栈顶操作符错误 */
