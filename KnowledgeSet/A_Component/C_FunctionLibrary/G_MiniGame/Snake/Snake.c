@@ -146,7 +146,6 @@ bool Snake_Execute(Snake *Instance, SnakeWay Way)
             return true;
         else
             Way = Instance->CurrentWay;
-    else
     /* 检查下一个节点是否非法 */
     if (!Snake_PositionIsVaild(Instance, PosX, PosY))
         return false;
