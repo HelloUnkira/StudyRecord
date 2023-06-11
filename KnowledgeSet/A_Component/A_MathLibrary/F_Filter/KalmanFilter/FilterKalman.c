@@ -37,8 +37,9 @@ double KalmanOrder1_Run(KalmanOrder1 *Filter, double MV)
 /*************************************************************************************************/
 /*************************************************************************************************/
 /* 多阶卡尔曼滤波器运算 */
-void KalmanOrderx_Run(KalmanOrderx *Filter, double *V)
+bool KalmanOrderx_Run(KalmanOrderx *Filter, double *V)
 {
+    bool Result = true;
     /* 载入数据 */
     uint32_t N = Filter->N;
     double *KG = Filter->KG;
@@ -73,7 +74,9 @@ void KalmanOrderx_Run(KalmanOrderx *Filter, double *V)
     Matrix_Star(T3, H,  P,  N, N, N);
     Matrix_Star(T2, T3, HT, N, N, N);
     Matrix_Sum(T3,  T2, R,  N, N);
-    Matrix_Inverse(T2, T3, T4, N);
+    /* 注意:存在矩阵不可逆会出现毛刺 */
+    Result = Matrix_Inverse(T2, T3, T4, N);
+    /*  */
     Matrix_Star(KG, T1, T2, N, N, N);
     //4.计算误差更新
     //公式:X(N)(K) = X(N)(K) + K(N,N) * e =
@@ -93,6 +96,8 @@ void KalmanOrderx_Run(KalmanOrderx *Filter, double *V)
     Matrix_Copy(P, T1, N, N);
     //6.反馈预估值
     Matrix_Copy(V, FV, N, 1);
+    
+    return Result;
 }
 /*************************************************************************************************/
 /*************************************************************************************************/

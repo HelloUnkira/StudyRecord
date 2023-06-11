@@ -6,20 +6,18 @@
 
 static inline double TestKalmanOrderSwin(void)
 {
-#define TestKalmanOrderBase     100
+    #define TestKalmanOrderBase     100
     return (double)(TestKalmanOrderBase + rand() % 10);
 }
 
 void TestKalmanOrder1(void)
 {
     KalmanOrder1 Filter;
-    
     KalmanOrder1_Init(&Filter, 0, 0.1, 0, 1, 1, 0.1, 0.05, 0.1);
-
-#define TestKalmanOrder1Length  20
-
+    
     double Data = 0;
     
+    #define TestKalmanOrder1Length  20
     for (uint32_t I = 0; I < TestKalmanOrder1Length; I++) {
     //生成输入并输出
     printf("\r\n--------------------------------\r\n");
@@ -36,13 +34,11 @@ void TestKalmanOrder1(void)
 void TestKalmanOrderx(void)
 {
     KalmanOrderx Filter;
-
     uint32_t Order = KalmanOrderx_Init(&Filter);
-
-#define TestKalmanOrderxLength  20
     
     double *Data = malloc(Order);
     
+    #define TestKalmanOrderxLength  20
     for (uint32_t I = 0; I < TestKalmanOrderxLength; I++) {
          printf("\r\n--------------------------------\r\n");
         //生成输入并输出
@@ -50,7 +46,9 @@ void TestKalmanOrderx(void)
             Data[J] = TestKalmanOrderSwin();
             printf("%5f\t", Data[J]);
         }
-        KalmanOrderx_Run(&Filter, Data);
+        bool Result = KalmanOrderx_Run(&Filter, Data);
+        if (!Result)
+             continue;
         printf("\t\t\t");
         for (uint32_t J = 0; J < Order; J++)
             printf("%5f\t", Data[J]);
