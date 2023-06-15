@@ -17,17 +17,21 @@ void TestKalmanOrder1(void)
     
     double Data = 0;
     
-    #define TestKalmanOrder1Length  20
-    for (uint32_t I = 0; I < TestKalmanOrder1Length; I++) {
-    //生成输入并输出
-    printf("\r\n--------------------------------\r\n");
-    Data = TestKalmanOrderSwin();
-    printf("%5f\t", Data);
-    //生成输出并输出
-    Data = KalmanOrder1_Run(&Filter, Data);
-    printf("%5f\t", Data);
+    uint32_t I = 0;
+    const uint32_t TestKalmanOrder1Length = 20;
+    
+    while (I < TestKalmanOrder1Length) {
+        //生成输入并输出
+        printf("\r\n--------------------------------\r\n");
+        Data = TestKalmanOrderSwin();
+        printf("%5f\t", Data);
+        //生成输出并输出
+        Data = KalmanOrder1_Run(&Filter, Data);
+        printf("%5f\t", Data);
+        
+        I++;
     }
-    printf("\r\n--------------------------------\r\n");
+        printf("\r\n--------------------------------\r\n");
 }
 
 /* 测试不通过,忽略了一个问题,矩阵不一定有逆 */
@@ -36,28 +40,34 @@ void TestKalmanOrderx(void)
     KalmanOrderx Filter;
     uint32_t Order = KalmanOrderx_Init(&Filter);
     
-    double *Data = malloc(Order);
+    double *Data0 = malloc(Order);
+    double *Data1 = malloc(Order);
     
-    #define TestKalmanOrderxLength  20
-    for (uint32_t I = 0; I < TestKalmanOrderxLength; I++) {
-         printf("\r\n--------------------------------\r\n");
+    uint32_t I = 0;
+    const uint32_t TestKalmanOrderxLength = 20;
+    
+    while (I < TestKalmanOrderxLength) {
+        //生成输入
+        for (uint32_t J = 0; J < Order; J++)
+            Data0[J] = Data1[J] = TestKalmanOrderSwin();
         //生成输入并输出
-        for (uint32_t J = 0; J < Order; J++) {
-            Data[J] = TestKalmanOrderSwin();
-            printf("%5f\t", Data[J]);
-        }
-        bool Result = KalmanOrderx_Run(&Filter, Data);
+        bool Result = KalmanOrderx_Run(&Filter, Data1);
         if (!Result)
              continue;
+        printf("\r\n--------------------------------\r\n");
+        for (uint32_t J = 0; J < Order; J++)
+            printf("%5f\t", Data0[J]);
         printf("\t\t\t");
         for (uint32_t J = 0; J < Order; J++)
-            printf("%5f\t", Data[J]);
+            printf("%5f\t", Data1[J]);
+        
+        I++;
     }
         printf("\r\n--------------------------------\r\n");
 }
 
 int main(int argc, char *argv[]) {
     
-    // TestKalmanOrder1();
+    TestKalmanOrder1();
     TestKalmanOrderx();
 }

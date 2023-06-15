@@ -70,6 +70,9 @@ typedef struct FilterKalmanOrderx {
     double *T2; //N*N
     double *T3; //N*N
     double *T4; //N*N*2
+    double *TV; //N
+    /* 中间状态,无法预测时跳过 */
+    uint8_t Step:1;
     /*  */
 } KalmanOrderx;
 /*************************************************************************************************/
@@ -98,36 +101,47 @@ static inline uint32_t KalmanOrderx_Init(KalmanOrderx *Filter)
     static double T2[KalmanOrder][KalmanOrder] = {0};
     static double T3[KalmanOrder][KalmanOrder] = {0};
     static double T4[KalmanOrder][KalmanOrder][2] = {0};
+    static double TV[KalmanOrder] = {0};
     
     for (uint32_t I = 0; I < KalmanOrder; I++)
     for (uint32_t J = 0; J < KalmanOrder; J++) {
-        B[I][J] = 0.1;
-        A[I][J] = 1.0;
-        H[I][J] = 1.0;
-        P[I][J] = 0.1;
-        Q[I][J] = 0.05;
-        R[I][J] = 0.1;
+        B[I][J] = 1.0;
+        
+        A[I][J] = 0.01;
+        H[I][J] = 0.003;
+        
+        if (I == J) {
+            P[I][J] = 1.0;
+            Q[I][J] = 1.0;
+            R[I][J] = 0.01;
+        } else {
+            P[I][J] = 0.0;
+            Q[I][J] = 0.0;
+            R[I][J] = 0.0;
+        }
     }
     
-    Matrix_Transpose(AT, A, KalmanOrder, KalmanOrder);
-    Matrix_Transpose(HT, H, KalmanOrder, KalmanOrder);
+    Matrix_Transpose((double *)AT, (double *)A, KalmanOrder, KalmanOrder);
+    Matrix_Transpose((double *)HT, (double *)H, KalmanOrder, KalmanOrder);
     
     Filter->N    = KalmanOrder;
-    Filter->KG   = KG;
-    Filter->FV   = FV;
-    Filter->B    = B;
-    Filter->U    = U;
-    Filter->A    = A;
-    Filter->AT   = AT;
-    Filter->H    = H;
-    Filter->HT   = HT;
-    Filter->P    = P;
-    Filter->Q    = Q;
-    Filter->R    = R;
-    Filter->T1   = T1;
-    Filter->T2   = T2;
-    Filter->T3   = T3;
-    Filter->T4   = T4;
+    Filter->KG   = (double *)KG;
+    Filter->FV   = (double *)FV;
+    Filter->B    = (double *)B;
+    Filter->U    = (double *)U;
+    Filter->A    = (double *)A;
+    Filter->AT   = (double *)AT;
+    Filter->H    = (double *)H;
+    Filter->HT   = (double *)HT;
+    Filter->P    = (double *)P;
+    Filter->Q    = (double *)Q;
+    Filter->R    = (double *)R;
+    Filter->T1   = (double *)T1;
+    Filter->T2   = (double *)T2;
+    Filter->T3   = (double *)T3;
+    Filter->T4   = (double *)T4;
+    Filter->TV   = (double *)TV;
+    Filter->Step = true;
     
     return KalmanOrder;
 }
