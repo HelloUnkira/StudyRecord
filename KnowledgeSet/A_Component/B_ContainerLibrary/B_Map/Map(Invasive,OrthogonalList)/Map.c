@@ -770,7 +770,8 @@ void Map_ToMinTreeKruskal(MapBody *Map, uint32_t *Matrix, uint32_t *MatrixTemp,
             uint32_t IndexJFather = SetFather[IndexJ];
             /* 这里是按秩合并 */
             while (IndexISelf != IndexJFather) {
-                IndexJSelf = SetFather[IndexJ];
+                // IndexJSelf = SetFather[IndexJ];
+                IndexJSelf = Set[IndexJFather];
                 IndexJFather = SetFather[IndexJFather];
                 /* 本节点指向第一个集合的祖先 */
                 SetFather[IndexJSelf] = IndexISelf;

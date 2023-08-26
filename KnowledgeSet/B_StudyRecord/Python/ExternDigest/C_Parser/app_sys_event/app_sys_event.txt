@@ -1,4 +1,0 @@
-app_sys_event.c:
-app_sys_event.h:
-通过app_sys_event.py生成
-参考app_sys_event.json中的模式生成源
