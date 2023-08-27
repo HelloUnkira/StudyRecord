@@ -367,7 +367,7 @@ static void RBT_InsertNode_Adjust(RBT_Node **Stack, int32_t Size)
         RETURN_EMPTY(RBT_NodeGetColor(Parent) == BLACK);
         
         /* 红节点一定有父亲 */
-        ERROR_PRINT(Size < 2, "RBT_InsertNode_Adjust: lost Parent");
+        ERROR_PRINT(Size <= 2, "RBT_InsertNode_Adjust: lost Parent");
         
         /* 获取祖父节点 */
         RBT_Node *GrandParent = Stack[Size - 3];
